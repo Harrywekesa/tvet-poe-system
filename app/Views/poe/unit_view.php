@@ -45,6 +45,13 @@
                     </span>
                 </div>
 
+                <?php if ($isSubmitted && !empty($mySub['latest_comment'])): ?>
+                    <div
+                        style="margin-bottom: 15px; padding: 12px; background: #fff1f2; border-left: 4px solid #e11d48; border-radius: 4px; color: #881337;">
+                        <strong>Feedback:</strong> <?= htmlspecialchars($mySub['latest_comment']) ?>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($status === 'Approved'): ?>
                     <div
                         style="padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; color: #166534;">
