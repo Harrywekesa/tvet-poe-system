@@ -89,6 +89,7 @@ class ReviewController extends Controller
             if ($role === 'InternalVerifier' || $role === 'Admin') {
                 $this->subModel->updateVerificationStatus($subId, $status, $verifierId, $role, $reason);
                 \App\Core\Audit::log('IV Verification', "IV marked Submission $subId as $status. Reason: $reason");
+                $_SESSION['flash_success'] = "Verification status updated to $status.";
             }
         }
 

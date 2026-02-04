@@ -80,6 +80,12 @@
                                     <span style="font-size: 0.8rem; font-weight: 600; color: <?= $color ?>;">
                                         <?= $status ?>
                                     </span>
+                                    <?php if (!empty($sub['latest_comment'])): ?>
+                                        <div
+                                            style="font-size: 0.7rem; color: #475569; background: #fff; padding: 2px 4px; border: 1px solid #cbd5e1; border-radius: 3px; max-width: 140px; white-space: normal;">
+                                            "<?= htmlspecialchars($sub['latest_comment']) ?>"
+                                        </div>
+                                    <?php endif; ?>
                                     <?php if ($sub): ?>
                                         <div style="font-size: 0.75rem; color: #64748b;">Ver: <?= $sub['version'] ?></div>
                                         <a href="<?= APP_URL ?>/preview/submission/<?= $sub['id'] ?>" target="_blank"

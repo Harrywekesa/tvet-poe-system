@@ -72,9 +72,11 @@
                             <td style="padding: 15px; font-weight: 500; vertical-align: top;">
                                 <div><?= htmlspecialchars($s['full_name']) ?></div>
                                 <div style="font-size: 0.8rem; color: #1e40af; font-weight: 600;">
-                                    <?= htmlspecialchars($s['identifier']) ?></div>
+                                    <?= htmlspecialchars($s['identifier']) ?>
+                                </div>
                                 <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">
-                                    <?= htmlspecialchars($s['email']) ?></div>
+                                    <?= htmlspecialchars($s['email']) ?>
+                                </div>
                             </td>
 
                             <td colspan="3" style="padding: 0;">
@@ -128,7 +130,13 @@
                                                             </span>
                                                         </div>
 
-                                                        <?php if ($verification !== 'Accepted' && $verification !== 'Verified'): ?>
+                                                        <?php
+                                                        // Normalize status
+                                                        $verCheck = trim(strtolower($verification));
+                                                        $isVerified = in_array($verCheck, ['accepted', 'verified', 'completed']);
+                                                        ?>
+
+                                                        <?php if (!$isVerified): ?>
                                                             <div style="display: flex; gap: 5px;">
                                                                 <button type="submit" name="status" value="Accepted"
                                                                     title="Agree/Verify"
