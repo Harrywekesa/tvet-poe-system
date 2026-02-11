@@ -21,6 +21,7 @@ class Router
         $this->addRoute($route, $controller, $action, 'POST');
     }
 
+
     public function dispatch($uri)
     {
         // Remove base path from URI (assuming /APOE/public)
@@ -49,7 +50,6 @@ class Router
             }
         }
 
-        // 404
         echo "404 Not Found";
     }
 }

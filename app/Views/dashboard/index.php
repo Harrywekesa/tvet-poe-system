@@ -117,10 +117,23 @@
                             </div>
 
                             <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <a href="<?= APP_URL ?>/assessment/manage/<?= $a['id'] ?>" class="btn btn-outline"
-                                    style="text-align: center; font-size: 0.9rem;">Assessments</a>
-                                <a href="<?= APP_URL ?>/review/unit/<?= $a['id'] ?>/class/<?= $a['class_id'] ?>"
-                                    class="btn btn-primary" style="text-align: center; font-size: 0.9rem;">Review Submissions</a>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="<?= APP_URL ?>/assessment/manage/<?= $a['id'] ?>" class="btn btn-outline"
+                                        style="flex: 1; text-align: center; font-size: 0.8rem;">Assessments</a>
+                                    <a href="<?= APP_URL ?>/unit/topics/<?= $a['id'] ?>" class="btn btn-outline"
+                                        style="flex: 1; text-align: center; font-size: 0.8rem;">Topics</a>
+                                </div>
+
+                                <a href="<?= APP_URL ?>/marks/grade/<?= $a['id'] ?>/<?= $a['class_id'] ?>/0" class="btn btn-primary"
+                                    style="text-align: center; font-size: 0.9rem;">Grade Class</a>
+
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="<?= APP_URL ?>/review/unit/<?= $a['id'] ?>/class/<?= $a['class_id'] ?>"
+                                        class="btn btn-outline" style="flex: 1; text-align: center; font-size: 0.8rem;">Review</a>
+                                    <a href="<?= APP_URL ?>/marks/marksheet/<?= $a['id'] ?>/<?= $a['class_id'] ?>"
+                                        class="btn btn-outline"
+                                        style="flex: 1; text-align: center; font-size: 0.8rem;">Marksheet</a>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -155,7 +168,10 @@
                 <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">
                     Begin a new audit cycle by selecting a Department and Course.
                 </p>
-                <a href="<?= APP_URL ?>/audit" class="btn btn-primary">🚀 Start New Audit</a>
+                <div style="display: flex; gap: 10px;">
+                    <a href="<?= APP_URL ?>/audit" class="btn btn-primary">🚀 Start New Audit</a>
+                    <a href="<?= APP_URL ?>/marks/approvals" class="btn btn-outline">Check Approvals</a>
+                </div>
             </div>
 
             <div
@@ -230,47 +246,117 @@
                 </div>
                 <!-- Reports Card -->
                 <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                    <h4>Reports</h4>
+                    <h4>Reports & Approvals</h4>
                     <p style="font-size: 0.9rem; color: #64748b;">Dept Progress & Stats</p>
-                    <a href="<?= APP_URL ?>/reports/dept_overview" class="btn btn-primary"
-                        style="margin-top: 10px; width: 100%; text-align: center;">Generate Report</a>
+                    <div style="display: flex; gap: 5px; margin-top: 10px;">
+                        <a href="<?= APP_URL ?>/reports/dept_overview" class="btn btn-outline"
+                            style="flex: 1; text-align: center; font-size: 0.9rem;">Stats</a>
+                        <a href="<?= APP_URL ?>/marks/approvals" class="btn btn-primary"
+                            style="flex: 1; text-align: center; font-size: 0.9rem;">Approvals</a>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-    <?php elseif ($role === 'Student'): ?>
+    <!-- HOD Teaching Allocations -->
+    <?php if (!empty($allocations)): ?>
+        <div style="margin-top: 30px; border-top: 1px dashed #cbd5e1; padding-top: 20px;">
+            <h3>My Teaching Allocations</h3>
+            <p class="text-secondary" style="margin-bottom: 20px;">Units you are directly assessing.</p>
+            <div class="grid-3">
+                <?php foreach ($allocations as $a): ?>
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 5px;"><?= htmlspecialchars($a['unit_title']) ?></h4>
+                        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 5px;">
+                            <?= htmlspecialchars($a['unit_code']) ?>
+                        </div>
+                        <div
+                            style="font-size: 0.85rem; background: #e0f2fe; color: #0284c7; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-bottom: 15px;">
+                            Class: <?= htmlspecialchars($a['class_code']) ?>
+                        </div>
 
-        <!-- Student Stats -->
-        <div class="grid-3" style="margin-bottom: 30px;">
-            <div
-                style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb;">
-                <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Enrolled
-                    Classes</div>
-                <div style="font-size: 2rem; font-weight: 700; color: #1e293b;"><?= count($classes) ?></div>
-            </div>
-            <div
-                style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b;">
-                <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Pending
-                    Submissions</div>
-                <div style="font-size: 2rem; font-weight: 700; color: #1e293b;"><?= $pending_count ?></div>
-            </div>
-            <div
-                style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #dc2626;">
-                <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Rejected POEs
-                </div>
-                <div style="font-size: 2rem; font-weight: 700; color: #dc2626;"><?= $rejected_count ?></div>
-                <div style="font-size: 0.8rem; color: #991b1b;">Requires Attention</div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; gap: 8px;">
+                                <a href="<?= APP_URL ?>/assessment/manage/<?= $a['id'] ?>" class="btn btn-outline"
+                                    style="flex: 1; text-align: center; font-size: 0.8rem;">Assessments</a>
+                                <a href="<?= APP_URL ?>/unit/topics/<?= $a['id'] ?>" class="btn btn-outline"
+                                    style="flex: 1; text-align: center; font-size: 0.8rem;">Topics</a>
+                            </div>
+
+                            <a href="<?= APP_URL ?>/marks/grade/<?= $a['id'] ?>/<?= $a['class_id'] ?>/0" class="btn btn-primary"
+                                style="text-align: center; font-size: 0.9rem;">Grade Class</a>
+
+                            <div style="display: flex; gap: 8px;">
+                                <a href="<?= APP_URL ?>/review/unit/<?= $a['id'] ?>/class/<?= $a['class_id'] ?>"
+                                    class="btn btn-outline" style="flex: 1; text-align: center; font-size: 0.8rem;">Review</a>
+                                <a href="<?= APP_URL ?>/marks/marksheet/<?= $a['id'] ?>/<?= $a['class_id'] ?>"
+                                    class="btn btn-outline" style="flex: 1; text-align: center; font-size: 0.8rem;">Marksheet</a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
-
-        <div style="background: white; padding: 30px; border-radius: 8px;">
-            <h3>My POE</h3>
-            <p>Access your enrolled classes and submit evidence.</p>
-            <a href="<?= APP_URL ?>/poe/dashboard" class="btn btn-primary" style="margin-top: 15px;">Go to My POE</a>
-        </div>
-    <?php else: ?>
-        <p>Dashboard for <?= $role ?> is under construction.</p>
     <?php endif; ?>
+    </div>
+
+<?php elseif ($role === 'Student'): ?>
+
+    <!-- Student Stats -->
+    <div class="grid-3" style="margin-bottom: 30px;">
+        <div
+            style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb;">
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Enrolled
+                Classes</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #1e293b;"><?= count($classes) ?></div>
+        </div>
+        <div
+            style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b;">
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Pending
+                Submissions</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #1e293b;"><?= $pending_count ?></div>
+        </div>
+        <div
+            style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #dc2626;">
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Rejected POEs
+            </div>
+            <div style="font-size: 2rem; font-weight: 700; color: #dc2626;"><?= $rejected_count ?></div>
+            <div style="font-size: 0.8rem; color: #991b1b;">Requires Attention</div>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 8px; margin-bottom: 30px;">
+        <h3>My POE</h3>
+        <p>Access your enrolled classes and submit evidence.</p>
+        <a href="<?= APP_URL ?>/poe/dashboard" class="btn btn-primary" style="margin-top: 15px;">Go to My POE</a>
+    </div>
+
+    <!-- My Marks Section -->
+    <div style="background: white; padding: 30px; border-radius: 8px;">
+        <h3>My Progress & Marks</h3>
+        <p class="text-secondary" style="margin-bottom: 20px;">View your assessment modifications and final unit marks.</p>
+
+        <?php if (!empty($my_units)): ?>
+            <div class="grid-3">
+                <?php foreach ($my_units as $u): ?>
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <h4 style="margin: 0 0 5px 0;"><?= htmlspecialchars($u['unit_title']) ?></h4>
+                        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">
+                            <?= htmlspecialchars($u['unit_code']) ?>
+                        </div>
+                        <a href="<?= APP_URL ?>/marks/my_view/<?= $u['id'] ?>" class="btn btn-outline"
+                            style="width: 100%; text-align: center;">View Marks</a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p calss="text-muted">You are not enrolled in any units yet.</p>
+        <?php endif; ?>
+    </div>
+<?php else: ?>
+    <p>Dashboard for <?= $role ?> is under construction.</p>
+<?php endif; ?>
 </div>
 
 <!-- Countdown Logic -->

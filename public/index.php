@@ -66,6 +66,22 @@ $router->post('/academic/allocate', 'AcademicController', 'allocateUnit');
 $router->post('/academic/import_enrollment', 'AcademicController', 'importEnrollment');
 $router->get('/academic/template/enrollment', 'AcademicController', 'downloadEnrollmentTemplate');
 
+// Topic Management
+$router->get('/unit/topics/{id}', 'TopicController', 'manage');
+$router->post('/topic/add', 'TopicController', 'add');
+$router->post('/topic/delete/{id}', 'TopicController', 'delete');
+$router->post('/unit/update_level', 'TopicController', 'update_level');
+
+// Grading / Marks
+$router->get('/marks/grade/{unitId}/{classId}/{studentId}', 'MarksController', 'grade_student');
+$router->post('/marks/save', 'MarksController', 'save_marks');
+$router->get('/marks/my_view/{unitId}', 'MarksController', 'my_marks');
+$router->get('/marks/marksheet/{unitId}/{classId}', 'MarksController', 'marksheet');
+$router->post('/marks/submit', 'MarksController', 'submit_marksheet');
+$router->post('/marks/status', 'MarksController', 'update_status');
+$router->get('/marks/approvals', 'MarksController', 'approvals');
+
+
 // Institution Imports
 $router->post('/institution/import', 'InstitutionController', 'import');
 $router->get('/institution/template/{type}', 'InstitutionController', 'downloadTemplate');

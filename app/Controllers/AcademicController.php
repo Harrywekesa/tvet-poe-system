@@ -24,6 +24,9 @@ class AcademicController extends Controller
 
     public function index()
     {
+        if ($_SESSION['role'] === 'Trainer') { // Trainers should use Dashboard, no list access
+            $this->redirect('/dashboard');
+        }
         $cohorts = $this->model->getAllCohorts();
         $this->view('academic/index', [
             'cohorts' => $cohorts,
@@ -50,6 +53,9 @@ class AcademicController extends Controller
 
     public function storeCohort()
     {
+        if ($_SESSION['role'] === 'Trainer')
+            $this->redirect('/dashboard');
+
         $name = $_POST['name'];
         $start = $_POST['start_date'];
         $end = $_POST['end_date'];
@@ -120,6 +126,9 @@ class AcademicController extends Controller
 
     public function storeClass()
     {
+        if ($_SESSION['role'] === 'Trainer')
+            $this->redirect('/dashboard');
+
         $cohortId = $_POST['cohort_id'];
         $courseId = $_POST['course_id'];
         $code = $_POST['class_code'];

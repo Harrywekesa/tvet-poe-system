@@ -139,4 +139,34 @@ class AcademicModel extends Model
         $classes = $this->db->query("SELECT COUNT(*) as c FROM classes")->fetch()['c']; // Maybe filter by active? assuming all active for now
         return ['users' => $users, 'courses' => $courses, 'classes' => $classes];
     }
+    // -- Helpers for Import --
+
+    public function getStudentUnits($studentId)
+    {
+        // Get units for classes the student is enrolled in
+        $stmt = $this->db->prepare("
+            SELECT u.*, c.class_code, co.title as course_title
+            FROM units u
+            JOIN classes c ON u.context_class_id = c.id
+            JOIN enrollments e ON c.id = e.class_id
+            JOIN courses co ON c.course_id = co.id
+            WHERE e.user_id = ?
+        ");
+        $stmt->execute([$studentId]);
+        return $stmt->fetchAll();
+    }
+
+    public function getStudentRoleId()
+    {
+        $stmt = $this->db->prepare("SELECT id FROM roles WHERE name = 'Student'");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public function getUserIdByEmail($email)
+    {
+        $stmt = $this->db->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetchColumn();
+    }
 }

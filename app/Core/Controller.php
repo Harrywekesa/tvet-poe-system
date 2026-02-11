@@ -4,6 +4,20 @@ namespace App\Core;
 
 class Controller
 {
+    protected $db;
+
+    public function __construct()
+    {
+        // Basic constructor
+    }
+
+    protected function ensureAuthenticated()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: " . APP_URL . "/login");
+            exit;
+        }
+    }
     protected function view($view, $data = [])
     {
         extract($data);

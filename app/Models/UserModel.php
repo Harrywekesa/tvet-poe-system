@@ -18,6 +18,18 @@ class UserModel extends Model
         ")->fetchAll();
     }
 
+    public function getUsersByDepartment($deptId)
+    {
+        return $this->db->query("
+            SELECT u.*, r.name as role_name, d.name as dept_name 
+            FROM users u 
+            JOIN roles r ON u.role_id = r.id 
+            LEFT JOIN departments d ON u.department_id = d.id
+            WHERE u.department_id = ?
+            ORDER BY u.created_at DESC
+        ", [$deptId])->fetchAll();
+    }
+
     public function getAllRoles()
     {
         return $this->db->query("SELECT * FROM roles")->fetchAll();

@@ -21,7 +21,13 @@ class AssessmentModel extends Model
 
     public function getAssessmentSlots($unitId)
     {
-        return $this->db->query("SELECT * FROM assessment_slots WHERE unit_id = ? ORDER BY sequence_order ASC", [$unitId])->fetchAll();
+        return $this->db->query("
+            SELECT s.*, t.title as topic_title 
+            FROM assessment_slots s 
+            LEFT JOIN unit_topics t ON s.topic_id = t.id 
+            WHERE s.unit_id = ? 
+            ORDER BY s.sequence_order ASC
+        ", [$unitId])->fetchAll();
     }
 
     public function getSlotById($id)
@@ -29,9 +35,13 @@ class AssessmentModel extends Model
         return $this->db->query("SELECT * FROM assessment_slots WHERE id = ?", [$id])->fetch();
     }
 
-    public function addAssessmentSlot($unitId, $title, $type, $instructions, $filePath = null)
+    public function addAssessmentSlot($unitId, $topicId, $title, $type, $instructions, $filePath = null)
     {
-        return $this->db->query("INSERT INTO assessment_slots (unit_id, title, type, instructions, file_path) VALUES (?, ?, ?, ?, ?)", [$unitId, $title, $type, $instructions, $filePath]);
+        // topicId can be null if not using new system, but we encourage it
+        return $this->db->query("
+            INSERT INTO assessment_slots (unit_id, topic_id, title, type, instructions, file_path) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ", [$unitId, $topicId, $title, $type, $instructions, $filePath]);
     }
 
     public function deleteAssessmentSlot($id)

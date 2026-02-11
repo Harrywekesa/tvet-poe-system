@@ -2,8 +2,12 @@
 
 <div class="container" style="margin-top: 40px;">
     <div style="margin-bottom: 20px;">
-        <a href="<?= APP_URL ?>/academic/cohort/<?= $class['cohort_id'] ?>" class="btn btn-outline">&larr; Back to
-            Cohort</a>
+        <?php if ($_SESSION['role'] !== 'Trainer'): ?>
+            <a href="<?= APP_URL ?>/academic/cohort/<?= $class['cohort_id'] ?>" class="btn btn-outline">&larr; Back to
+                Cohort</a>
+        <?php else: ?>
+            <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline">&larr; Back to Dashboard</a>
+        <?php endif; ?>
     </div>
 
     <h1>Class:

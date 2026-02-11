@@ -334,11 +334,12 @@
                         <a href="<?= APP_URL ?>/users" title="Manage Users">Users</a>
                         <a href="<?= APP_URL ?>/reports" style="color: #c2410c;" title="System Logs">Reports</a>
                     <?php elseif ($_SESSION['role'] === 'HOD'): ?>
-                        <a href="<?= APP_URL ?>/institution" title="Manage Institution">Institution</a>
                         <a href="<?= APP_URL ?>/documents/review" title="Review Docs">Review</a>
+                        <a href="<?= APP_URL ?>/marks/approvals" title="Approve Marksheets">Approvals</a>
                     <?php elseif ($_SESSION['role'] === 'InternalVerifier'): ?>
                         <a href="<?= APP_URL ?>/audit" title="Audit Units">Start Audit</a>
                         <a href="<?= APP_URL ?>/reports" title="QA Reports">QA Reports</a>
+                        <a href="<?= APP_URL ?>/marks/approvals" title="Approve Marksheets">Approvals</a>
                     <?php elseif ($_SESSION['role'] === 'Student'): ?>
                         <a href="<?= APP_URL ?>/poe/dashboard" title="View Evidence">My POE</a>
                     <?php endif; ?>

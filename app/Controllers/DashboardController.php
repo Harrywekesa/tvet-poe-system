@@ -82,12 +82,16 @@ class DashboardController extends Controller
                 $data['my_courses'] = $courses;
                 $data['pending_docs'] = $pendingDocs;
 
-                // Get Trainers in Dept (Users with role Trainer and dept_id = X, OR linked via allocations to Dept Courses?)
-                // Strict: Users.department_id
+                // Get Trainers in Dept
                 $data['trainers'] = $this->db->query("SELECT * FROM users WHERE department_id = ? AND role_id = (SELECT id FROM roles WHERE name='Trainer')", [$deptId])->fetchAll();
             } else {
                 $data['error'] = "You are not assigned to any department.";
             }
+
+            // HODs might also be Trainers. Fetch allocations for them too.
+            $assModel = new AssessmentModel();
+            $data['allocations'] = $assModel->getAllocatedUnitsForTrainer($_SESSION['user_id']);
+
 
         } elseif ($role === 'InternalVerifier') {
             $verModel = new VerificationModel();
@@ -98,6 +102,11 @@ class DashboardController extends Controller
             $data['rejected_count'] = $subModel->getRejectedCount($_SESSION['user_id']);
             $data['pending_count'] = $subModel->getPendingAssessmentCount($_SESSION['user_id']);
             $data['classes'] = $subModel->getStudentClasses($_SESSION['user_id']);
+
+            // Fetch Enrolled Units for Marks View
+            // We need a method to get units a student is enrolled in (via class)
+            $acadModel = new \App\Models\AcademicModel();
+            $data['my_units'] = $acadModel->getStudentUnits($_SESSION['user_id']);
         }
 
         $this->view('dashboard/index', $data);

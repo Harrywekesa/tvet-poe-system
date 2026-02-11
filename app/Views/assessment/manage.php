@@ -2,8 +2,12 @@
 
 <div class="container" style="margin-top: 40px;">
     <div style="margin-bottom: 20px;">
-        <a href="<?= APP_URL ?>/institution/course/<?= $unit['course_id'] ?>" class="btn btn-outline">&larr; Back to
-            Unit</a>
+        <?php if (($_SESSION['role'] ?? '') === 'Trainer'): ?>
+            <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline">&larr; Back to Dashboard</a>
+        <?php else: ?>
+            <a href="<?= APP_URL ?>/institution/course/<?= $unit['course_id'] ?>" class="btn btn-outline">&larr; Back to
+                Course</a>
+        <?php endif; ?>
     </div>
 
     <h1>Assessments:
@@ -37,6 +41,12 @@
                                         style="font-size: 0.8rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; margin-left: 8px;">
                                         <?= htmlspecialchars($s['type']) ?>
                                     </span>
+                                    <?php if (!empty($s['topic_title'])): ?>
+                                        <span
+                                            style="font-size: 0.8rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; border: 1px solid #7dd3fc; margin-left: 8px;">
+                                            Topic: <?= htmlspecialchars($s['topic_title']) ?>
+                                        </span>
+                                    <?php endif; ?>
                                 </div>
                                 <div style="color: #64748b; font-size: 0.9rem; margin-top: 4px;">
                                     <?= htmlspecialchars($s['instructions']) ?>
@@ -71,6 +81,19 @@
                     <label style="display: block; font-size: 0.9rem; margin-bottom: 5px;">Title</label>
                     <input type="text" name="title" placeholder="e.g. Assessment 1 (Written)" required
                         style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 5px;">Topic (Element)</label>
+                    <select name="topic_id" required
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <option value="">Select Topic...</option>
+                        <?php foreach ($topics as $t): ?>
+                            <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['title']) ?>
+                                (<?= $t['sequence_order'] ?>)</option>
+                        <?php endforeach; ?>
+                        <option value="">-- General / No Topic --</option>
+                    </select>
                 </div>
 
                 <div>

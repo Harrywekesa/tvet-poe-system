@@ -120,7 +120,7 @@ The system adopts the **Model-View-Controller (MVC)** architectural pattern to s
 *   **View:** HTML/CSS templates rendering the UI (e.g., `class_view.php`, `unit_view.php`).
 *   **Controller:** Handles user requests and orchestrates data flow (e.g., `ReviewController.php`, `AuthController.php`).
 
-**[Insert Screenshot: System Architecture Diagram]**
+![System Overview](screenshots/landing.PNG)
 
 ### 3.2 Database Design
 The database manages complex relationships between academic units and user submissions.
@@ -132,7 +132,7 @@ The database manages complex relationships between academic units and user submi
 4.  **POE_Submissions:** The actual evidence files and status.
 5.  **POE_Reviews:** Audit trail of grading decisions and IV comments.
 
-**[Insert Screenshot: Entity Relationship Diagram (ERD)]**
+*(ERD skipped - using application views)*
 
 ### 3.3 Security Design
 *   **Session Management:** Secure PHP sessions with timeout logic.
@@ -154,24 +154,24 @@ The database manages complex relationships between academic units and user submi
 #### 4.2.1 Authentication Module
 Allows users to login using either their **Email** or **Registration Number**.
 *   *Feature:* Role-based redirection (Students go to My POE, Admins to Dashboard).
-**[Insert Screenshot: Login Page]**
+![Login Page](screenshots/login.PNG)
 
 #### 4.2.2 Assessment Framework
 Trainers create specific "Slots". A slot represents a placeholder for evidence.
 *   *Code Highlight:* The `AssessmentController` ensures only authorized trainers can modify slots for their assigned units.
-**[Insert Screenshot: Assessment Creation Form]**
+![Assessment Setup](screenshots/trainer%20dashboard.PNG)
 
 #### 4.2.3 Evidence Submission (Student POV)
 Students see a clear list of units. Color-coded badges indicate status (`Pending`, `Submitted`, `Approved`).
 *   *Innovation:* In-browser preview allows students to check their file before submission.
 *   *Feedback:* If rejected, the trainer's comment appears visibly in a red alert box.
-**[Insert Screenshot: Student Unit View with Feedback Alert]**
+![Student View](screenshots/student%20dashboard.PNG)
 
 #### 4.2.4 The Grading & Verification Matrix
 A powerful grid view for Trainers and IVs.
 *   **Trainers:** Click a cell to view evidence and grade it.
 *   **IVs:** See "Sample" buttons appear only on Graded work.
-**[Insert Screenshot: The IV Grading Matrix]**
+![IV Grading Matrix](screenshots/iv%20dashboard.PNG)
 
 ### 4.3 Code Structure
 The application follows a strict directory structure:
@@ -197,13 +197,13 @@ We employed **Unit Testing** for individual functions (e.g., file upload validat
 1.  **Action:** Student logs in, navigates to "Unit 101", uploads "evidence.pdf".
 2.  **Expected Result:** File saves to `uploads/`, database updates status to 'Submitted'.
 3.  **Actual Result:** Success. Green "Submitted" badge appears.
-**[Insert Screenshot: Successful Submission Toast]**
+![Successful Submission](screenshots/student%20dashboard.PNG)
 
 #### Test Case 2: IV Rejection Workflow
 1.  **Action:** Trainer grades as "Competent". IV logs in, samples evidence, finds a gap, clicks "Reject" with comment "Missing Page 2".
 2.  **Expected Result:** Status reverts to "Rejected", Student sees "Missing Page 2" on their dashboard.
 3.  **Actual Result:** Success. Feedback visible in Red Box on Student View.
-**[Insert Screenshot: IV Rejection Interface]**
+![IV Rejection](screenshots/iv%20dashboard.PNG)
 
 ---
 

@@ -5,10 +5,12 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\AssessmentModel;
 use App\Models\InstitutionModel;
+use App\Models\UnitModel;
 
 class AssessmentController extends Controller
 {
     private $model;
+    private $unitModel;
 
     public function __construct()
     {
@@ -16,6 +18,7 @@ class AssessmentController extends Controller
             $this->redirect('/login');
         }
         $this->model = new AssessmentModel();
+        $this->unitModel = new UnitModel();
     }
 
     public function manage($unitId)
@@ -27,10 +30,12 @@ class AssessmentController extends Controller
         $instModel = new InstitutionModel();
         $unit = $instModel->getUnitById($unitId);
         $slots = $this->model->getAssessmentSlots($unitId);
+        $topics = $this->unitModel->getTopics($unitId); // Get topics for dropdown
 
         $this->view('assessment/manage', [
             'unit' => $unit,
             'slots' => $slots,
+            'topics' => $topics,
             'title' => 'Manage Assessments - ' . $unit['unit_code']
         ]);
     }
@@ -38,33 +43,34 @@ class AssessmentController extends Controller
     public function store()
     {
         $unitId = $_POST['unit_id'];
+        $topicId = !empty($_POST['topic_id']) ? $_POST['topic_id'] : null;
         $title = $_POST['title'];
         $type = $_POST['type'];
         $inst = $_POST['instructions'];
         $filePath = null;
 
         if (isset($_FILES['assessment_file']) && $_FILES['assessment_file']['error'] === UPLOAD_ERR_OK) {
-             $allowed = ['pdf', 'png', 'jpg', 'jpeg'];
-             $fileName = $_FILES['assessment_file']['name'];
-             $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-             
-             if (in_array($ext, $allowed)) {
-                 $newFileName = 'assess_' . $unitId . '_' . time() . '.' . $ext;
-                 $uploadDir = UPLOAD_DIR . 'assessments/';
-                 
-                 // Ensure dir exists
-                 if (!file_exists($uploadDir)) {
-                     mkdir($uploadDir, 0777, true);
-                 }
-                 
-                 if (move_uploaded_file($_FILES['assessment_file']['tmp_name'], $uploadDir . $newFileName)) {
-                     $filePath = $newFileName;
-                 }
-             }
+            $allowed = ['pdf', 'png', 'jpg', 'jpeg'];
+            $fileName = $_FILES['assessment_file']['name'];
+            $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+            if (in_array($ext, $allowed)) {
+                $newFileName = 'assess_' . $unitId . '_' . time() . '.' . $ext;
+                $uploadDir = UPLOAD_DIR . 'assessments/';
+
+                // Ensure dir exists
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                if (move_uploaded_file($_FILES['assessment_file']['tmp_name'], $uploadDir . $newFileName)) {
+                    $filePath = $newFileName;
+                }
+            }
         }
 
         if ($unitId && $title) {
-            $this->model->addAssessmentSlot($unitId, $title, $type, $inst, $filePath);
+            $this->model->addAssessmentSlot($unitId, $topicId, $title, $type, $inst, $filePath);
         }
         $this->redirect('/assessment/manage/' . $unitId);
     }

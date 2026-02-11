@@ -11,7 +11,7 @@ class UserController extends Controller
 
     public function __construct()
     {
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
+        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'Admin' && $_SESSION['role'] !== 'HOD')) {
             $this->redirect('/login');
         }
         $this->model = new UserModel();
@@ -19,7 +19,17 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = $this->model->getAllUsers();
+        if ($_SESSION['role'] === 'HOD') {
+            $deptId = $this->model->getUserDepartment($_SESSION['user_id']);
+            if ($deptId) {
+                $users = $this->model->getUsersByDepartment($deptId);
+            } else {
+                $users = []; // Or handle error
+            }
+        } else {
+            $users = $this->model->getAllUsers();
+        }
+
         $roles = $this->model->getAllRoles();
 
         $this->view('users/index', [

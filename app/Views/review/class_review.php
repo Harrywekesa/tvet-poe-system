@@ -54,9 +54,7 @@
                         <td style="padding: 12px; font-size: 0.9rem; color: #64748b;">
                             <?= htmlspecialchars($student['identifier'] ?? '-') ?>
                         </td>
-                        <td style="padding: 12px; font-size: 0.9rem; color: #64748b;">
-                            <?= htmlspecialchars($student['reg_no']) ?>
-                        </td>
+
                         <?php foreach ($slots as $slot): ?>
                             <?php
                             $sub = $matrix[$student['id']][$slot['id']] ?? null;
