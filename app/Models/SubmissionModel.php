@@ -73,11 +73,14 @@ class SubmissionModel extends Model
     public function getClassSubmissions($classId, $unitId)
     {
         return $this->db->query("
-            SELECT s.*, e.class_id,
+            SELECT s.*, e.class_id, 
+                   slot.title as slot_title, slot.type as slot_type, 
+                   t.title as topic_title,
                    (SELECT comments FROM poe_reviews r WHERE r.submission_id = s.id ORDER BY r.id DESC LIMIT 1) as latest_comment,
                    (SELECT decision FROM poe_reviews r WHERE r.submission_id = s.id ORDER BY r.id DESC LIMIT 1) as latest_decision
             FROM poe_submissions s 
             JOIN assessment_slots slot ON s.assessment_slot_id = slot.id 
+            LEFT JOIN unit_topics t ON slot.topic_id = t.id
             JOIN enrollments e ON s.student_user_id = e.user_id 
             WHERE e.class_id = ? AND slot.unit_id = ? 
             AND s.id IN (

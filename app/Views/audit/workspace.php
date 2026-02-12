@@ -89,7 +89,6 @@
                                             $subId = $sub['id'];
                                             $status = $sub['status'];
                                             $verification = $sub['verification_status'] ?? 'Pending';
-                                            $slotTitle = $sub['slot_title'] ?? ('Assessment ' . $sub['assessment_slot_id']);
 
                                             // Determine verification color
                                             $verColor = match ($verification) {
@@ -97,11 +96,21 @@
                                                 'Rejected', 'Flagged' => 'red',
                                                 default => 'orange'
                                             };
+                                            $displayTitle = $sub['slot_title'] ?? ('Assessment ' . $sub['assessment_slot_id']);
+                                            if (!empty($sub['topic_title'])) {
+                                                $displayTitle = '<span style="color:#64748b; font-weight:normal;">' . htmlspecialchars($sub['topic_title']) . ':</span> <br>' . htmlspecialchars($displayTitle);
+                                            } else {
+                                                $displayTitle = htmlspecialchars($displayTitle);
+                                            }
+                                            $type = $sub['slot_type'] ?? 'Assessment';
                                             ?>
                                             <tr style="border-bottom: 1px dashed #f1f5f9;">
                                                 <td style="padding: 10px; width: 35%;">
                                                     <div style="font-size: 0.9rem; font-weight: 600; color: #334155;">
-                                                        <?= htmlspecialchars($slotTitle) ?>
+                                                        <?= $displayTitle ?>
+                                                    </div>
+                                                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">
+                                                        Type: <?= htmlspecialchars($type) ?>
                                                     </div>
                                                     <div style="margin-top: 5px;">
                                                         <a href="<?= APP_URL ?>/preview/submission/<?= $subId ?>" target="_blank"
@@ -133,19 +142,19 @@
                                                         <?php
                                                         // Normalize status
                                                         $verCheck = trim(strtolower($verification));
-                                                        $isVerified = in_array($verCheck, ['accepted', 'verified', 'completed']);
+                                                        $isVerified = in_array($verCheck, ['verified', 'completed']);
                                                         ?>
 
                                                         <?php if (!$isVerified): ?>
                                                             <div style="display: flex; gap: 5px;">
-                                                                <button type="submit" name="status" value="Accepted"
+                                                                <button type="submit" name="status" value="Verified"
                                                                     title="Agree/Verify"
                                                                     style="background: #dcfce7; border: 1px solid #22c55e; color: #15803d; cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
                                                                     Verify
                                                                 </button>
                                                                 <input type="text" name="cv_reason" placeholder="Reason..."
                                                                     style="padding: 2px 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.8rem; width: 80px;">
-                                                                <button type="submit" name="status" value="Rejected" title="Reject"
+                                                                <button type="submit" name="status" value="IV_Rejected" title="Reject"
                                                                     style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
                                                                     Reject
                                                                 </button>

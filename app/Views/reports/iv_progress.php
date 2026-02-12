@@ -14,6 +14,7 @@
                     <th style="padding: 12px;">Submitted</th>
                     <th style="padding: 12px;">Verified</th>
                     <th style="padding: 12px;">Coverage %</th>
+                    <th style="padding: 12px;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,6 +42,12 @@
                         <td
                             style="padding: 12px; text-align: center; font-weight: bold; color: <?= $cov >= 20 ? 'green' : 'orange' ?>">
                             <?= $cov ?>%
+                        </td>
+                        <td style="padding: 12px; text-align: center;">
+                            <a href="<?= APP_URL ?>/marks/marksheet/<?= $row['unit_id'] ?>/<?= $row['class_id'] ?>"
+                                title="View Marksheet" style="text-decoration: none; margin-right: 10px;">📋</a>
+                            <a href="<?= APP_URL ?>/audit/workspace?class_id=<?= $row['class_id'] ?>&unit_id=<?= $row['unit_id'] ?>"
+                                title="Audit Workspace" style="text-decoration: none;">🔍</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

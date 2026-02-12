@@ -208,9 +208,17 @@
                                 <span style="color: #16a34a; font-weight: 600;"><?= $a['approved_count'] ?> Approved</span>
                             </div>
 
-                            <a href="<?= APP_URL ?>/verification/list/<?= $a['id'] ?>/class/<?= $a['class_id'] ?>"
-                                class="btn btn-primary" style="width: 100%; text-align: center; font-size: 0.9rem;">Verify
-                                Samples</a>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <a href="<?= APP_URL ?>/verification/list/<?= $a['id'] ?>/class/<?= $a['class_id'] ?>"
+                                    class="btn btn-primary" style="flex: 1; text-align: center; font-size: 0.8rem;">Verify
+                                    Samples</a>
+
+                                <a href="<?= APP_URL ?>/marks/marksheet/<?= $a['id'] ?>/<?= $a['class_id'] ?>"
+                                    class="btn btn-outline" style="flex: 1; text-align: center; font-size: 0.8rem;">Marksheet</a>
+
+                                <a href="<?= APP_URL ?>/audit/workspace?class_id=<?= $a['class_id'] ?>&unit_id=<?= $a['id'] ?>"
+                                    class="btn btn-outline" style="flex: 1; text-align: center; font-size: 0.8rem;">Audit</a>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>

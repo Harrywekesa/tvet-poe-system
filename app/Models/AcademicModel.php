@@ -143,16 +143,14 @@ class AcademicModel extends Model
 
     public function getStudentUnits($studentId)
     {
-        // Get units for classes the student is enrolled in
-        $stmt = $this->db->prepare("
-            SELECT u.*, c.class_code, co.title as course_title
+        $stmt = $this->db->query("
+            SELECT u.*, c.class_code, co.title as course_title, c.id as class_id
             FROM units u
-            JOIN classes c ON u.context_class_id = c.id
+            JOIN courses co ON u.course_id = co.id
+            JOIN classes c ON c.course_id = co.id
             JOIN enrollments e ON c.id = e.class_id
-            JOIN courses co ON c.course_id = co.id
             WHERE e.user_id = ?
-        ");
-        $stmt->execute([$studentId]);
+        ", [$studentId]);
         return $stmt->fetchAll();
     }
 

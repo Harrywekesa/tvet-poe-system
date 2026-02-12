@@ -261,6 +261,18 @@ class MarksController extends Controller
         $comments = $_POST['comments'];
         $role = $_POST['role']; // HOD or IQS
 
+        // Security Check: Ensure session role matches action role
+        if ($role === 'HOD' && ($_SESSION['role'] !== 'HOD' && $_SESSION['role'] !== 'Admin')) {
+            $_SESSION['flash_error'] = 'Unauthorized: HOD access required.';
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+        if ($role === 'IQS' && ($_SESSION['role'] !== 'InternalVerifier' && $_SESSION['role'] !== 'Admin')) {
+            $_SESSION['flash_error'] = 'Unauthorized: IQS access required.';
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+
         // Determine new status
         $newStatus = '';
         if ($role == 'HOD') {
@@ -278,8 +290,7 @@ class MarksController extends Controller
     public function approvals()
     {
         // List pending approvals for HOD/IQS
-        // We'll show ALL for now, filter in view?
-        $pending = $this->marksModel->getPendingApprovals();
+        $pending = $this->marksModel->getPendingApprovals($_SESSION['role']);
         $this->view('marks/approvals', ['pending' => $pending]);
     }
 }

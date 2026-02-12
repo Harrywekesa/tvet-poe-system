@@ -82,16 +82,32 @@ class MarksModel extends Model
         }
     }
 
-    public function getPendingApprovals()
+    public function getPendingApprovals($role)
     {
-        return $this->db->query("
+        $sql = "
             SELECT ms.*, u.unit_code, u.unit_title, c.class_code, tr.full_name as trainer_name 
             FROM marksheet_status ms
             JOIN units u ON ms.unit_id = u.id
             JOIN classes c ON ms.class_id = c.id
             LEFT JOIN users tr ON ms.submitted_by = tr.id
-            WHERE ms.status IN ('Submitted_to_HOD', 'HOD_Approved') 
-            ORDER BY ms.submitted_at DESC
-        ")->fetchAll();
+            WHERE 1=1 
+        ";
+
+        $params = [];
+
+        if ($role === 'HOD') {
+            // HOD only sees what Trainer submitted
+            $sql .= " AND ms.status = 'Submitted_to_HOD'";
+        } elseif ($role === 'InternalVerifier') {
+            // IV only sees what HOD approved
+            $sql .= " AND ms.status = 'HOD_Approved'";
+        } else {
+            // Admin or others see all pending
+            $sql .= " AND ms.status IN ('Submitted_to_HOD', 'HOD_Approved')";
+        }
+
+        $sql .= " ORDER BY ms.submitted_at DESC";
+
+        return $this->db->query($sql, $params)->fetchAll();
     }
 }
