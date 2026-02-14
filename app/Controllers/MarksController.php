@@ -76,10 +76,79 @@ class MarksController extends Controller
         $calculator = new \App\Services\MarksCalculator($this->unitModel, $this->marksModel); // We'll create this Service
         $totals = $calculator->calculateUnitTotal($unitId, $studentId);
 
+        // Check Marksheet Status (Approvals)
+        $statusRecord = $this->marksModel->getMarksheetStatus($classData['id'], $unitId);
+        $isApproved = ($statusRecord && $statusRecord['status'] === 'IQS_Approved');
+
         $this->view('marks/student_view', [
             'unit' => $unitData,
             'class' => $classData,
-            'totals' => $totals
+            'totals' => $totals,
+            'isApproved' => $isApproved,
+            'statusRecord' => $statusRecord
+        ]);
+    }
+
+    public function print_result($unitId)
+    {
+        // Student Result Slip
+        $studentId = $_SESSION['user_id'];
+
+        // 1. Get Progress (Class/Unit context)
+        $progress = $this->reportModel->getStudentProgress($studentId);
+        $unitData = null;
+        $classData = null;
+
+        foreach ($progress as $c) {
+            foreach ($c['units'] as $u) {
+                if ($u['id'] == $unitId) {
+                    $unitData = $u;
+                    $classData = $c;
+                    break 2;
+                }
+            }
+        }
+
+        if (!$unitData)
+            die("Unit not found.");
+
+        // 2. Check Status
+        $statusRecord = $this->marksModel->getMarksheetStatus($classData['id'], $unitId);
+        if (!$statusRecord || $statusRecord['status'] !== 'IQS_Approved') {
+            die("Result slip not available yet. Pending IQS Approval.");
+        }
+
+        // 3. Get Marks & Totals
+        // Re-fetch marks (cleanest way)
+        $marks = $this->marksModel->getMarksForStudent($studentId, $unitId);
+        $marksMap = [];
+        foreach ($marks as $m) {
+            $marksMap[$m['assessment_slot_id']] = $m['marks_obtained'];
+        }
+        foreach ($unitData['assessments'] as &$slot) {
+            $slot['mark'] = $marksMap[$slot['id']] ?? '-';
+        }
+
+        $calculator = new \App\Services\MarksCalculator($this->unitModel, $this->marksModel);
+        $totals = $calculator->calculateUnitTotal($unitId, $studentId);
+
+        // 4. Get Institution Details
+        $inst = $this->institutionModel->getInstitutionDetails();
+
+        // 5. Get User Details (Full Name etc)
+        $userModel = new \App\Models\UserModel();
+        $student = $userModel->getUserById($studentId);
+
+        $type = $_GET['type'] ?? 'raw';
+
+        $this->view('marks/student_result_slip', [
+            'student' => $student,
+            'unit' => $unitData,
+            'class' => $classData,
+            'totals' => $totals,
+            'statusRecord' => $statusRecord,
+            'inst' => $inst,
+            'type' => $type
         ]);
     }
 
@@ -183,6 +252,94 @@ class MarksController extends Controller
     }
 
     // -- Marksheets & Approvals --
+
+    public function transcript($studentId = null)
+    {
+        // Default to current user if student
+        if (!$studentId && ($_SESSION['role'] ?? '') === 'Student') {
+            $studentId = $_SESSION['user_id'];
+        }
+
+        if (!$studentId) {
+            die("Student ID required.");
+        }
+
+        // Security: Only Admin, HOD, or the Student themselves can view
+        $isSelf = ($_SESSION['user_id'] == $studentId);
+        $isAdmin = ($_SESSION['role'] === 'Admin' || $_SESSION['role'] === 'HOD'); // Maybe IQS too?
+        if (!$isSelf && !$isAdmin) {
+            die("Unauthorized access.");
+        }
+
+        $type = $_GET['type'] ?? 'raw'; // 'raw' or 'weighted'
+
+        // Get Student details
+        $userModel = new \App\Models\UserModel();
+        $student = $userModel->getUserById($studentId);
+
+        // Get Units
+        $units = $this->academicModel->getStudentUnits($studentId);
+
+        $results = [];
+        $course = null;
+
+        $calculator = new \App\Services\MarksCalculator($this->unitModel, $this->marksModel);
+
+        foreach ($units as $u) {
+            if (!$course && isset($u['course_title'])) {
+                $course = ['title' => $u['course_title']];
+            }
+
+            // Calculate score
+            // Note: calculateUnitTotal logic handles Raw vs Weighted internally? 
+            // No, calculateUnitTotal returns the WEIGHTED 'final_mark' and 'topics' structure.
+            // It does NOT explicitly return a 'Raw' average of all assessments. 
+            // The 'raw' mode in result slip just sums the marks? No, it lists them.
+            // For a Transcript 'Raw' request: "It should only show the final mark".
+            // If Type is Raw: Sum of all marks / Total Marks? Or Average?
+            // Usually "Raw Mark" for a unit = Sum of marks obtained / Sum of max marks * 100.
+            // But Slots don't have max marks in DB (assumed 100).
+            // So Average of all assessments? 
+
+            $calRes = $calculator->calculateUnitTotal($u['id'], $studentId);
+
+            $finalMark = 0;
+            if ($type == 'weighted') {
+                $finalMark = $calRes['final_mark']; // This is the weighted contribution sum
+            } else {
+                // Raw Calculation: Average of all slots?
+                // Let's use the 'topics' data from calculator to find all slots
+                $totalMark = 0;
+                $count = 0;
+                foreach ($calRes['topics'] as $t) {
+                    foreach ($t['slots'] as $s) {
+                        if ($s['mark'] !== '-' && is_numeric($s['mark'])) {
+                            $totalMark += $s['mark'];
+                            $count++;
+                        }
+                    }
+                }
+                $finalMark = ($count > 0) ? ($totalMark / $count) : 0;
+            }
+
+            $results[] = [
+                'unit_code' => $u['unit_code'],
+                'unit_title' => $u['unit_title'],
+                'mark' => number_format($finalMark, 0) . '%'
+            ];
+        }
+
+        // Get Institution Details
+        $inst = $this->institutionModel->getInstitutionDetails();
+
+        $this->view('marks/transcript', [
+            'student' => $student,
+            'results' => $results,
+            'inst' => $inst,
+            'type' => $type,
+            'course' => $course
+        ]);
+    }
 
     public function marksheet($unitId, $classId)
     {
@@ -295,8 +452,31 @@ class MarksController extends Controller
 
     public function approvals()
     {
-        // List pending approvals for HOD/IQS
-        $pending = $this->marksModel->getPendingApprovals($_SESSION['role']);
-        $this->view('marks/approvals', ['pending' => $pending]);
+        $role = $_SESSION['role'];
+        $all = $this->marksModel->getAllApprovals($role);
+
+        $pending = [];
+        $history = [];
+
+        foreach ($all as $item) {
+            $isPending = false;
+            // Define what is "Pending" for this user
+            if ($role === 'HOD' && $item['status'] == 'Submitted_to_HOD') {
+                $isPending = true;
+            } elseif ($role === 'InternalVerifier' && $item['status'] == 'HOD_Approved') {
+                $isPending = true;
+            }
+
+            if ($isPending) {
+                $pending[] = $item;
+            } else {
+                $history[] = $item;
+            }
+        }
+
+        $this->view('marks/approvals', [
+            'pending' => $pending,
+            'history' => $history
+        ]);
     }
 }

@@ -198,6 +198,7 @@ class InstitutionController extends Controller
         $classId = $_POST['context_class_id'] ?? null;
 
         $unitId = $this->model->addUnit($courseId, $code, $title, $category, $desc);
+        \App\Core\Audit::log('Unit Created', "Created unit $code - $title");
         $_SESSION['flash_success'] = 'Unit created successfully.';
 
         // If Trainer created it and context Class ID exists, auto-allocate
@@ -230,6 +231,7 @@ class InstitutionController extends Controller
         $desc = $_POST['description'];
 
         $this->model->updateUnit($id, $code, $title, $category, $desc);
+        \App\Core\Audit::log('Unit Updated', "Updated unit $code - $title");
         $_SESSION['flash_success'] = 'Unit updated successfully.';
         $this->redirect('/institution/course/' . $courseId);
     }

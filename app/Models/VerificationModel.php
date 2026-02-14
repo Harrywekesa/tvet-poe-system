@@ -7,20 +7,32 @@ use App\Core\Model;
 class VerificationModel extends Model
 {
 
-    public function getUnitsAllocatedToVerifier($verifierId)
+    public function getUnitsAllocatedToVerifier($verifierId, $deptId = null)
     {
-        return $this->db->query("
+        $sql = "
             SELECT u.*, c.class_code, c.id as class_id, co.title as course_title,
             (SELECT COUNT(*) FROM poe_submissions ps 
              JOIN enrollments e ON ps.student_user_id = e.user_id 
              JOIN assessment_slots s ON ps.assessment_slot_id = s.id
-             WHERE e.class_id = c.id AND s.unit_id = u.id AND ps.status = 'Approved') as approved_count
-            FROM unit_allocations ua 
-            JOIN units u ON ua.unit_id = u.id 
-            JOIN classes c ON ua.class_id = c.id 
+             WHERE e.class_id = c.id AND s.unit_id = u.id AND ps.status = 'Approved') as approved_count,
+             ua.verifier_user_id
+            FROM units u 
             JOIN courses co ON u.course_id = co.id 
-            WHERE ua.verifier_user_id = ?
-        ", [$verifierId])->fetchAll();
+            JOIN classes c ON c.course_id = co.id
+            LEFT JOIN unit_allocations ua ON u.id = ua.unit_id AND c.id = ua.class_id
+            WHERE 
+                (ua.verifier_user_id = ?) 
+        ";
+
+        $params = [$verifierId];
+
+        if ($deptId) {
+            $sql .= " OR (co.department_id = ? AND (ua.verifier_user_id IS NULL OR ua.verifier_user_id = 0))";
+            $params[] = $deptId;
+        }
+
+        // Distinct not needed if 1:1 class-unit, but safe
+        return $this->db->query($sql, $params)->fetchAll();
     }
 
     public function getSampleSubmissions($classId, $unitId)

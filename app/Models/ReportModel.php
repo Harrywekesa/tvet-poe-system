@@ -71,7 +71,7 @@ class ReportModel extends Model
             foreach ($units as $u) {
                 // Get Slots & Submissions with Review Comments
                 $slots = $this->db->query("
-                    SELECT s.id, s.title, s.type, 
+                    SELECT s.id, s.title, s.type, s.topic_id,
                            sub.status, sub.id as submission_id,
                            (SELECT comments FROM poe_reviews r WHERE r.submission_id = sub.id ORDER BY r.id DESC LIMIT 1) as latest_comment
                     FROM assessment_slots s 
@@ -148,7 +148,8 @@ class ReportModel extends Model
         // Group by Unit/Class to show coverage
         // Coverage = Verified Count / Submitted Count
         return $this->db->query("
-            SELECT u.unit_code, u.unit_title, c.class_code, 
+            SELECT u.id as unit_id, c.id as class_id, 
+                   u.unit_code, u.unit_title, c.class_code, 
                    COUNT(CASE WHEN s.status = 'Submitted' OR s.status='Approved' OR s.status='Rejected' THEN 1 END) as total_submitted,
                    COUNT(CASE WHEN s.verification_status IS NOT NULL THEN 1 END) as total_verified
             FROM units u

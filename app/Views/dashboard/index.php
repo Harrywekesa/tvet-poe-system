@@ -6,7 +6,7 @@
         <div>
             <span style="margin-right: 15px; color: var(--secondary);">Welcome,
                 <strong><?= htmlspecialchars($name) ?></strong>
-                (<?= $role ?><?= isset($dept_id) ? ", Dept ID: $dept_id" : '' ?>)</span>
+                (<?= $role ?><?= isset($dept_name) ? ", " . htmlspecialchars($dept_name) : '' ?>)</span>
             <a href="<?= APP_URL ?>/logout" class="btn btn-outline"
                 style="font-size: 0.9rem; padding: 5px 15px;">Logout</a>
         </div>
@@ -227,7 +227,7 @@
     <?php elseif ($role === 'HOD'): ?>
         <div style="margin-bottom: 30px;">
             <h3>Department Overview</h3>
-            <p class="text-secondary">Managing Department ID: <?= $dept_id ?? 'Unassigned' ?></p>
+            <p class="text-secondary">Managing: <?= htmlspecialchars($dept_name ?? 'Unassigned') ?></p>
 
             <?php if (isset($pending_docs) && count($pending_docs) > 0): ?>
                 <div class="alert"
@@ -344,6 +344,17 @@
     <div style="background: white; padding: 30px; border-radius: 8px;">
         <h3>My Progress & Marks</h3>
         <p class="text-secondary" style="margin-bottom: 20px;">View your assessment modifications and final unit marks.</p>
+
+        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <a href="<?= APP_URL ?>/marks/transcript/<?= $_SESSION['user_id'] ?>?type=raw" target="_blank"
+                class="btn btn-primary" style="background: #0f172a; border-color: #0f172a;">
+                📜 Term Transcript (Raw)
+            </a>
+            <a href="<?= APP_URL ?>/marks/transcript/<?= $_SESSION['user_id'] ?>?type=weighted" target="_blank"
+                class="btn btn-outline" style="color: #0f172a; border-color: #0f172a;">
+                📜 Term Transcript (Weighted)
+            </a>
+        </div>
 
         <?php if (!empty($my_units)): ?>
             <div class="grid-3">

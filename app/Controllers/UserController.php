@@ -22,12 +22,22 @@ class UserController extends Controller
         if ($_SESSION['role'] === 'HOD') {
             $deptId = $this->model->getUserDepartment($_SESSION['user_id']);
             if ($deptId) {
+                // Fetch Detailed Lists for HOD View
+                $team_trainers = $this->model->getTrainersWithAllocations($deptId);
+                $team_students = $this->model->getStudentsInDeptClasses($deptId);
+
+                // Keep generic list as fallback or for "All" tab if needed, 
+                // but usually HOD wants the detailed view.
                 $users = $this->model->getUsersByDepartment($deptId);
             } else {
-                $users = []; // Or handle error
+                $users = [];
+                $team_trainers = [];
+                $team_students = [];
             }
         } else {
             $users = $this->model->getAllUsers();
+            $team_trainers = []; // Admin doesn't get this view by default yet
+            $team_students = [];
         }
 
         $roles = $this->model->getAllRoles();
@@ -35,6 +45,8 @@ class UserController extends Controller
         $this->view('users/index', [
             'users' => $users,
             'roles' => $roles,
+            'team_trainers' => $team_trainers ?? [],
+            'team_students' => $team_students ?? [],
             'title' => 'User Management'
         ]);
     }
@@ -51,6 +63,7 @@ class UserController extends Controller
         if ($email && $roleId && $password) {
             try {
                 $this->model->createUser($name, $email, $roleId, $password, $identifier);
+                \App\Core\Audit::log('User Created', "Created user $email ($name)");
                 $_SESSION['flash_success'] = 'User created successfully.';
             } catch (\Exception $e) {
                 // Handle duplicate email etc.
@@ -160,6 +173,35 @@ class UserController extends Controller
             \App\Core\Audit::log('User Update', "Updated user details for ID $id ($email)");
             $_SESSION['flash_success'] = 'User details updated successfully.';
         }
+        $this->redirect('/users');
+    }
+
+    public function suspend()
+    {
+        $id = $_POST['user_id'];
+        $reason = $_POST['reason'];
+        if ($id && $reason) {
+            $this->model->suspendUser($id, $reason);
+            \App\Core\Audit::log('User Suspended', "Suspended User ID $id. Reason: $reason");
+            $_SESSION['flash_success'] = 'User suspended successfully.';
+        }
+        $this->redirect('/users');
+    }
+
+    public function activate($id)
+    {
+        $this->model->activateUser($id);
+        \App\Core\Audit::log('User Activated', "Activated User ID $id");
+        $_SESSION['flash_success'] = 'User activated successfully.';
+        $this->redirect('/users');
+    }
+
+    public function delete($id)
+    {
+        // Check if user has critical data? For now, we use soft delete.
+        $this->model->deleteUser($id);
+        \App\Core\Audit::log('User Deleted', "Deleted User ID $id");
+        $_SESSION['flash_success'] = 'User deleted successfully.';
         $this->redirect('/users');
     }
 }

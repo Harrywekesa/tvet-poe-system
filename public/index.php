@@ -80,6 +80,8 @@ $router->get('/marks/marksheet/{unitId}/{classId}', 'MarksController', 'markshee
 $router->post('/marks/submit', 'MarksController', 'submit_marksheet');
 $router->post('/marks/status', 'MarksController', 'update_status');
 $router->get('/marks/approvals', 'MarksController', 'approvals');
+$router->get('/marks/print_result/{unitId}', 'MarksController', 'print_result');
+$router->get('/marks/transcript/{studentId}', 'MarksController', 'transcript');
 
 
 // Institution Imports
@@ -118,7 +120,12 @@ $router->get('/users/edit/{id}', 'UserController', 'edit');
 $router->post('/users/update', 'UserController', 'update');
 $router->get('/users/import', 'UserController', 'importView');
 $router->get('/users/template', 'UserController', 'downloadTemplate');
+$router->get('/users/import', 'UserController', 'importView');
+$router->get('/users/template', 'UserController', 'downloadTemplate');
 $router->post('/users/import', 'UserController', 'import');
+$router->post('/users/suspend', 'UserController', 'suspend');
+$router->get('/users/activate/{id}', 'UserController', 'activate');
+$router->get('/users/delete/{id}', 'UserController', 'delete');
 
 // Preview
 $router->get('/preview/assessment/{id}', 'PreviewController', 'assessment');
@@ -137,6 +144,7 @@ $router->get('/documents/upload', 'ProfessionalDocController', 'uploadView');
 $router->post('/documents/store', 'ProfessionalDocController', 'upload');
 $router->get('/documents/review', 'ProfessionalDocController', 'review');
 $router->post('/documents/status', 'ProfessionalDocController', 'updateStatus');
+$router->get('/documents/certificate/{id}', 'ProfessionalDocController', 'viewCertificate');
 
 // Audit
 $router->get('/audit', 'AuditController', 'index');

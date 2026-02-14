@@ -57,6 +57,14 @@
                     style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; color: #94a3b8;">
             </div>
 
+            <?php if (!empty($user['dept_name'])): ?>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #64748b;">Department</label>
+                    <input type="text" value="<?= htmlspecialchars($user['dept_name']) ?>" disabled
+                        style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; color: #94a3b8;">
+                </div>
+            <?php endif; ?>
+
             <?php if (!empty($classes)): ?>
                 <div
                     style="margin-bottom: 15px; background: #f0f9ff; padding: 15px; border-radius: 6px; border: 1px solid #bae6fd;">

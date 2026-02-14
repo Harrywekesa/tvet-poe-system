@@ -12,6 +12,31 @@
         <?= htmlspecialchars($unit['unit_code']) ?>
     </h3>
 
+    <?php if (isset($isApproved) && $isApproved): ?>
+        <div
+            style="margin-top: 15px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.5rem;">✅</span>
+                <div>
+                    <strong style="color: #166534;">Result Verified & Approved</strong>
+                    <div style="font-size: 0.85rem; color: #15803d;">
+                        This result has been officially verified by the Internal Quality Assurer.
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="<?= APP_URL ?>/marks/print_result/<?= $unit['id'] ?>?type=raw" target="_blank"
+                    class="btn btn-primary" style="background: #166534; border-color: #166534;">
+                    Download Result (Raw)
+                </a>
+                <a href="<?= APP_URL ?>/marks/print_result/<?= $unit['id'] ?>?type=weighted" target="_blank"
+                    class="btn btn-outline" style="color: #166534; border-color: #166534; background: white;">
+                    Download Result (Weighted)
+                </a>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <div class="row" style="margin-top: 30px; display: flex; gap: 20px;">
         <div style="flex: 2;">
             <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">

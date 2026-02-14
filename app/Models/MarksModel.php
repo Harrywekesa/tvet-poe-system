@@ -94,33 +94,31 @@ class MarksModel extends Model
         }
     }
 
-    public function getPendingApprovals($role)
+    public function getAllApprovals($role)
     {
         $sql = "
             SELECT ms.id, ms.unit_id, ms.class_id, ms.status, ms.submitted_at, 
-                   u.unit_code, u.unit_title, c.class_code, tr.full_name as trainer_name 
+                   ms.hod_action_at, ms.iqs_action_at, ms.hod_comments, ms.iqs_comments,
+                   u.unit_code, u.unit_title, c.class_code, tr.full_name as trainer_name,
+                   hod.full_name as hod_name
             FROM marksheet_status ms
             JOIN units u ON ms.unit_id = u.id
             JOIN classes c ON ms.class_id = c.id
             LEFT JOIN users tr ON ms.submitted_by = tr.id
+            LEFT JOIN users hod ON ms.hod_user_id = hod.id
             WHERE 1=1 
         ";
 
-        $params = [];
-
         if ($role === 'HOD') {
-            // HOD only sees what Trainer submitted
-            $sql .= " AND ms.status = 'Submitted_to_HOD'";
+            // HOD sees what Trainer submitted (Pending) AND what they already acted on
+            $sql .= " AND (ms.status = 'Submitted_to_HOD' OR ms.status IN ('HOD_Approved', 'HOD_Rejected', 'IQS_Approved', 'IQS_Rejected'))";
         } elseif ($role === 'InternalVerifier') {
-            // IV only sees what HOD approved
-            $sql .= " AND ms.status = 'HOD_Approved'";
-        } else {
-            // Admin or others see all pending
-            $sql .= " AND ms.status IN ('Submitted_to_HOD', 'HOD_Approved')";
+            // IV sees what HOD approved (Pending) AND what they already acted on
+            $sql .= " AND (ms.status = 'HOD_Approved' OR ms.status IN ('IQS_Approved', 'IQS_Rejected'))";
         }
 
         $sql .= " ORDER BY ms.submitted_at DESC";
 
-        return $this->db->query($sql, $params)->fetchAll();
+        return $this->db->query($sql)->fetchAll();
     }
 }

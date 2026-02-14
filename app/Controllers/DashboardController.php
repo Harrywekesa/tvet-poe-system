@@ -78,7 +78,11 @@ class DashboardController extends Controller
                 $docModel = new \App\Models\ProfessionalDocModel();
                 $pendingDocs = $docModel->getPendingDocsForDept($deptId);
 
-                $data['dept_id'] = $deptId; // Pass for view
+                // Fetch Dept Name
+                $dept = $this->db->query("SELECT name FROM departments WHERE id = ?", [$deptId])->fetch();
+                $data['dept_name'] = $dept['name'] ?? 'Unknown Dept';
+
+                $data['dept_id'] = $deptId; // Pass for view (keep for logic if needed)
                 $data['my_courses'] = $courses;
                 $data['pending_docs'] = $pendingDocs;
 
@@ -95,7 +99,11 @@ class DashboardController extends Controller
 
         } elseif ($role === 'InternalVerifier') {
             $verModel = new VerificationModel();
-            $data['iv_allocations'] = $verModel->getUnitsAllocatedToVerifier($_SESSION['user_id']);
+            // Fetch Dept to show unassigned units in dept
+            $userModel = new \App\Models\UserModel();
+            $deptId = $userModel->getUserDepartment($_SESSION['user_id']);
+
+            $data['iv_allocations'] = $verModel->getUnitsAllocatedToVerifier($_SESSION['user_id'], $deptId);
 
         } elseif ($role === 'Student') {
             $subModel = new SubmissionModel();

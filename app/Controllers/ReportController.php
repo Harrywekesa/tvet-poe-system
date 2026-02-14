@@ -147,7 +147,7 @@ class ReportController extends Controller
         }
 
         if (!$deptId) {
-            // Admin landing
+            $_SESSION['flash_error'] = 'You are not assigned to any department. Please contact an Administrator.';
             $this->redirect('/dashboard');
         }
 

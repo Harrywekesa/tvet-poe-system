@@ -98,13 +98,14 @@ class AcademicController extends Controller
                         if ($userId) {
                             try {
                                 $this->model->enrollStudent($classId, $userId);
+                                \App\Core\Audit::log('Student Enrolled', "Enrolled User $userId into Class $classId");
                             } catch (\Exception $e) {
                             }
                         }
                     }
                 }
                 fclose($handle);
-                $_SESSION['flash_success'] = 'Student enrollment import processed.';
+                $_SESSION['flash_success'] = 'Students enrolled successfully.';
             }
         }
         $this->redirect('/academic/class/' . $classId);
@@ -189,9 +190,11 @@ class AcademicController extends Controller
         $unitId = $_POST['unit_id'];
         $trainerId = $_POST['trainer_id'];
         $verifierId = $_POST['verifier_id'];
-
-        $this->model->upsertAllocation($classId, $unitId, $trainerId, $verifierId);
-        $_SESSION['flash_success'] = 'Unit Allocation updated.';
+        if ($classId && $unitId) {
+            $this->model->upsertAllocation($classId, $unitId, $trainerId, $verifierId);
+            \App\Core\Audit::log('Unit Allocation', "Allocated Unit $unitId in Class $classId to Trainer $trainerId");
+            $_SESSION['flash_success'] = 'Allocation updated.';
+        }
         $this->redirect('/academic/class/' . $classId);
     }
 }

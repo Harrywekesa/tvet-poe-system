@@ -3,7 +3,7 @@
     <h1>
         <?= $title ?>
     </h1>
-    <a href="<?= APP_URL ?>/reports" class="btn btn-outline" style="margin-bottom: 20px;">&larr; Back</a>
+    <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline" style="margin-bottom: 20px;">&larr; Back</a>
 
     <div class="grid-2">
         <?php foreach ($data as $d):

@@ -2,7 +2,11 @@
 
 <div class="container" style="margin-top: 40px;">
     <div style="margin-bottom: 20px;">
-        <a href="<?= APP_URL ?>/institution" class="btn btn-outline">&larr; Back to Institution</a>
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
+            <a href="<?= APP_URL ?>/institution" class="btn btn-outline">&larr; Back to Institution</a>
+        <?php else: ?>
+            <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline">&larr; Back to Dashboard</a>
+        <?php endif; ?>
     </div>
 
     <h1>Department Management</h1>

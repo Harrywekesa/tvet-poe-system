@@ -3,7 +3,7 @@
     <h1>
         <?= $title ?>
     </h1>
-    <a href="<?= APP_URL ?>/reports" class="btn btn-outline" style="margin-bottom: 20px;">&larr; Back</a>
+    <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline" style="margin-bottom: 20px;">&larr; Back</a>
 
     <div style="background: white; padding: 25px; border-radius: 8px; overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse;">

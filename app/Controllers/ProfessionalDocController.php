@@ -89,9 +89,11 @@ class ProfessionalDocController extends Controller
         }
 
         $pending = $this->model->getPendingDocsForDept($deptId);
+        $history = $this->model->getDocHistoryForDept($deptId);
 
         $this->view('documents/review', [
             'pending' => $pending,
+            'history' => $history,
             'title' => 'Review Professional Documents'
         ]);
     }
@@ -101,10 +103,33 @@ class ProfessionalDocController extends Controller
         $id = $_POST['doc_id'];
         $status = $_POST['status']; // Approved / Rejected
         $comments = $_POST['comments'];
+        $reviewerId = $_SESSION['user_id'];
 
-        $this->model->updateStatus($id, $status, $comments);
+        $this->model->updateStatus($id, $status, $comments, $reviewerId);
         \App\Core\Audit::log('Prof Doc Reviewed', "HOD marked Doc $id as $status");
         $_SESSION['flash_success'] = "Document marked as $status.";
         $this->redirect('/documents/review');
+    }
+
+    public function viewCertificate($id)
+    {
+        $doc = $this->model->getDocDetailsWithApprover($id);
+
+        if (!$doc || $doc['status'] !== 'Approved') {
+            // If not approved, just download file directly or show error
+            if ($doc) {
+                $this->redirect('/uploads/docs/' . $doc['file_path']);
+            } else {
+                die("Document not found.");
+            }
+        }
+
+        $instModel = new \App\Models\InstitutionModel();
+        $inst = $instModel->getInstitutionDetails();
+
+        $this->view('documents/doc_cover_sheet', [
+            'doc' => $doc,
+            'inst' => $inst
+        ]);
     }
 }
