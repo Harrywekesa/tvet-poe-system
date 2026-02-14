@@ -241,6 +241,12 @@
 
             <div class="grid-3">
                 <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4>Classes</h4>
+                    <div style="font-size: 2rem; font-weight: 700;"><?= count($dept_classes ?? []) ?></div>
+                    <a href="<?= APP_URL ?>/academic" class="btn btn-outline"
+                        style="margin-top: 10px; width: 100%; text-align: center;">Manage Classes</a>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
                     <h4>Courses</h4>
                     <div style="font-size: 2rem; font-weight: 700;"><?= count($my_courses ?? []) ?></div>
                     <a href="<?= APP_URL ?>/institution/department/<?= $dept_id ?>" class="btn btn-outline"

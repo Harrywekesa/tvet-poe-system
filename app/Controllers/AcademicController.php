@@ -53,8 +53,8 @@ class AcademicController extends Controller
 
     public function storeCohort()
     {
-        if ($_SESSION['role'] === 'Trainer')
-            $this->redirect('/dashboard');
+        if ($_SESSION['role'] !== 'Admin') // Only Admin can create cohorts
+            $this->redirect('/academic');
 
         $name = $_POST['name'];
         $start = $_POST['start_date'];
@@ -115,7 +115,15 @@ class AcademicController extends Controller
     {
         $cohort = $this->model->getCohortById($id);
         $classes = $this->model->getClassesByCohort($id);
-        $courses = $this->model->getAllCourses(); // For dropdown
+
+        if ($_SESSION['role'] === 'HOD') {
+            // Get HOD's department (robust check)
+            $userModel = new \App\Models\UserModel();
+            $deptId = $userModel->getUserDepartment($_SESSION['user_id']);
+            $courses = $this->model->getCoursesByDept($deptId);
+        } else {
+            $courses = $this->model->getAllCourses();
+        }
 
         $this->view('academic/cohort_view', [
             'cohort' => $cohort,

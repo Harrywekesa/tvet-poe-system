@@ -74,6 +74,9 @@ class DashboardController extends Controller
                 $instModel = new \App\Models\InstitutionModel();
                 $courses = $instModel->getCoursesByDept($deptId);
 
+                $acadModel = new \App\Models\AcademicModel();
+                $deptClasses = $acadModel->getClassesByDept($deptId);
+
                 // Fetch Pending Docs
                 $docModel = new \App\Models\ProfessionalDocModel();
                 $pendingDocs = $docModel->getPendingDocsForDept($deptId);
@@ -84,6 +87,7 @@ class DashboardController extends Controller
 
                 $data['dept_id'] = $deptId; // Pass for view (keep for logic if needed)
                 $data['my_courses'] = $courses;
+                $data['dept_classes'] = $deptClasses;
                 $data['pending_docs'] = $pendingDocs;
 
                 // Get Trainers in Dept

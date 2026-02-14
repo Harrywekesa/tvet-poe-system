@@ -1,6 +1,10 @@
 <?php require_once __DIR__ . '/../partials/header.php'; ?>
 
 <div class="container" style="margin-top: 40px;">
+    <div style="margin-bottom: 20px;">
+        <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline">&larr; Back to Dashboard</a>
+    </div>
+
     <h1>Transcripts Hub</h1>
     <p class="text-secondary">Select a class to view and print student transcripts.</p>
 

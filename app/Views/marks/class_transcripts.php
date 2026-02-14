@@ -1,9 +1,9 @@
 <?php require_once __DIR__ . '/../partials/header.php'; ?>
 
 <div class="container" style="margin-top: 40px;">
-    <div style="margin-bottom: 20px;">
-        <a href="<?= APP_URL ?>/academic/class_view/<?= $class['id'] ?>" class="btn btn-outline">&larr; Back to
-            Class</a>
+    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <a href="<?= APP_URL ?>/academic/class/<?= $class['id'] ?>" class="btn btn-outline">&larr; Back to Class</a>
+        <a href="<?= APP_URL ?>/marks/transcripts" class="btn btn-outline">&larr; Back to Hub</a>
     </div>
 
     <h1>Transcripts:

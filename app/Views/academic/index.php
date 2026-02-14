@@ -37,28 +37,30 @@
         </div>
 
         <!-- Add Form -->
-        <div
-            style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; height: fit-content;">
-            <h3>New Cohort</h3>
-            <form action="<?= APP_URL ?>/academic/cohort" method="POST" style="margin-top: 20px;">
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">Cohort Name</label>
-                    <input type="text" name="name" placeholder="e.g. Jan 2024 Intake" required
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">Start Date</label>
-                    <input type="date" name="start_date"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">End Date (Optional)</label>
-                    <input type="date" name="end_date"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Cohort</button>
-            </form>
-        </div>
+        <?php if ($_SESSION['role'] === 'Admin'): ?>
+            <div
+                style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; height: fit-content;">
+                <h3>New Cohort</h3>
+                <form action="<?= APP_URL ?>/academic/cohort" method="POST" style="margin-top: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Cohort Name</label>
+                        <input type="text" name="name" placeholder="e.g. Jan 2024 Intake" required
+                            style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Start Date</label>
+                        <input type="date" name="start_date"
+                            style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">End Date (Optional)</label>
+                        <input type="date" name="end_date"
+                            style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Cohort</button>
+                </form>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

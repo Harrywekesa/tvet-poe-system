@@ -42,6 +42,16 @@ class AcademicModel extends Model
         ", [$cohortId])->fetchAll();
     }
 
+    public function getClassesByCohortAndDept($cohortId, $deptId)
+    {
+        return $this->db->query("
+            SELECT c.*, co.title as course_title, co.code as course_code 
+            FROM classes c 
+            JOIN courses co ON c.course_id = co.id 
+            WHERE c.cohort_id = ? AND co.department_id = ?
+        ", [$cohortId, $deptId])->fetchAll();
+    }
+
     public function addClass($code, $courseId, $cohortId)
     {
         return $this->db->query("INSERT INTO classes (class_code, course_id, cohort_id) VALUES (?, ?, ?)", [$code, $courseId, $cohortId]);
@@ -130,6 +140,22 @@ class AcademicModel extends Model
     public function getAllCourses()
     {
         return $this->db->query("SELECT id, title, code FROM courses ORDER BY code")->fetchAll();
+    }
+
+    public function getCoursesByDept($deptId)
+    {
+        return $this->db->query("SELECT id, title, code FROM courses WHERE department_id = ? ORDER BY code", [$deptId])->fetchAll();
+    }
+
+    public function getClassesByDept($deptId)
+    {
+        return $this->db->query("
+            SELECT c.*, co.title as course_title 
+            FROM classes c 
+            JOIN courses co ON c.course_id = co.id 
+            WHERE co.department_id = ?
+            ORDER BY c.class_code ASC
+        ", [$deptId])->fetchAll();
     }
 
     public function getCounts()

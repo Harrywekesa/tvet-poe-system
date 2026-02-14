@@ -164,7 +164,8 @@
 
     <div class="controls">
         <button onclick="window.print()" class="btn">🖨️ Print All to PDF</button>
-        <button onclick="history.back()" class="btn" style="background:#64748b;">Back</button>
+        <a href="<?= APP_URL ?>/marks/class_transcripts/<?= $class['id'] ?>" class="btn"
+            style="background:#64748b;">Back to Class</a>
     </div>
 
     <?php foreach ($allData as $index => $data): ?>
