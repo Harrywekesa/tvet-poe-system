@@ -206,11 +206,58 @@
 
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px;">Role</label>
-                    <select name="role_id" required
+                    <select name="role_id" required onchange="toggleDept(this)"
                         style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
                         <?php foreach ($roles as $r): ?>
                             <option value="<?= $r['id'] ?>">
                                 <?= htmlspecialchars($r['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div id="deptField" style="margin-bottom: 15px; display: none;">
+                    <label style="display: block; margin-bottom: 5px;">Department (Optional)</label>
+                    <select name="department_id"
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <option value="">Select Department...</option>
+                        <?php
+                        // Quick fetch for view
+                        $deptModel = new \App\Models\InstitutionModel();
+                        $depts = $deptModel->getAllDepartments();
+                        foreach ($depts as $d):
+                            ?>
+                            <option value="<?= $d['id'] ?>">
+                                <?= htmlspecialchars($d['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <script>
+                    function toggleDept(select) {
+                        const text = select.options[select.selectedIndex].text;
+                        // Trainers and HODs usually need departments. Students might too for filters.
+                        // Let's just show it for everyone or specific roles?
+                        // User request: "assigning the new user to a department".
+                        // Let's show it always, or maybe hide for Admin?
+                        // Actually, simplified: Show it always for now, or just logic.
+                        document.getElementById('deptField').style.display = 'block';
+                    }
+                    // Run on load
+                    document.addEventListener('DOMContentLoaded', function () {
+                        toggleDept(document.querySelector('select[name="role_id"]'));
+                    });
+                </script>
+
+                <div id="classField" style="margin-bottom: 15px; display: none;">
+                    <label style="display: block; margin-bottom: 5px;">Class (For Students)</label>
+                    <select name="class_id"
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <option value="">Select Class...</option>
+                        <?php foreach ($classes as $c): ?>
+                            <option value="<?= $c['id'] ?>">
+                                <?= htmlspecialchars($c['class_code']) ?> (<?= htmlspecialchars($c['course_title']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -229,6 +276,28 @@
 </div>
 
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>
+
+<!-- Scripts -->
+<script>
+    function toggleDept(select) {
+        const text = select.options[select.selectedIndex].text;
+        
+        // Show Dept for everyone (or specific logic)
+        document.getElementById('deptField').style.display = 'block';
+
+        // Show Class ONLY for Students
+        const classDiv = document.getElementById('classField');
+        if (text.includes('Student')) {
+            classDiv.style.display = 'block';
+        } else {
+            classDiv.style.display = 'none';
+        }
+    }
+    // Run on load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleDept(document.querySelector('select[name="role_id"]'));
+    });
+</script>
 
 <!-- Suspend Modal -->
 <div id="suspendModal"

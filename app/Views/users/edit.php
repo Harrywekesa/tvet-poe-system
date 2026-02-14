@@ -57,6 +57,22 @@
                 </select>
             </div>
 
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Enroll in Class (Optional)</label>
+                <select name="class_id"
+                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <option value="">-- Select Class to Enroll --</option>
+                    <?php foreach ($classes as $c): ?>
+                        <option value="<?= $c['id'] ?>">
+                            <?= htmlspecialchars($c['class_code']) ?> (<?= htmlspecialchars($c['course_title']) ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">
+                    Note: Selecting a class will add a new enrollment. It does not remove existing enrollments.
+                </p>
+            </div>
+
             <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
                 <h4 style="margin: 0 0 15px 0;">Authentication & Security</h4>
 

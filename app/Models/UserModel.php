@@ -54,14 +54,14 @@ class UserModel extends Model
         return $this->db->query("SELECT * FROM roles")->fetchAll();
     }
 
-    public function createUser($name, $email, $roleId, $passwordRaw, $identifier = null)
+    public function createUser($name, $email, $roleId, $passwordRaw, $identifier = null, $departmentId = null)
     {
         $hash = password_hash($passwordRaw, PASSWORD_BCRYPT);
         // Default must_change_password = 1
         return $this->db->query("
-            INSERT INTO users (full_name, email, role_id, password_hash, identifier, must_change_password) 
-            VALUES (?, ?, ?, ?, ?, 1)
-        ", [$name, $email, $roleId, $hash, $identifier]);
+            INSERT INTO users (full_name, email, role_id, password_hash, identifier, must_change_password, department_id) 
+            VALUES (?, ?, ?, ?, ?, 1, ?)
+        ", [$name, $email, $roleId, $hash, $identifier, $departmentId]);
     }
 
     public function getUserById($id)

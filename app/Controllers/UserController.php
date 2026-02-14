@@ -42,9 +42,12 @@ class UserController extends Controller
 
         $roles = $this->model->getAllRoles();
 
+        $classes = (new \App\Models\AcademicModel())->getAllClasses();
+
         $this->view('users/index', [
             'users' => $users,
             'roles' => $roles,
+            'classes' => $classes,
             'team_trainers' => $team_trainers ?? [],
             'team_students' => $team_students ?? [],
             'title' => 'User Management'
@@ -58,11 +61,24 @@ class UserController extends Controller
         $identifier = $_POST['identifier'];
         $roleId = $_POST['role_id'];
         $password = $_POST['password'];
+        $deptId = !empty($_POST['department_id']) ? $_POST['department_id'] : null;
+        $classId = !empty($_POST['class_id']) ? $_POST['class_id'] : null;
 
         // Basic Validation
         if ($email && $roleId && $password) {
             try {
-                $this->model->createUser($name, $email, $roleId, $password, $identifier);
+                $this->model->createUser($name, $email, $roleId, $password, $identifier, $deptId);
+
+                // Enroll if class selected (and role is Student? Assuming logic holds)
+                if ($classId) {
+                    $academicModel = new \App\Models\AcademicModel();
+                    $userId = $academicModel->getUserIdByEmail($email);
+                    if ($userId) {
+                        $academicModel->enrollStudent($classId, $userId);
+                        \App\Core\Audit::log('User Enrolled', "Enrolled user $email in Class ID $classId");
+                    }
+                }
+
                 \App\Core\Audit::log('User Created', "Created user $email ($name)");
                 $_SESSION['flash_success'] = 'User created successfully.';
             } catch (\Exception $e) {
@@ -148,10 +164,13 @@ class UserController extends Controller
 
         $departments = (new \App\Models\InstitutionModel())->getAllDepartments();
 
+        $classes = (new \App\Models\AcademicModel())->getAllClasses();
+
         $this->view('users/edit', [
             'user' => $user,
             'roles' => $roles,
             'departments' => $departments,
+            'classes' => $classes,
             'title' => 'Edit User'
         ]);
     }
@@ -164,12 +183,19 @@ class UserController extends Controller
         $identifier = $_POST['identifier'];
         $roleId = $_POST['role_id'];
         $deptId = !empty($_POST['department_id']) ? $_POST['department_id'] : null;
+        $classId = !empty($_POST['class_id']) ? $_POST['class_id'] : null;
 
         $password = !empty($_POST['password']) ? $_POST['password'] : null;
         $forceChange = isset($_POST['force_change']) ? 1 : 0;
 
         if ($id && $name && $email) {
             $this->model->updateUser($id, $name, $email, $roleId, $identifier, $password, $forceChange, $deptId);
+
+            if ($classId) {
+                (new \App\Models\AcademicModel())->enrollStudent($classId, $id);
+                \App\Core\Audit::log('User Enrolled', "Enrolled user $id in Class ID $classId via Edit");
+            }
+
             \App\Core\Audit::log('User Update', "Updated user details for ID $id ($email)");
             $_SESSION['flash_success'] = 'User details updated successfully.';
         }
