@@ -14,6 +14,7 @@ class MarksController extends Controller
     private $unitModel;
     private $reportModel;
     private $academicModel;
+    private $institutionModel;
 
     public function __construct()
     {
@@ -22,6 +23,7 @@ class MarksController extends Controller
         $this->unitModel = new UnitModel();
         $this->reportModel = new ReportModel();
         $this->academicModel = new AcademicModel();
+        $this->institutionModel = new \App\Models\InstitutionModel();
     }
 
     // ... constructor ...
@@ -228,6 +230,9 @@ class MarksController extends Controller
             $studentResults[$student['id']] = $calculator->calculateUnitTotal($unitId, $student['id']);
         }
 
+        // Get Institution Details (replacing hardcoded)
+        $inst = $this->institutionModel->getInstitutionDetails();
+
         $this->view('marks/marksheet_print', [
             'unit' => $unit,
             'class' => $class,
@@ -237,7 +242,8 @@ class MarksController extends Controller
             'statusRecord' => $statusRecord,
             'type' => $type,
             'writtenSlots' => $writtenSlots,
-            'practicalSlots' => $practicalSlots
+            'practicalSlots' => $practicalSlots,
+            'inst' => $inst
         ]);
     }
 

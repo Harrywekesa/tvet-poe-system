@@ -11,8 +11,8 @@ class ReportController extends Controller
 
     public function __construct()
     {
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
-            $this->redirect('/dashboard');
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect('/login');
         }
         $this->model = new ReportModel();
     }
@@ -24,7 +24,13 @@ class ReportController extends Controller
             $this->adminIndex();
         } elseif ($role === 'Student') {
             $this->studentProgress();
-        } elseif ($role === 'Trainer' || $role === 'InternalVerifier') {
+        } elseif ($role === 'HOD') {
+            // HOD Dash
+            $this->redirect('/reports/dept_overview');
+        } elseif ($role === 'InternalVerifier') {
+            // QA / IV Dashboard
+            $this->redirect('/reports/iv_analytics');
+        } elseif ($role === 'Trainer') {
             // Fetch departments for the IV selector
             $instModel = new \App\Models\InstitutionModel();
             $departments = $instModel->getAllDepartments();

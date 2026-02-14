@@ -96,6 +96,7 @@ $router->get('/poe/dashboard', 'SubmissionController', 'studentDashboard');
 $router->get('/poe/class/{id}', 'SubmissionController', 'viewUnitHelper');
 $router->get('/poe/unit/{id}', 'SubmissionController', 'viewUnitPOE');
 $router->post('/poe/upload', 'SubmissionController', 'upload');
+$router->get('/poe/view/{id}', 'SubmissionController', 'viewEvidence');
 
 // Trainer Review
 $router->get('/review/unit/{unit_id}/class/{class_id}', 'ReviewController', 'reviewUnit');

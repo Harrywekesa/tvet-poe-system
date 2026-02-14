@@ -1,9 +1,38 @@
 </main>
 <footer style="background: #1e293b; color: #94a3b8; padding: 40px 0; margin-top: 60px;">
-    <div class="container" style="text-align: center;">
-        <p>&copy;
-            <?= date('Y') ?> CBET POE System. Internal Use Only.
-        </p>
+    <div class="container">
+        <div class="grid-3" style="align-items: start; margin-bottom: 20px;">
+            <div>
+                <h5 style="color: white; margin-bottom: 15px;">About <?= htmlspecialchars($systemName ?? 'System') ?>
+                </h5>
+                <p style="font-size: 0.9rem; line-height: 1.6;">
+                    <?= nl2br(htmlspecialchars($systemSettings['about_text'] ?? 'A comprehensive Competency Based Education and Training (CBET) Portfolio of Evidence system.')) ?>
+                </p>
+            </div>
+            <div>
+                <h5 style="color: white; margin-bottom: 15px;">Contact Us</h5>
+                <p style="font-size: 0.9rem;">
+                    <strong>Email:</strong>
+                    <?= htmlspecialchars($systemSettings['contact_email'] ?? 'admin@techex.edu') ?><br>
+                    <strong>Phone:</strong>
+                    <?= htmlspecialchars($systemSettings['contact_phone'] ?? '+254 700 000 000') ?><br>
+                    <strong>Address:</strong><br>
+                    <?= nl2br(htmlspecialchars($systemSettings['address'] ?? 'Tech Ex Institute')) ?>
+                </p>
+            </div>
+            <div>
+                <h5 style="color: white; margin-bottom: 15px;">Quick Links</h5>
+                <ul style="list-style: none; padding: 0; font-size: 0.9rem;">
+                    <li style="margin-bottom: 8px;"><a href="<?= APP_URL ?>"
+                            style="color: #cbd5e1; text-decoration: none;">Home</a></li>
+                    <li style="margin-bottom: 8px;"><a href="<?= APP_URL ?>/login"
+                            style="color: #cbd5e1; text-decoration: none;">Login</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="border-top: 1px solid #334155; padding-top: 20px; text-align: center; font-size: 0.85rem;">
+            &copy; <?= date('Y') ?> <?= htmlspecialchars($systemName ?? 'CBET POE System') ?>. All rights reserved.
+        </div>
     </div>
 </footer>
 <script>

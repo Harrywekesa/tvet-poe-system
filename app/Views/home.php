@@ -184,8 +184,23 @@
 </head>
 
 <body>
+    <?php
+    // Fetch System Settings shared with header
+    if (!isset($systemSettings)) {
+        $instModelHome = new \App\Models\InstitutionModel();
+        $systemSettings = $instModelHome->getInstitutionDetails();
+    }
+    $systemName = $systemSettings['system_name'] ?? 'CBET POE System';
+    $logoPath = $systemSettings['logo_path'] ?? null;
+    ?>
     <nav class="navbar">
-        <a href="<?= APP_URL ?>" class="logo">CBET POE</a>
+        <a href="<?= APP_URL ?>" class="logo">
+            <?php if ($logoPath): ?>
+                <img src="<?= APP_URL . $logoPath ?>" alt="Logo"
+                    style="height: 32px; width: auto; vertical-align: middle; margin-right: 10px;">
+            <?php endif; ?>
+            <?= htmlspecialchars($systemName) ?>
+        </a>
         <div>
             <a href="<?= APP_URL ?>/login" class="nav-link">Login</a>
             <a href="<?= APP_URL ?>/login" class="btn-cta" style="margin-left: 20px;">Get Started</a>
@@ -218,22 +233,57 @@
         </div>
 
         <div class="hero-image">
-            <div class="mockup-card">
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <div style="width: 30px; height: 30px; background: #eff6ff; border-radius: 50%;"></div>
-                    <div>
-                        <div class="mockup-line" style="width: 100px;"></div>
-                        <div class="mockup-line short" style="width: 60px;"></div>
+            <?php if (!empty($systemSettings['hero_image_path'])): ?>
+                <img src="<?= APP_URL . $systemSettings['hero_image_path'] ?>" alt="System Preview"
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+            <?php else: ?>
+                <!-- Fallback Mockup -->
+                <div class="mockup-card">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <div style="width: 30px; height: 30px; background: #eff6ff; border-radius: 50%;"></div>
+                        <div>
+                            <div class="mockup-line" style="width: 100px;"></div>
+                            <div class="mockup-line short" style="width: 60px;"></div>
+                        </div>
+                    </div>
+                    <div class="mockup-line" style="height: 100px;"></div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                        <div class="mockup-line short" style="width: 80px; background: #22c55e;"></div>
+                        <div class="mockup-line short" style="width: 40px;"></div>
+                    </div>
+                    <div style="margin-top: 20px; text-align: center; color: #94a3b8; font-size: 0.8rem;">System Preview
                     </div>
                 </div>
-                <div class="mockup-line" style="height: 100px;"></div>
-                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-                    <div class="mockup-line short" style="width: 80px; background: #22c55e;"></div>
-                    <div class="mockup-line short" style="width: 40px;"></div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </header>
+    <footer style="background: #1e293b; color: #94a3b8; padding: 60px 5%; margin-top: auto;">
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-bottom: 40px;">
+            <div>
+                <h3 style="color: white; margin-bottom: 20px; font-size: 1.2rem;">About
+                    <?= htmlspecialchars($systemName) ?>
+                </h3>
+                <p style="font-size: 0.95rem; line-height: 1.7;">
+                    <?= nl2br(htmlspecialchars($systemSettings['about_text'] ?? 'A comprehensive Competency Based Education and Training (CBET) Portfolio of Evidence system.')) ?>
+                </p>
+            </div>
+            <div>
+                <h3 style="color: white; margin-bottom: 20px; font-size: 1.2rem;">Contact Us</h3>
+                <p style="font-size: 0.95rem; line-height: 1.7;">
+                    <strong style="color: #cbd5e1;">Email:</strong>
+                    <?= htmlspecialchars($systemSettings['contact_email'] ?? 'admin@techex.edu') ?><br>
+                    <strong style="color: #cbd5e1;">Phone:</strong>
+                    <?= htmlspecialchars($systemSettings['contact_phone'] ?? '+254 700 000 000') ?><br>
+                    <strong style="color: #cbd5e1;">Address:</strong><br>
+                    <?= nl2br(htmlspecialchars($systemSettings['address'] ?? 'Tech Ex Institute')) ?>
+                </p>
+            </div>
+        </div>
+        <div style="border-top: 1px solid #334155; padding-top: 30px; text-align: center; font-size: 0.9rem;">
+            &copy; <?= date('Y') ?> <?= htmlspecialchars($systemName) ?>. All rights reserved.
+        </div>
+    </footer>
 </body>
 
 </html>

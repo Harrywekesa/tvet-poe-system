@@ -121,4 +121,40 @@ class SubmissionController extends Controller
 
         $this->redirect('/poe/unit/' . $unitId);
     }
+
+    public function viewEvidence($submissionId)
+    {
+        // 1. Fetch Submission & Verification Details
+        // We need: Student Name, Unit, Slot, Date, File Path, Status, Verifier Name (if any)
+        $sub = $this->model->getSubmissionDetails($submissionId);
+
+        if (!$sub) {
+            die("Evidence not found.");
+        }
+
+        // 2. Check if Approved/Verified
+        // If Approved/Verified, show Cover Sheet Wrapper
+        // Otherwise, redirect to file directly (or show partial wrapper without stamp)
+
+        $isApproved = in_array($sub['status'], ['Approved', 'Verified']);
+
+        if ($isApproved) {
+            // Fetch Reviewer Details (Trainer or IV)
+            $reviews = $this->model->getReviewsForSubmission($submissionId);
+            $instModel = new InstitutionModel();
+            $inst = $instModel->getInstitutionDetails();
+
+            $this->view('poe/cover_sheet', [
+                'submission' => $sub,
+                'reviews' => $reviews,
+                'inst' => $inst,
+                'title' => 'Verified Evidence - ' . $sub['student_name']
+            ]);
+        } else {
+            // Direct Serve (or via PreviewController)
+            // For now, redirect to public link if accessible, or read file
+            // Assuming files are in public/uploads or serve route
+            $this->redirect('/uploads/' . $sub['file_path']);
+        }
+    }
 }

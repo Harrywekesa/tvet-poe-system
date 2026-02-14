@@ -45,14 +45,19 @@ class MarksCalculator
         // 4. Group Marks by Topic
         $topicScores = []; // topic_id => ['written' => [], 'practical' => []]
 
+        // Initialize topics + "General" catch-all
         foreach ($topics as $t) {
             $topicScores[$t['id']] = ['written' => 0, 'practical' => 0, 'w_count' => 0, 'p_count' => 0, 'slots' => []];
         }
+        // Default "General" topic for slots without a topic
+        $topicScores[0] = ['written' => 0, 'practical' => 0, 'w_count' => 0, 'p_count' => 0, 'slots' => []];
 
         foreach ($marks as $m) {
             $tId = $m['topic_id'];
-            if (!$tId || !isset($topicScores[$tId]))
-                continue; // Skip if no topic or unknown
+            // If topic is missing or invalid, assign to General (0)
+            if (!$tId || !isset($topicScores[$tId])) {
+                $tId = 0;
+            }
 
             $val = floatval($m['marks_obtained']);
             if ($m['type'] == 'Written') {
@@ -73,7 +78,17 @@ class MarksCalculator
         $finalScore = 0;
         $topicResults = [];
 
-        foreach ($topics as $t) {
+        // Include General Topic in iteration if it has data
+        $allTopics = $topics;
+        if ($topicScores[0]['w_count'] > 0 || $topicScores[0]['p_count'] > 0) {
+            $allTopics[] = [
+                'id' => 0,
+                'title' => 'General / Unassigned',
+                'weight_percentage' => 0 // Or should we fallback to remaining weight? For now 0 to avoid skewing unless configured.
+            ];
+        }
+
+        foreach ($allTopics as $t) {
             $tid = $t['id'];
             $data = $topicScores[$tid];
 
@@ -92,7 +107,7 @@ class MarksCalculator
             $topicScore = ($avgW * $wRatio) + ($avgP * $pRatio);
 
             // Weight this topic adds to Unit Total
-            $contribution = $topicScore * ($t['weight_percentage'] / 100);
+            $contribution = $topicScore * (($t['weight_percentage'] ?? 0) / 100);
 
             $finalScore += $contribution;
 
@@ -100,7 +115,7 @@ class MarksCalculator
                 'id' => $tid,
                 'title' => $t['title'],
                 'score' => $topicScore,
-                'weight' => $t['weight_percentage'],
+                'weight' => $t['weight_percentage'] ?? 0,
                 'contribution' => $contribution,
                 'is_complete' => ($data['w_count'] > 0 || $wRatio == 0) && ($data['p_count'] > 0 || $pRatio == 0),
                 'w_count' => $data['w_count'],

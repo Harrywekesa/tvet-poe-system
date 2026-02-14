@@ -61,7 +61,8 @@
         <!-- Details Form -->
         <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
             <h3>Institution Details</h3>
-            <form action="<?= APP_URL ?>/institution/update" method="POST" style="margin-top: 20px;">
+            <form action="<?= APP_URL ?>/institution/update" method="POST" enctype="multipart/form-data"
+                style="margin-top: 20px;">
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px;">Institution Name</label>
                     <input type="text" name="name" value="<?= htmlspecialchars($institution['name'] ?? '') ?>" required
@@ -77,6 +78,63 @@
                     <textarea name="address"
                         style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"><?= htmlspecialchars($institution['address'] ?? '') ?></textarea>
                 </div>
+
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">System Name</label>
+                    <input type="text" name="system_name"
+                        value="<?= htmlspecialchars($institution['system_name'] ?? 'CBET POE System') ?>"
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">System Logo</label>
+                    <?php if (!empty($institution['logo_path'])): ?>
+                        <div style="margin-bottom: 5px;">
+                            <img src="<?= APP_URL . $institution['logo_path'] ?>" alt="Logo" style="height: 40px;">
+                        </div>
+                    <?php endif; ?>
+                    <input type="file" name="logo" accept="image/*"
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <small style="color: #64748b;">Upload a PNG or JPG (approx 40px height recommended)</small>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Hero Image (Landing Page)</label>
+                    <?php if (!empty($institution['hero_image_path'])): ?>
+                        <div style="margin-bottom: 5px;">
+                            <img src="<?= APP_URL . $institution['hero_image_path'] ?>" alt="Hero"
+                                style="height: 80px; width: auto; border-radius: 4px;">
+                        </div>
+                    <?php endif; ?>
+                    <input type="file" name="hero_image" accept="image/*"
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <small style="color: #64748b;">Upload a screenshot or banner for the home page (approx
+                        600x400px)</small>
+                </div>
+
+                <div class="grid-2">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Contact Email</label>
+                        <input type="email" name="contact_email"
+                            value="<?= htmlspecialchars($institution['contact_email'] ?? '') ?>"
+                            style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Contact Phone</label>
+                        <input type="text" name="contact_phone"
+                            value="<?= htmlspecialchars($institution['contact_phone'] ?? '') ?>"
+                            style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">About / Footer Text</label>
+                    <textarea name="about_text" rows="3"
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"><?= htmlspecialchars($institution['about_text'] ?? '') ?></textarea>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Save Details</button>
             </form>
         </div>

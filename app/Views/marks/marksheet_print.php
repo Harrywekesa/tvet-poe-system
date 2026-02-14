@@ -215,315 +215,352 @@
 
 <body>
 
-    <div class="sheet-container">
+    <!-- Audit Debug (Temporary) -->
+    <div class="no-print" style="background: #eee; padding: 5px; font-size: 10px; color: #555; text-align: right;">
+        Debug: Role=[<?= $_SESSION['role'] ?? 'Null' ?>], Status=[<?= $status ?>]
+    </div>
 
-        <!-- Actions Bar (No Print) -->
-        <div class="no-print view-controls"
-            style="background: #f8f9fa; padding: 10px; border-bottom: 1px solid #ddd; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <button onclick="window.print()" class="btn">🖨️ Print / PDF</button>
-                <?php if (($_SESSION['role'] ?? '') === 'Trainer'): ?>
-                    <a href="<?= APP_URL ?>/dashboard" class="btn">Back</a>
-                <?php else: ?>
-                    <a href="javascript:history.back()" class="btn">Back</a>
-                <?php endif; ?>
+    <!-- Actions Bar (No Print) -->
+    <div class="no-print view-controls"
+        style="background: #f8f9fa; padding: 10px; border-bottom: 1px solid #ddd; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <button onclick="window.print()" class="btn">🖨️ Print / PDF</button>
+            <?php if (($_SESSION['role'] ?? '') === 'Trainer'): ?>
+                <a href="<?= APP_URL ?>/dashboard" class="btn">Back</a>
+            <?php else: ?>
+                <a href="javascript:history.back()" class="btn">Back</a>
+            <?php endif; ?>
 
-                <!-- Submit Form -->
-                <?php if ($status == 'Draft' || $status == 'HOD_Rejected' || $status == 'IQS_Rejected'): ?>
-                    <form action="<?= APP_URL ?>/marks/submit" method="POST" style="display:inline; margin-left: 10px;">
-                        <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
-                        <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
-                        <button type="submit" class="btn" style="color: #c2410c;"
-                            onclick="return confirm('Submit to HOD? You cannot edit marks after this.')">Submit to
-                            HOD</button>
+            <!-- Submit Form -->
+            <?php
+            $role = $_SESSION['role'] ?? '';
+            $canSubmit = (
+                (strcasecmp($role, 'Trainer') === 0 || strcasecmp($role, 'Admin') === 0)
+                &&
+                ($status == 'Draft' || $status == 'HOD_Rejected' || $status == 'IQS_Rejected')
+            );
+            ?>
+            <?php if ($canSubmit): ?>
+                <form action="<?= APP_URL ?>/marks/submit" method="POST" style="display:inline; margin-left: 10px;">
+                    <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
+                    <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
+                    <button type="submit" class="btn" style="color: #c2410c;"
+                        onclick="return confirm('Submit to HOD? You cannot edit marks after this.')">Submit to
+                        HOD</button>
+                </form>
+            <?php endif; ?>
+        </div>
+
+        <!-- View Toggle -->
+        <div>
+            <span style="margin-right: 5px; font-weight: 600;">View:</span>
+            <a href="?type=raw" class="btn <?= $type == 'raw' ? 'active' : '' ?>">Raw</a>
+            <a href="?type=weighted" class="btn <?= $type == 'weighted' ? 'active' : '' ?>">Weighted</a>
+        </div>
+    </div>
+
+    <!-- Approval Panels (No Print) -->
+    <?php if (!empty($_SESSION['user_id']) && ($status == 'Submitted_to_HOD' || $status == 'HOD_Approved')): ?>
+        <div class="no-print"
+            style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px;">
+
+            <?php if ($status == 'Submitted_to_HOD'): ?>
+                <strong>HOD Action:</strong>
+                <?php if (($_SESSION['role'] ?? '') === 'HOD' || ($_SESSION['role'] ?? '') === 'Admin'): ?>
+                    <form action="<?= APP_URL ?>/marks/status" method="POST" style="display:inline; margin-left: 10px;">
+                        <input type="hidden" name="id" value="<?= $statusRecord['id'] ?>">
+                        <input type="hidden" name="role" value="HOD">
+                        <input type="text" name="comments" placeholder="Comments..." required
+                            style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                        <button type="submit" name="action" value="approve" class="btn"
+                            style="color: green; border-color: green;">Approve</button>
+                        <button type="submit" name="action" value="reject" class="btn"
+                            style="color: red; border-color: red;">Reject</button>
                     </form>
+                <?php else: ?>
+                    <span style="color: #666; font-style: italic; margin-left: 10px;">(Pending HOD Review)</span>
                 <?php endif; ?>
-            </div>
 
-            <!-- View Toggle -->
-            <div>
-                <span style="margin-right: 5px; font-weight: 600;">View:</span>
-                <a href="?type=raw" class="btn <?= $type == 'raw' ? 'active' : '' ?>">Raw</a>
-                <a href="?type=weighted" class="btn <?= $type == 'weighted' ? 'active' : '' ?>">Weighted</a>
-            </div>
-        </div>
-
-        <!-- Approval Panels (No Print) -->
-        <?php if (!empty($_SESSION['user_id']) && ($status == 'Submitted_to_HOD' || $status == 'HOD_Approved')): ?>
-            <div class="no-print"
-                style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px;">
-
-                <?php if ($status == 'Submitted_to_HOD'): ?>
-                    <strong>HOD Action:</strong>
-                    <?php if (($_SESSION['role'] ?? '') === 'HOD' || ($_SESSION['role'] ?? '') === 'Admin'): ?>
-                        <form action="<?= APP_URL ?>/marks/status" method="POST" style="display:inline; margin-left: 10px;">
-                            <input type="hidden" name="id" value="<?= $statusRecord['id'] ?>">
-                            <input type="hidden" name="role" value="HOD">
-                            <input type="text" name="comments" placeholder="Comments..." required
-                                style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
-                            <button type="submit" name="action" value="approve" class="btn"
-                                style="color: green; border-color: green;">Approve</button>
-                            <button type="submit" name="action" value="reject" class="btn"
-                                style="color: red; border-color: red;">Reject</button>
-                        </form>
-                    <?php else: ?>
-                        <span style="color: #666; font-style: italic; margin-left: 10px;">(Pending HOD Review)</span>
-                    <?php endif; ?>
-
-                <?php elseif ($status == 'HOD_Approved'): ?>
-                    <strong>IQS Action:</strong>
-                    <?php if (($_SESSION['role'] ?? '') === 'InternalVerifier' || ($_SESSION['role'] ?? '') === 'Admin'): ?>
-                        <form action="<?= APP_URL ?>/marks/status" method="POST" style="display:inline; margin-left: 10px;">
-                            <input type="hidden" name="id" value="<?= $statusRecord['id'] ?>">
-                            <input type="hidden" name="role" value="IQS">
-                            <input type="text" name="comments" placeholder="Comments (Optional)..."
-                                style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
-                            <button type="submit" name="action" value="approve" class="btn"
-                                style="color: green; border-color: green;">Approve</button>
-                            <button type="submit" name="action" value="reject" class="btn"
-                                style="color: red; border-color: red;">Reject</button>
-                        </form>
-                    <?php else: ?>
-                        <span style="color: #666; font-style: italic; margin-left: 10px;">(Pending IQS Verification)</span>
-                    <?php endif; ?>
+            <?php elseif ($status == 'HOD_Approved'): ?>
+                <strong>IQS Action:</strong>
+                <?php if (($_SESSION['role'] ?? '') === 'InternalVerifier' || ($_SESSION['role'] ?? '') === 'Admin'): ?>
+                    <form action="<?= APP_URL ?>/marks/status" method="POST" style="display:inline; margin-left: 10px;">
+                        <input type="hidden" name="id" value="<?= $statusRecord['id'] ?>">
+                        <input type="hidden" name="role" value="IQS">
+                        <input type="text" name="comments" placeholder="Comments (Optional)..."
+                            style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                        <button type="submit" name="action" value="approve" class="btn"
+                            style="color: green; border-color: green;">Approve</button>
+                        <button type="submit" name="action" value="reject" class="btn"
+                            style="color: red; border-color: red;">Reject</button>
+                    </form>
+                <?php else: ?>
+                    <span style="color: #666; font-style: italic; margin-left: 10px;">(Pending IQS Verification)</span>
                 <?php endif; ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- Marksheet Header -->
-        <div class="sheet-header">
-            <div class="logo-box">
-                LOGO
-            </div>
-            <div class="institute-details">
-                <div class="institute-name">TVET INSTITUTE</div>
-                <div class="institute-sub">Competence Based Education & Training</div>
-                <div class="institute-sub">Consolidated Marksheet</div>
-            </div>
+            <?php endif; ?>
         </div>
+    <?php endif; ?>
 
-        <!-- Unit Details -->
-        <div class="unit-info">
-            <div>
-                <div class="unit-title"><?= htmlspecialchars($unit['unit_title']) ?></div>
-                <div style="font-size: 0.9rem; color: #666;"><?= htmlspecialchars($unit['unit_code']) ?></div>
-            </div>
-            <div style="text-align: right;">
-                <div><strong>Class:</strong> <?= htmlspecialchars($class['class_name'] ?? $class['class_code']) ?></div>
-                <div><strong>Level:</strong> <?= htmlspecialchars($unit['assessment_level']) ?></div>
-                <div style="margin-top: 5px;">
-                    Status:
-                    <span style="padding: 2px 6px; border-radius: 4px; background: #e2e8f0; font-size: 0.8rem;">
-                        <?= str_replace('_', ' ', $status) ?>
-                    </span>
+    <!-- Marksheet Header -->
+    <div class="sheet-header">
+        <div class="logo-box" style="border:none; background:transparent;">
+            <?php if (!empty($inst['logo_path'])): ?>
+                <img src="<?= APP_URL . htmlspecialchars($inst['logo_path']) ?>" alt="Logo"
+                    style="max-width:100%; max-height:100px; object-fit:contain;">
+            <?php else: ?>
+                <div
+                    style="width:100px; height:100px; border:2px dashed #ccc; display:flex; align-items:center; justify-content:center;">
+                    LOGO
                 </div>
+            <?php endif; ?>
+        </div>
+        <div class="institute-details">
+            <div class="institute-name"><?= htmlspecialchars($inst['name'] ?? 'TVET INSTITUTE') ?></div>
+            <div class="institute-sub">
+                <?= htmlspecialchars($inst['system_name'] ?? 'Competence Based Education & Training') ?>
+            </div>
+            <div class="institute-sub">Consolidated Marksheet</div>
+        </div>
+    </div>
+
+    <!-- Unit Details -->
+    <div class="unit-info">
+        <div>
+            <div class="unit-title"><?= htmlspecialchars($unit['unit_title']) ?></div>
+            <div style="font-size: 0.9rem; color: #666;"><?= htmlspecialchars($unit['unit_code']) ?></div>
+        </div>
+        <div style="text-align: right;">
+            <div><strong>Class:</strong> <?= htmlspecialchars($class['class_name'] ?? $class['class_code']) ?></div>
+            <div><strong>Level:</strong> <?= htmlspecialchars($unit['assessment_level']) ?></div>
+            <div style="margin-top: 5px;">
+                Status:
+                <span style="padding: 2px 6px; border-radius: 4px; background: #e2e8f0; font-size: 0.8rem;">
+                    <?= str_replace('_', ' ', $status) ?>
+                </span>
             </div>
         </div>
+    </div>
 
-        <table style="font-size: 0.8rem;">
-            <thead>
+    <table style="font-size: 0.8rem;">
+        <thead>
+            <tr>
+                <th rowspan="2" style="width: 30px;">S/N</th>
+                <th rowspan="2" style="width: 80px;">Reg No</th>
+                <th rowspan="2">Candidate Name</th>
+
+                <!-- Practical Header -->
+                <th colspan="<?= count($practicalSlots) ?>" style="text-align: center; background: #e0f2fe;">
+                    PRACTICAL</th>
+
+                <!-- Written Header -->
+                <th colspan="<?= count($writtenSlots) ?>" style="text-align: center; background: #fef3c7;">WRITTEN
+                    (THEORY)</th>
+
+                <?php if ($type !== 'raw'): ?>
+                    <th rowspan="2" style="width: 60px;">Final %</th>
+                    <th rowspan="2" style="width: 80px;">Grade</th>
+                <?php endif; ?>
+            </tr>
+            <tr>
+                <!-- Practical Sub-columns -->
+                <?php // Assuming sequential order in $practicalSlots for numbering ?>
+                <?php $p = 1;
+                foreach ($practicalSlots as $slot): ?>
+                    <th style="font-size: 0.7rem; height: auto; vertical-align: bottom; text-align: center;">
+                        PRAC <?= $p++ ?>
+                    </th>
+                <?php endforeach; ?>
+
+                <!-- Written Sub-columns -->
+                <?php $w = 1;
+                foreach ($writtenSlots as $slot): ?>
+                    <th style="font-size: 0.7rem; height: auto; vertical-align: bottom; text-align: center;">
+                        WASSM <?= $w++ ?>
+                    </th>
+                <?php endforeach; ?>
+            </tr>
+        </thead>
+        <tbody>
+            <?php $i = 1;
+            foreach ($students as $s): ?>
+                <?php
+                $res = $results[$s['id']];
+                // To get individual slot marks, we need to access $res['topics'] -> slots? 
+                // Re-indexing results by slot_id would be faster, but let's loop for now.
+                // Actually $res structure from calculator is organized by TOPICS.
+                // We need a map of slot_id -> mark/weighted_score
+            
+                $slotMap = [];
+                foreach ($res['topics'] as $t) {
+                    foreach ($t['slots'] as $slotRes) {
+                        $slotMap[$slotRes['id']] = $slotRes;
+                    }
+                }
+                ?>
                 <tr>
-                    <th rowspan="2" style="width: 30px;">S/N</th>
-                    <th rowspan="2" style="width: 80px;">Reg No</th>
-                    <th rowspan="2">Candidate Name</th>
+                    <td><?= $i++ ?></td>
+                    <td><?= htmlspecialchars($s['identifier']) ?></td>
+                    <td><?= htmlspecialchars($s['full_name']) ?></td>
 
-                    <!-- Practical Header -->
-                    <th colspan="<?= count($practicalSlots) ?>" style="text-align: center; background: #e0f2fe;">
-                        PRACTICAL</th>
+                    <!-- Practical Data -->
+                    <?php foreach ($practicalSlots as $slot): ?>
+                        <?php
+                        $data = $slotMap[$slot['id']] ?? null;
+                        $val = '-';
+                        if ($data) {
+                            if ($type == 'raw') {
+                                $val = ($data['mark'] !== '-') ? number_format($data['mark'], 0) : '-';
+                            } else {
+                                if ($data['mark'] !== '-') {
+                                    // Find Topic Details
+                                    $topic = null;
+                                    foreach ($res['topics'] as $t) {
+                                        if ($t['id'] == $slot['topic_id']) {
+                                            $topic = $t;
+                                            break;
+                                        }
+                                    }
 
-                    <!-- Written Header -->
-                    <th colspan="<?= count($writtenSlots) ?>" style="text-align: center; background: #fef3c7;">WRITTEN
-                        (THEORY)</th>
+                                    if ($topic) {
+                                        // Formula: (Mark/100) * (1/Count) * TypeRatio * TopicWeight
+                
+                                        $ratio = $res['ratios']['p']; // Practical
+                                        $count = $topic['p_count'] ?? 1;
+                                        if ($count == 0)
+                                            $count = 1;
 
+                                        $weightedVal = ($data['mark'] / 100) * (1 / $count) * $ratio * $topic['weight'];
+                                        $val = number_format($weightedVal, 2);
+                                    }
+                                }
+                            }
+                        }
+                        ?>
+                        <td><?= $val ?></td>
+                    <?php endforeach; ?>
+
+                    <!-- Written Data -->
+                    <?php foreach ($writtenSlots as $slot): ?>
+                        <?php
+                        $data = $slotMap[$slot['id']] ?? null;
+                        $val = '-';
+                        if ($data) {
+                            if ($type == 'raw') {
+                                if ($data['mark'] !== '-') {
+                                    $val = number_format($data['mark'], 0);
+                                }
+                            } else {
+                                if ($data['mark'] !== '-') {
+                                    $topic = null;
+                                    foreach ($res['topics'] as $t) {
+                                        if ($t['id'] == $slot['topic_id']) {
+                                            $topic = $t;
+                                            break;
+                                        }
+                                    }
+
+                                    if ($topic) {
+                                        $ratio = $res['ratios']['w'];
+                                        $count = $topic['w_count'] ?? 1;
+                                        if ($count == 0)
+                                            $count = 1;
+
+                                        $weightedVal = ($data['mark'] / 100) * (1 / $count) * $ratio * $topic['weight'];
+                                        $val = number_format($weightedVal, 2);
+                                    }
+                                }
+                            }
+                        }
+                        ?>
+                        <td><?= $val ?></td>
+                    <?php endforeach; ?>
+
+                    <!-- Final -->
                     <?php if ($type !== 'raw'): ?>
-                        <th rowspan="2" style="width: 60px;">Final %</th>
-                        <th rowspan="2" style="width: 80px;">Grade</th>
+                        <td><strong>
+                                <?= number_format($res['final_mark'], 0) ?>
+                            </strong></td>
+                        <td>
+                            <?= ($res['final_mark'] >= 50) ? 'Competent' : 'NYC' ?>
+                        </td>
                     <?php endif; ?>
                 </tr>
-                <tr>
-                    <!-- Practical Sub-columns -->
-                    <?php // Assuming sequential order in $practicalSlots for numbering ?>
-                    <?php $p = 1;
-                    foreach ($practicalSlots as $slot): ?>
-                        <th style="font-size: 0.7rem; height: auto; vertical-align: bottom; text-align: center;">
-                            PRAC <?= $p++ ?>
-                        </th>
-                    <?php endforeach; ?>
+            <?php endforeach; ?>
+        </tbody>
+        <?php if (empty($students)): ?>
+            <tr>
+                <td colspan="<?= 3 + count($practicalSlots) + count($writtenSlots) + ($type !== 'raw' ? 2 : 0) ?>"
+                    style="padding: 20px;">
+                    No students enrolled in this class.
+                </td>
+            </tr>
+        <?php endif; ?>
+        </tbody>
+    </table>
 
-                    <!-- Written Sub-columns -->
-                    <?php $w = 1;
-                    foreach ($writtenSlots as $slot): ?>
-                        <th style="font-size: 0.7rem; height: auto; vertical-align: bottom; text-align: center;">
-                            WASSM <?= $w++ ?>
-                        </th>
-                    <?php endforeach; ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $i = 1;
-                foreach ($students as $s): ?>
-                    <?php
-                    $res = $results[$s['id']];
-                    // To get individual slot marks, we need to access $res['topics'] -> slots? 
-                    // Re-indexing results by slot_id would be faster, but let's loop for now.
-                    // Actually $res structure from calculator is organized by TOPICS.
-                    // We need a map of slot_id -> mark/weighted_score
-                
-                    $slotMap = [];
-                    foreach ($res['topics'] as $t) {
-                        foreach ($t['slots'] as $slotRes) {
-                            $slotMap[$slotRes['id']] = $slotRes;
-                        }
-                    }
-                    ?>
-                    <tr>
-                        <td><?= $i++ ?></td>
-                        <td><?= htmlspecialchars($s['identifier']) ?></td>
-                        <td><?= htmlspecialchars($s['full_name']) ?></td>
+    <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+        <!-- Trainer Sig -->
+        <div
+            class="stamp-box <?= ($status != 'Draft' && $status != 'HOD_Rejected' && $status != 'IQS_Rejected') ? 'approved' : '' ?>">
+            <div class="stamp-text">Trainer Submitted</div>
+            <div>By:
+                <?= htmlspecialchars($statusRecord['submitted_by_name'] ?? ($statusRecord['submitted_by'] ?? 'Pending')) ?>
+            </div>
+            <div>Dept:
+                <?= htmlspecialchars($statusRecord['submitted_dept'] ?? '-') ?>
+            </div>
+            <div>Date:
+                <?= $statusRecord['submitted_at'] ?? '-' ?>
+            </div>
+            <div class="signature-line">Signature</div>
+        </div>
 
-                        <!-- Practical Data -->
-                        <?php foreach ($practicalSlots as $slot): ?>
-                            <?php
-                            $data = $slotMap[$slot['id']] ?? null;
-                            $val = '-';
-                            if ($data) {
-                                if ($type == 'raw') {
-                                    $val = ($data['mark'] !== '-') ? number_format($data['mark'], 0) : '-';
-                                } else {
-                                    if ($data['mark'] !== '-') {
-                                        // Find Topic Details
-                                        $topic = null;
-                                        foreach ($res['topics'] as $t) {
-                                            if ($t['id'] == $slot['topic_id']) {
-                                                $topic = $t;
-                                                break;
-                                            }
-                                        }
-
-                                        if ($topic) {
-                                            // Formula: (Mark/100) * (1/Count) * TypeRatio * TopicWeight
-                    
-                                            $ratio = $res['ratios']['p']; // Practical
-                                            $count = $topic['p_count'] ?? 1;
-                                            if ($count == 0)
-                                                $count = 1;
-
-                                            $weightedVal = ($data['mark'] / 100) * (1 / $count) * $ratio * $topic['weight'];
-                                            $val = number_format($weightedVal, 2);
-                                        }
-                                    }
-                                }
-                            }
-                            ?>
-                            <td><?= $val ?></td>
-                        <?php endforeach; ?>
-
-                        <!-- Written Data -->
-                        <?php foreach ($writtenSlots as $slot): ?>
-                            <?php
-                            $data = $slotMap[$slot['id']] ?? null;
-                            $val = '-';
-                            if ($data) {
-                                if ($type == 'raw') {
-                                    if ($data['mark'] !== '-') {
-                                        $val = number_format($data['mark'], 0);
-                                    }
-                                } else {
-                                    if ($data['mark'] !== '-') {
-                                        $topic = null;
-                                        foreach ($res['topics'] as $t) {
-                                            if ($t['id'] == $slot['topic_id']) {
-                                                $topic = $t;
-                                                break;
-                                            }
-                                        }
-
-                                        if ($topic) {
-                                            $ratio = $res['ratios']['w'];
-                                            $count = $topic['w_count'] ?? 1;
-                                            if ($count == 0)
-                                                $count = 1;
-
-                                            $weightedVal = ($data['mark'] / 100) * (1 / $count) * $ratio * $topic['weight'];
-                                            $val = number_format($weightedVal, 2);
-                                        }
-                                    }
-                                }
-                            }
-                            ?>
-                            <td><?= $val ?></td>
-                        <?php endforeach; ?>
-
-                        <!-- Final -->
-                        <?php if ($type !== 'raw'): ?>
-                            <td><strong>
-                                    <?= number_format($res['final_mark'], 0) ?>
-                                </strong></td>
-                            <td>
-                                <?= ($res['final_mark'] >= 50) ? 'Competent' : 'NYC' ?>
-                            </td>
-                        <?php endif; ?>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
-        <div style="margin-top: 50px; display: flex; justify-content: space-between;">
-            <!-- Trainer Sig -->
-            <div class="stamp-box">
-                <div class="stamp-text">Trainer Submitted</div>
+        <!-- HOD Stamp -->
+        <div
+            class="stamp-box <?= ($status == 'HOD_Approved' || $status == 'IQS_Approved' || $status == 'IQS_Rejected') ? 'approved' : '' ?>">
+            <?php if ($status == 'HOD_Approved' || $status == 'IQS_Approved' || $status == 'IQS_Rejected'): ?>
+                <div class="stamp-text">HOD APPROVED</div>
                 <div>By:
-                    <?= $statusRecord['submitted_by'] ?? 'Pending' ?>
+                    <?= htmlspecialchars($statusRecord['hod_name'] ?? 'HOD') ?>
+                </div>
+                <div>Dept:
+                    <?= htmlspecialchars($statusRecord['hod_dept'] ?? '-') ?>
                 </div>
                 <div>Date:
-                    <?= $statusRecord['submitted_at'] ?? '-' ?>
+                    <?= $statusRecord['hod_action_at'] ?>
                 </div>
-                <div class="signature-line">Signature</div>
-            </div>
-
-            <!-- HOD Stamp -->
-            <div
-                class="stamp-box <?= ($status == 'HOD_Approved' || $status == 'IQS_Approved' || $status == 'IQS_Rejected') ? 'approved' : '' ?>">
-                <?php if ($status == 'HOD_Approved' || $status == 'IQS_Approved' || $status == 'IQS_Rejected'): ?>
-                    <div class="stamp-text">HOD APPROVED</div>
-                    <div>By:
-                        <?= $statusRecord['hod_user_id'] ?? 'HOD' ?>
-                    </div>
-                    <div>Date:
-                        <?= $statusRecord['hod_action_at'] ?>
-                    </div>
-                <?php elseif ($status == 'HOD_Rejected'): ?>
-                    <div class="stamp-text" style="color:red;">HOD REJECTED</div>
-                    <div>Reason:
-                        <?= htmlspecialchars($statusRecord['hod_comments']) ?>
-                    </div>
-                <?php else: ?>
-                    <div class="stamp-text" style="color:#ccc;">HOD PENDING</div>
-                <?php endif; ?>
-                <div class="signature-line">Signature</div>
-            </div>
-
-            <!-- IQS Stamp -->
-            <div class="stamp-box <?= ($status == 'IQS_Approved') ? 'approved' : '' ?>">
-                <?php if ($status == 'IQS_Approved'): ?>
-                    <div class="stamp-text">IQS APPROVED</div>
-                    <div>By:
-                        <?= $statusRecord['iqs_user_id'] ?? 'IQS' ?>
-                    </div>
-                    <div>Date:
-                        <?= $statusRecord['iqs_action_at'] ?>
-                    </div>
-                <?php elseif ($status == 'IQS_Rejected'): ?>
-                    <div class="stamp-text" style="color:red;">IQS REJECTED</div>
-                    <div>Reason:
-                        <?= htmlspecialchars($statusRecord['iqs_comments']) ?>
-                    </div>
-                <?php else: ?>
-                    <div class="stamp-text" style="color:#ccc;">IQS PENDING</div>
-                <?php endif; ?>
-                <div class="signature-line">Signature</div>
-            </div>
+            <?php elseif ($status == 'HOD_Rejected'): ?>
+                <div class="stamp-text" style="color:red;">HOD REJECTED</div>
+                <div>Reason:
+                    <?= htmlspecialchars($statusRecord['hod_comments']) ?>
+                </div>
+            <?php else: ?>
+                <div class="stamp-text" style="color:#ccc;">HOD PENDING</div>
+            <?php endif; ?>
+            <div class="signature-line">Signature</div>
         </div>
+
+        <!-- IQS Stamp -->
+        <div class="stamp-box <?= ($status == 'IQS_Approved') ? 'approved' : '' ?>">
+            <?php if ($status == 'IQS_Approved'): ?>
+                <div class="stamp-text">IQS APPROVED</div>
+                <div>By:
+                    <?= htmlspecialchars($statusRecord['iqs_name'] ?? 'IQS') ?>
+                </div>
+                <div>Date:
+                    <?= $statusRecord['iqs_action_at'] ?>
+                </div>
+            <?php elseif ($status == 'IQS_Rejected'): ?>
+                <div class="stamp-text" style="color:red;">IQS REJECTED</div>
+                <div>Reason:
+                    <?= htmlspecialchars($statusRecord['iqs_comments']) ?>
+                </div>
+            <?php else: ?>
+                <div class="stamp-text" style="color:#ccc;">IQS PENDING</div>
+            <?php endif; ?>
+            <div class="signature-line">Signature</div>
+        </div>
+    </div>
 
     </div>
     <!-- End Sheet Container -->

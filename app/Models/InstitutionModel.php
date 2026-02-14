@@ -12,14 +12,27 @@ class InstitutionModel extends Model
         return $this->db->query("SELECT * FROM institution LIMIT 1")->fetch();
     }
 
-    public function updateInstitution($name, $code, $address)
+    public function updateInstitution($name, $code, $address, $systemName, $email, $phone, $about, $logoPath = null, $heroPath = null)
     {
         // Upsert
-        return $this->db->query("
-            INSERT INTO institution (id, name, tvet_code, address) 
-            VALUES (1, ?, ?, ?) 
-            ON DUPLICATE KEY UPDATE name=?, tvet_code=?, address=?
-        ", [$name, $code, $address, $name, $code, $address]);
+        $sql = "
+            INSERT INTO institution (id, name, tvet_code, address, system_name, contact_email, contact_phone, about_text, logo_path, hero_image_path) 
+            VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+            ON DUPLICATE KEY UPDATE 
+                name=?, tvet_code=?, address=?, system_name=?, contact_email=?, contact_phone=?, about_text=?
+        ";
+        $params = [$name, $code, $address, $systemName, $email, $phone, $about, $logoPath, $heroPath, $name, $code, $address, $systemName, $email, $phone, $about];
+
+        if ($logoPath) {
+            $sql .= ", logo_path=?";
+            $params[] = $logoPath;
+        }
+        if ($heroPath) {
+            $sql .= ", hero_image_path=?";
+            $params[] = $heroPath;
+        }
+
+        return $this->db->query($sql, $params);
     }
 
     public function getAllDepartments()

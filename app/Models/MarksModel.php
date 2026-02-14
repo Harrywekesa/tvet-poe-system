@@ -43,7 +43,19 @@ class MarksModel extends Model
 
     public function getMarksheetStatus($classId, $unitId)
     {
-        return $this->db->query("SELECT * FROM marksheet_status WHERE class_id = ? AND unit_id = ?", [$classId, $unitId])->fetch();
+        return $this->db->query("
+            SELECT ms.*, 
+                   u_hod.full_name as hod_name, d_hod.name as hod_dept,
+                   u_iqs.full_name as iqs_name, 
+                   u_sub.full_name as submitted_by_name, d_sub.name as submitted_dept
+            FROM marksheet_status ms
+            LEFT JOIN users u_hod ON ms.hod_user_id = u_hod.id
+            LEFT JOIN departments d_hod ON u_hod.department_id = d_hod.id
+            LEFT JOIN users u_iqs ON ms.iqs_user_id = u_iqs.id
+            LEFT JOIN users u_sub ON ms.submitted_by = u_sub.id
+            LEFT JOIN departments d_sub ON u_sub.department_id = d_sub.id
+            WHERE ms.class_id = ? AND ms.unit_id = ?
+        ", [$classId, $unitId])->fetch();
     }
 
     public function initMarksheet($classId, $unitId, $trainerId)
@@ -85,7 +97,8 @@ class MarksModel extends Model
     public function getPendingApprovals($role)
     {
         $sql = "
-            SELECT ms.*, u.unit_code, u.unit_title, c.class_code, tr.full_name as trainer_name 
+            SELECT ms.id, ms.unit_id, ms.class_id, ms.status, ms.submitted_at, 
+                   u.unit_code, u.unit_title, c.class_code, tr.full_name as trainer_name 
             FROM marksheet_status ms
             JOIN units u ON ms.unit_id = u.id
             JOIN classes c ON ms.class_id = c.id

@@ -34,8 +34,42 @@ class InstitutionController extends Controller
         $name = $_POST['name'];
         $code = $_POST['tvet_code'];
         $address = $_POST['address'];
+        $systemName = $_POST['system_name'] ?? 'CBET POE System';
+        $email = $_POST['contact_email'] ?? '';
+        $phone = $_POST['contact_phone'] ?? '';
+        $about = $_POST['about_text'] ?? '';
 
-        $this->model->updateInstitution($name, $code, $address);
+        $logoPath = null;
+        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = UPLOAD_DIR . 'settings/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
+            $filename = 'logo_' . time() . '.' . $ext;
+
+            if (move_uploaded_file($_FILES['logo']['tmp_name'], $uploadDir . $filename)) {
+                $logoPath = '/uploads/settings/' . $filename;
+            }
+        }
+
+        $heroPath = null;
+        if (isset($_FILES['hero_image']) && $_FILES['hero_image']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = UPLOAD_DIR . 'settings/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $ext = pathinfo($_FILES['hero_image']['name'], PATHINFO_EXTENSION);
+            $filename = 'hero_' . time() . '.' . $ext;
+
+            if (move_uploaded_file($_FILES['hero_image']['tmp_name'], $uploadDir . $filename)) {
+                $heroPath = '/uploads/settings/' . $filename;
+            }
+        }
+
+        $this->model->updateInstitution($name, $code, $address, $systemName, $email, $phone, $about, $logoPath, $heroPath);
         $_SESSION['flash_success'] = 'Institution details updated.';
         $this->redirect('/institution');
     }

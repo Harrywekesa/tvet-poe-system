@@ -52,11 +52,13 @@
                     </div>
                 <?php endif; ?>
 
-                <?php if ($status === 'Approved'): ?>
+                <?php if ($status === 'Approved' || $status === 'Verified'): ?>
                     <div
                         style="padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; color: #166534;">
-                        ✅ Evidence Locked. View: <a href="<?= APP_URL ?>/uploads/<?= $mySub['file_path'] ?>" target="_blank"
-                            style="text-decoration: underline; color: inherit;">Download</a>
+                        ✅ Evidence Locked & Verified. <a href="<?= APP_URL ?>/poe/view/<?= $mySub['id'] ?>" target="_blank"
+                            class="btn btn-sm"
+                            style="margin-left:10px; background:#16a34a; color:white; text-decoration:none;">View Certificate &
+                            File</a>
                     </div>
                 <?php else: ?>
                     <div class="grid-main-side" style="align-items: center;">

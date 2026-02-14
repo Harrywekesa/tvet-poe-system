@@ -28,12 +28,13 @@ class VerificationModel extends Model
         // IV needs to see Approved submissions to Verify them.
         // We can pick random or show all Approved
         return $this->db->query("
-            SELECT s.*, u.full_name as student_name, slot.title as slot_title
+            SELECT DISTINCT s.*, u.full_name as student_name, slot.title as slot_title, s.file_path
             FROM poe_submissions s
             JOIN users u ON s.student_user_id = u.id
             JOIN assessment_slots slot ON s.assessment_slot_id = slot.id
             JOIN enrollments e ON u.id = e.user_id
-            WHERE e.class_id = ? AND slot.unit_id = ? AND s.status = 'Approved'
+            WHERE e.class_id = ? AND slot.unit_id = ? 
+            AND s.status IN ('Approved', 'Verified', 'Submitted', 'Flagged')
             ORDER BY u.full_name
         ", [$classId, $unitId])->fetchAll();
     }

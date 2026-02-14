@@ -306,10 +306,24 @@
     endif;
     ?>
 
+    <?php
+    // Fetch System Settings
+    if (!isset($systemSettings)) {
+        $instModelHeader = new \App\Models\InstitutionModel();
+        $systemSettings = $instModelHeader->getInstitutionDetails();
+    }
+    $systemName = $systemSettings['system_name'] ?? 'CBET POE System';
+    $logoPath = $systemSettings['logo_path'] ?? null;
+    ?>
+
     <nav>
         <div class="container nav-wrapper">
             <a href="<?= APP_URL ?>" class="logo">
-                CBET POE System
+                <?php if ($logoPath): ?>
+                    <img src="<?= APP_URL . $logoPath ?>" alt="Logo"
+                        style="height: 32px; width: auto; object-fit: contain;">
+                <?php endif; ?>
+                <?= htmlspecialchars($systemName) ?>
             </a>
 
             <button class="nav-toggle" aria-label="toggle navigation"

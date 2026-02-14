@@ -165,4 +165,26 @@ class SubmissionModel extends Model
 
         return max(0, $totalSlots - $submitted);
     }
+    public function getSubmissionDetails($submissionId)
+    {
+        return $this->db->query("
+            SELECT s.*, u.full_name as student_name, slot.title as slot_title, unit.unit_title, unit.unit_code
+            FROM poe_submissions s
+            JOIN users u ON s.student_user_id = u.id
+            JOIN assessment_slots slot ON s.assessment_slot_id = slot.id
+            JOIN units unit ON slot.unit_id = unit.id
+            WHERE s.id = ?
+        ", [$submissionId])->fetch();
+    }
+
+    public function getReviewsForSubmission($submissionId)
+    {
+        return $this->db->query("
+            SELECT r.*, u.full_name as reviewer_name
+            FROM poe_reviews r
+            LEFT JOIN users u ON r.reviewer_user_id = u.id
+            WHERE r.submission_id = ?
+            ORDER BY r.created_at ASC
+        ", [$submissionId])->fetchAll();
+    }
 }
