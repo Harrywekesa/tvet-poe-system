@@ -68,8 +68,12 @@ class MarksController extends Controller
         }
 
         // Merge marks into unitData assessments
+        $hasMarks = false;
         foreach ($unitData['assessments'] as &$slot) {
             $slot['mark'] = $marksMap[$slot['id']] ?? '-';
+            if ($slot['mark'] !== '-' && $slot['mark'] !== '') {
+                $hasMarks = true;
+            }
         }
 
         // Calculate Totals (Calculator Logic)
@@ -78,7 +82,8 @@ class MarksController extends Controller
 
         // Check Marksheet Status (Approvals)
         $statusRecord = $this->marksModel->getMarksheetStatus($classData['id'], $unitId);
-        $isApproved = ($statusRecord && $statusRecord['status'] === 'IQS_Approved');
+        // Only show as Approved if the Class is Approved AND the Student has actual marks
+        $isApproved = ($statusRecord && $statusRecord['status'] === 'IQS_Approved' && $hasMarks);
 
         $this->view('marks/student_view', [
             'unit' => $unitData,
@@ -273,42 +278,73 @@ class MarksController extends Controller
 
         $type = $_GET['type'] ?? 'raw'; // 'raw' or 'weighted'
 
-        // Get Student details
+        // Get Data
+        $data = $this->getTranscriptData($studentId, $type);
+
+        $this->view('marks/transcript', [
+            'student' => $data['student'],
+            'results' => $data['results'],
+            'course' => $data['course'],
+            'inst' => $this->institutionModel->getInstitutionDetails(),
+            'type' => $type
+        ]);
+    }
+
+    public function bulk_transcript($classId)
+    {
+        // Admin/HOD Only
+        if (!in_array($_SESSION['role'], ['Admin', 'HOD', 'InternalVerifier'])) {
+            die("Unauthorized.");
+        }
+
+        $type = $_GET['type'] ?? 'raw';
+        $class = $this->academicModel->getClassById($classId);
+        $students = $this->academicModel->getEnrolledStudents($classId);
+        $inst = $this->institutionModel->getInstitutionDetails();
+
+        $allData = [];
+        foreach ($students as $s) {
+            $tData = $this->getTranscriptData($s['id'], $type);
+            // Verify student belongs to this class context? 
+            // getTranscriptData fetches ALL units for student. 
+            // Ideally we should filter units belonging to THIS course/class if student is in multiple?
+            // For now, assuming student is in one active course/class or we want full history.
+            // Given the request is "Whole Class Transcript", usually implies the specific Course Transcripts.
+            // Current getTranscriptData gets ALL units. That's fine for now.
+
+            // Add to list
+            $allData[] = $tData;
+        }
+
+        $this->view('marks/bulk_transcript', [
+            'class' => $class,
+            'allData' => $allData,
+            'inst' => $inst,
+            'type' => $type
+        ]);
+    }
+
+    private function getTranscriptData($studentId, $type)
+    {
         $userModel = new \App\Models\UserModel();
         $student = $userModel->getUserById($studentId);
-
-        // Get Units
         $units = $this->academicModel->getStudentUnits($studentId);
+        $calculator = new \App\Services\MarksCalculator($this->unitModel, $this->marksModel);
 
         $results = [];
         $course = null;
-
-        $calculator = new \App\Services\MarksCalculator($this->unitModel, $this->marksModel);
 
         foreach ($units as $u) {
             if (!$course && isset($u['course_title'])) {
                 $course = ['title' => $u['course_title']];
             }
 
-            // Calculate score
-            // Note: calculateUnitTotal logic handles Raw vs Weighted internally? 
-            // No, calculateUnitTotal returns the WEIGHTED 'final_mark' and 'topics' structure.
-            // It does NOT explicitly return a 'Raw' average of all assessments. 
-            // The 'raw' mode in result slip just sums the marks? No, it lists them.
-            // For a Transcript 'Raw' request: "It should only show the final mark".
-            // If Type is Raw: Sum of all marks / Total Marks? Or Average?
-            // Usually "Raw Mark" for a unit = Sum of marks obtained / Sum of max marks * 100.
-            // But Slots don't have max marks in DB (assumed 100).
-            // So Average of all assessments? 
-
             $calRes = $calculator->calculateUnitTotal($u['id'], $studentId);
-
             $finalMark = 0;
+
             if ($type == 'weighted') {
-                $finalMark = $calRes['final_mark']; // This is the weighted contribution sum
+                $finalMark = $calRes['final_mark'];
             } else {
-                // Raw Calculation: Average of all slots?
-                // Let's use the 'topics' data from calculator to find all slots
                 $totalMark = 0;
                 $count = 0;
                 foreach ($calRes['topics'] as $t) {
@@ -329,16 +365,11 @@ class MarksController extends Controller
             ];
         }
 
-        // Get Institution Details
-        $inst = $this->institutionModel->getInstitutionDetails();
-
-        $this->view('marks/transcript', [
+        return [
             'student' => $student,
             'results' => $results,
-            'inst' => $inst,
-            'type' => $type,
             'course' => $course
-        ]);
+        ];
     }
 
     public function marksheet($unitId, $classId)
@@ -401,6 +432,44 @@ class MarksController extends Controller
             'writtenSlots' => $writtenSlots,
             'practicalSlots' => $practicalSlots,
             'inst' => $inst
+        ]);
+    }
+
+    public function class_transcripts($classId)
+    {
+        // Admin/HOD/Trainer/IV access
+        if (!in_array($_SESSION['role'], ['Admin', 'HOD', 'Trainer', 'InternalVerifier'])) {
+            die("Unauthorized.");
+        }
+
+        $class = $this->academicModel->getClassById($classId);
+        $students = $this->academicModel->getEnrolledStudents($classId);
+        $inst = $this->institutionModel->getInstitutionDetails();
+        $allClasses = $this->academicModel->getAllClasses();
+
+        $this->view('marks/class_transcripts', [
+            'class' => $class,
+            'students' => $students,
+            'inst' => $inst,
+            'allClasses' => $allClasses
+        ]);
+    }
+
+    public function transcripts_hub()
+    {
+        // Admin/HOD/Trainer/IV
+        if (!in_array($_SESSION['role'], ['Admin', 'HOD', 'Trainer', 'InternalVerifier'])) {
+            die("Unauthorized.");
+        }
+
+        $cohorts = $this->academicModel->getAllCohorts();
+        // Get all classes grouped by cohort or just list them
+        // For simplicity, let's just get all classes and we can filter in view or controller
+        $classes = $this->academicModel->getAllClasses();
+
+        $this->view('marks/transcripts_hub', [
+            'classes' => $classes,
+            'cohorts' => $cohorts
         ]);
     }
 

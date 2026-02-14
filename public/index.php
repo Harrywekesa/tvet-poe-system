@@ -82,6 +82,9 @@ $router->post('/marks/status', 'MarksController', 'update_status');
 $router->get('/marks/approvals', 'MarksController', 'approvals');
 $router->get('/marks/print_result/{unitId}', 'MarksController', 'print_result');
 $router->get('/marks/transcript/{studentId}', 'MarksController', 'transcript');
+$router->get('/marks/class_transcripts/{classId}', 'MarksController', 'class_transcripts');
+$router->get('/marks/bulk_transcript/{classId}', 'MarksController', 'bulk_transcript');
+$router->get('/marks/transcripts', 'MarksController', 'transcripts_hub');
 
 
 // Institution Imports

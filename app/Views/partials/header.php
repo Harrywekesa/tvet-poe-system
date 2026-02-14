@@ -345,10 +345,12 @@
                     <?php if ($_SESSION['role'] === 'Admin'): ?>
                         <a href="<?= APP_URL ?>/institution" title="Manage Institution">Institution</a>
                         <a href="<?= APP_URL ?>/academic" title="Manage Cohorts">Academic</a>
+                        <a href="<?= APP_URL ?>/marks/transcripts" title="Print Transcripts">Transcripts</a>
                         <a href="<?= APP_URL ?>/users" title="Manage Users">Users</a>
                         <a href="<?= APP_URL ?>/reports" style="color: #c2410c;" title="System Logs">Reports</a>
                     <?php elseif ($_SESSION['role'] === 'HOD'): ?>
                         <a href="<?= APP_URL ?>/documents/review" title="Review Docs">Review</a>
+                        <a href="<?= APP_URL ?>/marks/transcripts" title="Print Transcripts">Transcripts</a>
                         <a href="<?= APP_URL ?>/marks/approvals" title="Approve Marksheets">Approvals</a>
                     <?php elseif ($_SESSION['role'] === 'InternalVerifier'): ?>
                         <a href="<?= APP_URL ?>/audit" title="Audit Units">Start Audit</a>

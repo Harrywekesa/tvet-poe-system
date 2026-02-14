@@ -103,9 +103,9 @@ class UserController extends Controller
         header('Content-Disposition: attachment; filename="users_template.csv"');
 
         $output = fopen('php://output', 'w');
-        fputcsv($output, ['Full Name', 'Email', 'Role', 'Identifier', 'Phone']);
-        fputcsv($output, ['John Doe', 'john@example.com', 'Student', 'ST/001/24', '0712345678']);
-        fputcsv($output, ['Jane Staff', 'jane@example.com', 'Trainer', 'PF-12345', '0722000000']);
+        fputcsv($output, ['Full Name', 'Email', 'Role', 'Identifier', 'Phone', 'Department', 'Class Code']);
+        fputcsv($output, ['John Doe', 'john@example.com', 'Student', 'ST/001/24', '0712345678', 'ICT Department', 'ICT-JAN-24']);
+        fputcsv($output, ['Jane Staff', 'jane@example.com', 'Trainer', 'PF-12345', '0722000000', 'Electrical Department', '']);
         fclose($output);
         exit;
     }
@@ -119,36 +119,59 @@ class UserController extends Controller
             // Skip header
             fgetcsv($handle);
 
+            // Fetch Roles
             $roles = $this->model->getAllRoles();
-            // Create map: Role Name -> ID
             $roleMap = [];
             foreach ($roles as $r) {
-                $roleMap[$r['name']] = $r['id'];
+                $roleMap[strtolower($r['name'])] = $r['id'];
+            }
+
+            // Fetch Departments
+            $departments = (new \App\Models\InstitutionModel())->getAllDepartments();
+            $deptMap = []; // Name -> ID
+            foreach ($departments as $d) {
+                $deptMap[strtolower($d['name'])] = $d['id'];
+            }
+
+            // Fetch Classes
+            $academicModel = new \App\Models\AcademicModel();
+            $classes = $academicModel->getAllClasses();
+            $classMap = []; // Code -> ID
+            foreach ($classes as $c) {
+                $classMap[strtoupper($c['class_code'])] = $c['id'];
             }
 
             while (($data = fgetcsv($handle)) !== FALSE) {
-                // simple map based on template order: Name, Email, Role, Identifier, Phone
+                // Map: Name, Email, Role, Identifier, Phone, Department, Class Code
                 $name = $data[0] ?? '';
                 $email = $data[1] ?? '';
-                $roleName = $data[2] ?? '';
+                $roleName = strtolower(trim($data[2] ?? ''));
                 $identifier = $data[3] ?? null;
-                $phone = $data[4] ?? null; // Phone not in createUser yet? Need to add or update separately
-                // Actually createUser handles identifier. Phone is not in createUser yet.
-                // Let's rely on update or just skip Phone for now or modify createUser again? 
-                // The prompt asked for bulk add. I recently added phone to `update` profile.
-                // I should probably add phone to `createUser` to be consistent with the import requirement.
-                // For now, I'll silently skip phone or do a quick update query after insert.
+                $phone = $data[4] ?? null;
+                $deptName = strtolower(trim($data[5] ?? ''));
+                $classCode = strtoupper(trim($data[6] ?? ''));
 
                 if ($name && $email && isset($roleMap[$roleName])) {
                     try {
                         $roleId = $roleMap[$roleName];
-                        $this->model->createUser($name, $email, $roleId, 'cbet1234', $identifier);
-                        // If I wanted to add phone, I'd need to fetch ID and update. 
-                        // Or modify createUser. For speed, I'll ignore phone in CSV or Quick Patch createUser?
-                        // Let's Patch createUser if possible, or just accept that Phone is 'Profile completion' task.
-                        // I will leave phone out of createUser for this specific step to avoid breaking changes if I don't need to.
+
+                        // Resolve Department ID
+                        $deptId = $deptMap[$deptName] ?? null;
+
+                        // Create User
+                        $this->model->createUser($name, $email, $roleId, 'cbet1234', $identifier, $deptId);
+
+                        // Resolve Class ID and Enroll (if Student or relevant)
+                        $classId = $classMap[$classCode] ?? null;
+                        if ($classId) {
+                            $userId = $academicModel->getUserIdByEmail($email);
+                            if ($userId) {
+                                $academicModel->enrollStudent($classId, $userId);
+                            }
+                        }
+
                     } catch (\Exception $e) {
-                        // continue
+                        // Log error or continue
                     }
                 }
             }

@@ -214,6 +214,14 @@
                                             Review
                                         </a>
                                     <?php endif; ?>
+
+                                    <?php if (in_array($_SESSION['role'], ['Admin', 'HOD', 'InternalVerifier'])): ?>
+                                        <a href="<?= APP_URL ?>/marks/marksheet/<?= $u['id'] ?>/<?= $class['id'] ?>"
+                                            class="btn btn-outline"
+                                            style="padding: 6px 12px; font-size: 0.85rem; margin-left: 5px;">
+                                            Marksheet
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                             </form>
                         </tr>
@@ -223,61 +231,74 @@
         </div>
 
         <!-- Sidebar: Students -->
-        <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <h3>Enrolled Students</h3>
-            <p class="text-secondary" style="font-size: 0.9rem;">Manage class roster.</p>
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h3>Enrolled Students</h3>
+                <p class="text-secondary" style="font-size: 0.9rem;">Manage class roster.</p>
 
-            <form action="<?= APP_URL ?>/academic/enroll" method="POST"
-                style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
-                <select name="user_id" required
-                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    <option value="">-- Select Student to Enroll --</option>
-                    <?php foreach ($available_students as $s): ?>
-                        <option value="<?= $s['id'] ?>">
-                            <?= htmlspecialchars($s['full_name']) ?> (
-                            <?= htmlspecialchars($s['email']) ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Enroll Student</button>
-            </form>
-
-            <div style="margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 15px;">
-                <p style="font-size: 0.85rem; font-weight: 500; margin-bottom: 5px;">Bulk Enrollment (CSV)</p>
-                <form action="<?= APP_URL ?>/academic/import_enrollment" method="POST" enctype="multipart/form-data">
+                <form action="<?= APP_URL ?>/academic/enroll" method="POST"
+                    style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
                     <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
-                    <input type="file" name="csv_file" required
-                        style="font-size: 0.8rem; width: 100%; margin-bottom: 5px;">
-                    <div style="display: flex; gap: 5px;">
-                        <button type="submit" class="btn btn-primary"
-                            style="font-size: 0.8rem; flex: 1; padding: 6px;">Upload</button>
-                        <a href="<?= APP_URL ?>/academic/template/enrollment" class="btn btn-outline"
-                            style="font-size: 0.8rem; padding: 6px;">Template</a>
-                    </div>
+                    <select name="user_id" required
+                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <option value="">-- Select Student to Enroll --</option>
+                        <?php foreach ($available_students as $s): ?>
+                            <option value="<?= $s['id'] ?>">
+                                <?= htmlspecialchars($s['full_name']) ?> (
+                                <?= htmlspecialchars($s['email']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Enroll Student</button>
                 </form>
+
+                <div style="margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 15px;">
+                    <p style="font-size: 0.85rem; font-weight: 500; margin-bottom: 5px;">Bulk Enrollment (CSV)</p>
+                    <form action="<?= APP_URL ?>/academic/import_enrollment" method="POST"
+                        enctype="multipart/form-data">
+                        <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
+                        <input type="file" name="csv_file" required
+                            style="font-size: 0.8rem; width: 100%; margin-bottom: 5px;">
+                        <div style="display: flex; gap: 5px;">
+                            <button type="submit" class="btn btn-primary"
+                                style="font-size: 0.8rem; flex: 1; padding: 6px;">Upload</button>
+                            <a href="<?= APP_URL ?>/academic/template/enrollment" class="btn btn-outline"
+                                style="font-size: 0.8rem; padding: 6px;">Template</a>
+                        </div>
+                    </form>
+                </div>
+
+                <br>
+                <input type="text" id="studentSearch" onkeyup="searchList('studentSearch', 'enrolledList')"
+                    placeholder="Filter students..."
+                    style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.8rem;">
+                <ul id="enrolledList" style="margin-top: 20px; list-style: none; padding: 0;">
+                    <?php foreach ($enrolled_students as $est): ?>
+                        <li
+                            style="padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; display: flex; justify-content: space-between;">
+                            <span style="display: flex; align-items: center; gap: 10px;">
+                                <?= htmlspecialchars($est['full_name']) ?> <span class="text-secondary"
+                                    style="font-size:0.85rem;">(<?= htmlspecialchars($est['identifier']) ?>)</span>
+                            </span>
+                        </li>
+                    <?php endforeach; ?>
+                    <?php if (empty($enrolled_students)): ?>
+                        <li style="color: #64748b; padding: 10px; font-size: 0.9rem;">No students enrolled.</li>
+                    <?php endif; ?>
+                </ul>
             </div>
 
-            <br>
-            <input type="text" id="studentSearch" onkeyup="searchList('studentSearch', 'enrolledList')"
-                placeholder="Filter students..."
-                style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.8rem;">
-            <ul id="enrolledList" style="margin-top: 20px; list-style: none; padding: 0;">
-                <?php foreach ($enrolled_students as $est): ?>
-                    <li
-                        style="padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; display: flex; justify-content: space-between;">
-                        <span>
-                            <?= htmlspecialchars($est['full_name']) ?> <span class="text-secondary"
-                                style="font-size:0.85rem;">(<?= htmlspecialchars($est['identifier']) ?>)</span>
-                        </span>
-                    </li>
-                <?php endforeach; ?>
-                <?php if (empty($enrolled_students)): ?>
-                    <li style="color: #64748b; padding: 10px; font-size: 0.9rem;">No students enrolled.</li>
-                <?php endif; ?>
-            </ul>
+            <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h3>Transcripts</h3>
+                <p class="text-secondary" style="font-size: 0.9rem; margin-bottom: 15px;">View and print student
+                    transcripts.</p>
+
+                <a href="<?= APP_URL ?>/marks/class_transcripts/<?= $class['id'] ?>" class="btn btn-primary"
+                    style="width: 100%; text-align: center;">
+                    Manage Class Transcripts
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
-<?php require_once __DIR__ . '/../partials/footer.php'; ?>
+    <?php require_once __DIR__ . '/../partials/footer.php'; ?>
