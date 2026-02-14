@@ -246,13 +246,37 @@ class MarksController extends Controller
         $studentId = $_POST['student_id'];
         $marks = $_POST['marks']; // array of slot_id -> value
 
+        // 1. Get Existing Marks for comparison
+        $existingMarks = $this->marksModel->getMarksForStudent($studentId, $unitId);
+        $oldMarks = [];
+        foreach ($existingMarks as $m) {
+            $oldMarks[$m['assessment_slot_id']] = $m['marks_obtained'];
+        }
+
+        $changes = [];
+
         foreach ($marks as $slotId => $val) {
             if ($val !== '') {
-                $this->marksModel->saveMark($studentId, $slotId, $val, $_SESSION['user_id']);
+                $oldVal = $oldMarks[$slotId] ?? 'Not Graded';
+                // Only log if changed
+                if ((string) $oldVal !== (string) $val) {
+                    $this->marksModel->saveMark($studentId, $slotId, $val, $_SESSION['user_id']);
+
+                    // Get slot title for better log
+                    // Ideally we'd map this earlier but for now let's just log Slot ID
+                    // Actually, let's fetch slots map or just use Slot ID
+                    $changes[] = "Slot #$slotId: $oldVal -> $val";
+                }
             }
         }
 
-        $_SESSION['flash_success'] = 'Marks saved successfully.';
+        if (!empty($changes)) {
+            $changeLog = implode(", ", $changes);
+            \App\Core\Audit::log('Marks Updated', "Student $studentId, Unit $unitId (Class $classId). Changes: $changeLog");
+            $_SESSION['flash_success'] = 'Marks saved successfully.';
+        } else {
+            $_SESSION['flash_success'] = 'No changes made.';
+        }
         $this->redirect("/marks/grade/$unitId/$classId/$studentId");
     }
 
