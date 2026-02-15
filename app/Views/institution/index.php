@@ -150,32 +150,40 @@
                 <button type="submit" class="btn btn-primary">Add</button>
             </form>
 
-            <ul style="margin-top: 20px; list-style: none; padding: 0;">
+            <div
+                style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
                 <?php foreach ($departments as $dept): ?>
-                    <li
-                        style="padding: 10px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-weight: 500;">
-                            <?= htmlspecialchars($dept['name']) ?>
-                        </span>
-                        <div>
-                            <a href="<?= APP_URL ?>/institution/department/<?= $dept['id'] ?>" class="btn btn-outline"
-                                style="padding: 4px 10px; font-size: 0.8rem;">Manage Courses</a>
+                    <div
+                        style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                        <div style="margin-bottom: 15px;">
+                            <h4 style="margin: 0; color: #1e293b; font-size: 1.1rem;"><?= htmlspecialchars($dept['name']) ?>
+                            </h4>
+                        </div>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f1f5f9;">
+                            <a href="<?= APP_URL ?>/institution/department/<?= $dept['id'] ?>" class="btn btn-primary"
+                                style="font-size: 0.85rem; padding: 6px 12px; background: #0f172a;">Manage Courses</a>
 
                             <!-- Delete Button -->
                             <form action="<?= APP_URL ?>/institution/department/delete" method="POST"
-                                style="display: inline-block; margin-left: 5px;"
+                                style="display: inline-block;"
                                 onsubmit="return confirm('Are you sure? This will delete the department.');">
                                 <input type="hidden" name="id" value="<?= $dept['id'] ?>">
                                 <button type="submit" class="btn btn-outline"
-                                    style="padding: 4px 10px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444;">&times;</button>
+                                    style="padding: 6px 10px; font-size: 0.85rem; border-color: #ef4444; color: #ef4444;"
+                                    title="Delete Department">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
                             </form>
                         </div>
-                    </li>
+                    </div>
                 <?php endforeach; ?>
                 <?php if (empty($departments)): ?>
-                    <li style="color: #64748b; padding: 10px;">No departments found.</li>
+                    <div style="grid-column: 1 / -1; color: #64748b; padding: 10px; text-align: center;">No departments
+                        found.</div>
                 <?php endif; ?>
-            </ul>
+            </div>
         </div>
     </div>
 </div>

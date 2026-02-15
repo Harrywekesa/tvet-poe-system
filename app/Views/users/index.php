@@ -5,7 +5,8 @@
         <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline">&larr; Back to Dashboard</a>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="page-header"
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1 style="margin: 0;">User Management</h1>
         <a href="<?= APP_URL ?>/users/import" class="btn btn-primary" style="background: #22c55e;">Import CSV</a>
     </div>
@@ -36,21 +37,23 @@
                             <tbody>
                                 <?php foreach ($team_trainers as $t): ?>
                                     <tr>
-                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                                            <strong><?= htmlspecialchars($t['full_name']) ?></strong><br>
-                                            <span
-                                                style="font-size:0.8rem; color:#64748b;"><?= htmlspecialchars($t['email']) ?></span>
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;" data-label="Trainer Name">
+                                            <div style="text-align: right; width: 100%;">
+                                                <strong><?= htmlspecialchars($t['full_name']) ?></strong><br>
+                                                <span
+                                                    style="font-size:0.8rem; color:#64748b;"><?= htmlspecialchars($t['email']) ?></span>
+                                            </div>
                                         </td>
-                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;" data-label="Class">
                                             <span
                                                 style="background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight:bold;">
                                                 <?= htmlspecialchars($t['class_code']) ?>
                                             </span>
                                         </td>
-                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;" data-label="Units">
                                             <?= htmlspecialchars($t['units']) ?>
                                         </td>
-                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;" data-label="Actions">
                                             <a href="<?= APP_URL ?>/users/edit/<?= $t['id'] ?>"
                                                 class="btn btn-outline btn-sm">Edit</a>
                                         </td>
@@ -85,19 +88,21 @@
                             <tbody>
                                 <?php foreach ($team_students as $s): ?>
                                     <tr>
-                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                                            <strong><?= htmlspecialchars($s['full_name']) ?></strong><br>
-                                            <span
-                                                style="font-size:0.8rem; color:#64748b;"><?= htmlspecialchars($s['identifier']) ?></span>
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;" data-label="Student">
+                                            <div style="text-align: right; width: 100%;">
+                                                <strong><?= htmlspecialchars($s['full_name']) ?></strong><br>
+                                                <span
+                                                    style="font-size:0.8rem; color:#64748b;"><?= htmlspecialchars($s['identifier']) ?></span>
+                                            </div>
                                         </td>
-                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;" data-label="Class">
                                             <?= htmlspecialchars($s['class_code']) ?>
                                         </td>
-                                        <td
-                                            style="padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: #475569;">
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: #475569;"
+                                            data-label="Units">
                                             <?= htmlspecialchars($s['units']) ?>
                                         </td>
-                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;" data-label="Actions">
                                             <a href="<?= APP_URL ?>/users/edit/<?= $s['id'] ?>"
                                                 class="btn btn-outline btn-sm">Edit</a>
                                         </td>
@@ -116,74 +121,81 @@
                 <input type="text" id="userScan" onkeyup="searchTable('userScan', 'userTable')"
                     placeholder="Search users by name, email or role..."
                     style="width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                <table id="userTable" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                    <thead>
-                        <tr style="background: #f8fafc; text-align: left;">
-                            <th style="padding: 10px; border-bottom: 2px solid #e2e8f0;">Name</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #e2e8f0;">Role</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #e2e8f0;">ID / Reg No</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #e2e8f0;">Email</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #e2e8f0;">Status</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #e2e8f0;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $u): ?>
-                            <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                                    <strong><?= htmlspecialchars($u['full_name']) ?></strong>
-                                </td>
-                                <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">
-                                    <?= htmlspecialchars($u['role_name']) ?>
-                                </td>
-                                <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; color: #64748b; font-size: 0.9rem;">
-                                    <?= htmlspecialchars($u['dept_name'] ?? '-') ?>
-                                </td>
-                                <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                                    <?= htmlspecialchars($u['identifier'] ?? '-') ?>
-                                </td>
-                                <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                                    <?= htmlspecialchars($u['email']) ?>
-                                </td>
-                                <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                                    <?php if ($u['is_active']): ?>
-                                        <span
-                                            style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">Active</span>
-                                    <?php else: ?>
-                                        <span
-                                            style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; cursor:help;"
-                                            title="<?= htmlspecialchars($u['suspension_reason'] ?? 'No reason') ?>">Suspended</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                                    <a href="<?= APP_URL ?>/users/edit/<?= $u['id'] ?>" class="btn btn-outline"
-                                        style="font-size: 0.8rem; padding: 4px 8px;">Edit</a>
-
-                                    <?php if ($u['id'] != $_SESSION['user_id']): ?>
-                                        <?php if ($u['is_active']): ?>
-                                            <button onclick="openSuspendModal(<?= $u['id'] ?>)" class="btn btn-outline"
-                                                style="font-size: 0.8rem; padding: 4px 8px; color: #d97706; border-color: #d97706;">Suspend</button>
-                                        <?php else: ?>
-                                            <a href="<?= APP_URL ?>/users/activate/<?= $u['id'] ?>" class="btn btn-outline"
-                                                style="font-size: 0.8rem; padding: 4px 8px; color: #166534; border-color: #166534;">Activate</a>
-                                        <?php endif; ?>
-
-                                        <a href="<?= APP_URL ?>/users/delete/<?= $u['id'] ?>"
-                                            onclick="return confirm('Are you sure you want to delete this user? This cannot be undone.');"
-                                            class="btn btn-outline"
-                                            style="font-size: 0.8rem; padding: 4px 8px; color: #dc2626; border-color: #dc2626; margin-left: 5px;">Delete</a>
-                                    <?php endif; ?>
-                                </td>
+                <div style="overflow-x: auto;">
+                    <table id="userTable" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background: #f8fafc; text-align: left;">
+                                <th style="padding: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap;">Name</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap;">Role</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap;">ID / Reg
+                                    No</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap;">Email</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap;">Status
+                                </th>
+                                <th style="padding: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap;">Actions
+                                </th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $u): ?>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;"
+                                        data-label="Name">
+                                        <strong><?= htmlspecialchars($u['full_name']) ?></strong>
+                                    </td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; color: #64748b; white-space: nowrap;"
+                                        data-label="Role">
+                                        <?= htmlspecialchars($u['role_name']) ?>
+                                    </td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; color: #64748b; font-size: 0.9rem; white-space: nowrap;"
+                                        data-label="ID / Reg No">
+                                        <?= htmlspecialchars($u['dept_name'] ?? '-') ?>
+                                    </td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;"
+                                        data-label="Email">
+                                        <?= htmlspecialchars($u['identifier'] ?? '-') ?>
+                                    </td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;"
+                                        data-label="Status">
+                                        <?php if ($u['is_active']): ?>
+                                            <span
+                                                style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">Active</span>
+                                        <?php else: ?>
+                                            <span
+                                                style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; cursor:help;"
+                                                title="<?= htmlspecialchars($u['suspension_reason'] ?? 'No reason') ?>">Suspended</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;"
+                                        data-label="Actions">
+                                        <a href="<?= APP_URL ?>/users/edit/<?= $u['id'] ?>" class="btn btn-outline"
+                                            style="font-size: 0.8rem; padding: 4px 8px;">Edit</a>
+
+                                        <?php if ($u['id'] != $_SESSION['user_id']): ?>
+                                            <?php if ($u['is_active']): ?>
+                                                <button onclick="openSuspendModal(<?= $u['id'] ?>)" class="btn btn-outline"
+                                                    style="font-size: 0.8rem; padding: 4px 8px; color: #d97706; border-color: #d97706;">Suspend</button>
+                                            <?php else: ?>
+                                                <a href="<?= APP_URL ?>/users/activate/<?= $u['id'] ?>" class="btn btn-outline"
+                                                    style="font-size: 0.8rem; padding: 4px 8px; color: #166534; border-color: #166534;">Activate</a>
+                                            <?php endif; ?>
+
+                                            <a href="<?= APP_URL ?>/users/delete/<?= $u['id'] ?>"
+                                                onclick="return confirm('Are you sure you want to delete this user? This cannot be undone.');"
+                                                class="btn btn-outline"
+                                                style="font-size: 0.8rem; padding: 4px 8px; color: #dc2626; border-color: #dc2626; margin-left: 5px;">Delete</a>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         <?php endif; ?>
 
         <!-- Add User Form -->
-        <div
-            style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; height: fit-content;">
+        <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
             <h3>Create New User</h3>
             <form action="<?= APP_URL ?>/users/store" method="POST" style="margin-top: 20px;">
                 <div style="margin-bottom: 15px;">
@@ -278,10 +290,113 @@
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>
 
 <!-- Scripts -->
+
+<style>
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+
+        /* Page Header */
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 15px;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .page-header a {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Card View for Tables */
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100%;
+            /* Ensure full width */
+        }
+
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        tr {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+            /* Important for padding */
+        }
+
+        td {
+            border: none !important;
+            position: relative;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: right;
+            font-size: 0.9rem;
+            word-break: break-word;
+            /* Prevent long words from overflowing */
+            white-space: normal !important;
+            /* Override nowrap */
+        }
+
+        td:before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-align: left;
+            margin-right: 15px;
+            flex-shrink: 0;
+            /* Don't shrink label */
+            max-width: 40%;
+            /* Limit label width */
+        }
+
+        /* Specific tweaks for content */
+        td strong {
+            display: block;
+        }
+
+        /* Actions Column */
+        td:last-child {
+            margin-top: 10px;
+            border-top: 1px solid #f1f5f9 !important;
+            padding-top: 15px !important;
+            justify-content: flex-end;
+            gap: 5px;
+            flex-wrap: wrap;
+            /* Allow buttons to wrap */
+        }
+
+        td:last-child:before {
+            display: none;
+        }
+    }
+</style>
+
 <script>
     function toggleDept(select) {
         const text = select.options[select.selectedIndex].text;
-        
+
         // Show Dept for everyone (or specific logic)
         document.getElementById('deptField').style.display = 'block';
 
@@ -294,7 +409,7 @@
         }
     }
     // Run on load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         toggleDept(document.querySelector('select[name="role_id"]'));
     });
 </script>
