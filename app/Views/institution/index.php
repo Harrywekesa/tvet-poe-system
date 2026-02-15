@@ -157,8 +157,19 @@
                         <span style="font-weight: 500;">
                             <?= htmlspecialchars($dept['name']) ?>
                         </span>
-                        <a href="<?= APP_URL ?>/institution/department/<?= $dept['id'] ?>" class="btn btn-outline"
-                            style="padding: 4px 10px; font-size: 0.8rem;">Manage Courses</a>
+                        <div>
+                            <a href="<?= APP_URL ?>/institution/department/<?= $dept['id'] ?>" class="btn btn-outline"
+                                style="padding: 4px 10px; font-size: 0.8rem;">Manage Courses</a>
+
+                            <!-- Delete Button -->
+                            <form action="<?= APP_URL ?>/institution/department/delete" method="POST"
+                                style="display: inline-block; margin-left: 5px;"
+                                onsubmit="return confirm('Are you sure? This will delete the department.');">
+                                <input type="hidden" name="id" value="<?= $dept['id'] ?>">
+                                <button type="submit" class="btn btn-outline"
+                                    style="padding: 4px 10px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444;">&times;</button>
+                            </form>
+                        </div>
                     </li>
                 <?php endforeach; ?>
                 <?php if (empty($departments)): ?>

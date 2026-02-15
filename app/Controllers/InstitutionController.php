@@ -90,6 +90,19 @@ class InstitutionController extends Controller
         $this->redirect('/institution');
     }
 
+    public function deleteDepartment()
+    {
+        $id = $_POST['id'];
+        try {
+            $this->model->deleteDepartment($id);
+            \App\Core\Audit::log('Department Deleted', "Deleted department ID $id");
+            $_SESSION['flash_success'] = 'Department deleted.';
+        } catch (\Exception $e) {
+            $_SESSION['flash_error'] = 'Cannot delete department. It may have associated courses or users.';
+        }
+        $this->redirect('/institution');
+    }
+
     public function viewDepartment($id)
     {
         // Here we show courses for this dept
@@ -234,5 +247,98 @@ class InstitutionController extends Controller
         \App\Core\Audit::log('Unit Updated', "Updated unit $code - $title");
         $_SESSION['flash_success'] = 'Unit updated successfully.';
         $this->redirect('/institution/course/' . $courseId);
+    }
+    public function previewImport()
+    {
+        $type = $_POST['type']; // department, course, unit
+
+        if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
+            $fileIdx = $_FILES['csv_file']['tmp_name'];
+            $handle = fopen($fileIdx, "r");
+
+            // Skip Header
+            fgetcsv($handle);
+
+            $validRows = [];
+
+            while (($row = fgetcsv($handle)) !== FALSE) {
+                // Basic Validation per Type
+                // Just check count for now
+                if ($type === 'department' && isset($row[0])) {
+                    $validRows[] = ['name' => $row[0]];
+                } elseif ($type === 'course' && count($row) >= 4) {
+                    $validRows[] = ['title' => $row[0], 'code' => $row[1], 'level' => $row[2], 'dept_name' => $row[3]];
+                } elseif ($type === 'unit' && count($row) >= 3) {
+                    $validRows[] = ['unit_code' => $row[0], 'unit_title' => $row[1], 'course_code' => $row[2], 'category' => $row[3] ?? 'Core', 'description' => $row[4] ?? ''];
+                }
+            }
+            fclose($handle);
+
+            // Store in Session
+            $_SESSION['import_type'] = $type;
+            $_SESSION['import_data'] = $validRows;
+
+            $this->view('institution/import_preview', [
+                'type' => $type,
+                'valid_rows' => $validRows
+            ]);
+
+        } else {
+            $_SESSION['flash_error'] = "File upload failed.";
+            $this->redirect('/institution');
+        }
+    }
+
+    public function commitImport()
+    {
+        if (!isset($_SESSION['import_data']) || empty($_SESSION['import_data'])) {
+            $_SESSION['flash_error'] = "No data to import.";
+            $this->redirect('/institution');
+        }
+
+        $type = $_SESSION['import_type'];
+        $rows = $_SESSION['import_data'];
+        $count = 0;
+        $errors = 0;
+
+        foreach ($rows as $row) {
+            try {
+                if ($type === 'department') {
+                    $this->model->addDepartment($row['name']);
+                    $count++;
+                } elseif ($type === 'course') {
+                    $deptId = $this->model->getDepartmentByName($row['dept_name']);
+                    if ($deptId) {
+                        $this->model->addCourse($row['title'], $row['code'], $deptId, $row['level']);
+                        $count++;
+                    } else {
+                        $errors++;
+                    }
+                } elseif ($type === 'unit') {
+                    $courseId = $this->model->getCourseByCode($row['course_code']);
+                    if ($courseId) {
+                        $this->model->addUnit($courseId, $row['unit_code'], $row['unit_title'], $row['category'], $row['description']);
+                        $count++;
+                    } else {
+                        $errors++;
+                    }
+                }
+            } catch (\Exception $e) {
+                $errors++;
+            }
+        }
+
+        // Clear Session
+        unset($_SESSION['import_data']);
+        unset($_SESSION['import_type']);
+
+        if ($count > 0) {
+            \App\Core\Audit::log('Bulk Import', "Imported $count $type(s)");
+            $_SESSION['flash_success'] = "Imported $count items successfully." . ($errors > 0 ? " ($errors skipped)" : "");
+        } else {
+            $_SESSION['flash_error'] = "No items imported.";
+        }
+
+        $this->redirect('/institution');
     }
 }

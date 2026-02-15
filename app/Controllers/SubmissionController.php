@@ -107,7 +107,25 @@ class SubmissionController extends Controller
                 $destPath = $uploadDir . $newFileName;
                 if (move_uploaded_file($fileTmpPath, $destPath)) {
                     $this->model->submitEvidence($studentId, $slotId, $newFileName, $ext);
-                    \App\Core\Audit::log('Evidence Upload', "Student $studentId uploaded evidence for Slot $slotId");
+
+                    // Fetch Details for Log
+                    $userModel = new \App\Models\UserModel();
+                    $student = $userModel->getUserById($studentId);
+
+                    $assModel = new \App\Models\AssessmentModel();
+                    $slot = $assModel->getSlotById($slotId); // Assuming this returns slot details + unit info or we fetch unit
+                    // If getSlotById doesn't exist or return unit title, we might need a join or separate fetch.
+                    // Let's assume we can get it or fetch it. 
+                    // Actually, let's look at AssessmentModel to be sure, or just fetch Unit.
+                    $instModel = new \App\Models\InstitutionModel();
+                    $unit = $instModel->getUnitById($unitId);
+
+                    $stName = $student['full_name'] ?? "Student $studentId";
+                    $uTitle = $unit['unit_title'] ?? "Unit $unitId";
+                    $sTitle = $slot['title'] ?? "Assessment $slotId";
+
+                    \App\Core\Audit::log('Evidence Upload', "$stName uploaded a $ext for $sTitle of $uTitle");
+
                     $_SESSION['flash_success'] = 'Evidence uploaded successfully.';
                 } else {
                     $_SESSION['flash_error'] = 'Failed to move uploaded file.';

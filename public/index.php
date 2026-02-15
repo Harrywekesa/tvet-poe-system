@@ -46,6 +46,7 @@ $router->get('/dashboard', 'DashboardController', 'index');
 $router->get('/institution', 'InstitutionController', 'index');
 $router->post('/institution/update', 'InstitutionController', 'updateDetails');
 $router->post('/institution/department', 'InstitutionController', 'storeDepartment');
+$router->post('/institution/department/delete', 'InstitutionController', 'deleteDepartment');
 $router->get('/institution/department/{id}', 'InstitutionController', 'viewDepartment');
 $router->post('/institution/course', 'InstitutionController', 'storeCourse');
 $router->get('/institution/course/edit/{id}', 'InstitutionController', 'editCourse');
@@ -88,7 +89,8 @@ $router->get('/marks/transcripts', 'MarksController', 'transcripts_hub');
 
 
 // Institution Imports
-$router->post('/institution/import', 'InstitutionController', 'import');
+$router->post('/institution/import', 'InstitutionController', 'previewImport');
+$router->post('/institution/import/commit', 'InstitutionController', 'commitImport');
 $router->get('/institution/template/{type}', 'InstitutionController', 'downloadTemplate');
 
 // Assessments

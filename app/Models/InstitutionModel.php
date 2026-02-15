@@ -37,12 +37,35 @@ class InstitutionModel extends Model
 
     public function getAllDepartments()
     {
-        return $this->db->query("SELECT d.*, u.full_name as head_name FROM departments d LEFT JOIN users u ON d.head_user_id = u.id")->fetchAll();
+        return $this->db->query("SELECT d.*, u.full_name as head_name FROM departments d LEFT JOIN users u ON d.head_user_id = u.id ORDER BY d.name ASC")->fetchAll();
+    }
+
+    public function deleteDepartment($id)
+    {
+        return $this->db->query("DELETE FROM departments WHERE id = ?", [$id]);
     }
 
     public function addDepartment($name)
     {
-        return $this->db->query("INSERT INTO departments (name) VALUES (?)", [$name]);
+        // Check if exists to avoid duplicate errors on simple insert
+        $exists = $this->db->query("SELECT id FROM departments WHERE name = ?", [$name])->fetch();
+        if ($exists)
+            return $exists['id'];
+
+        $this->db->query("INSERT INTO departments (name) VALUES (?)", [$name]);
+        return $this->db->getConnection()->lastInsertId();
+    }
+
+    public function getDepartmentByName($name)
+    {
+        $res = $this->db->query("SELECT id FROM departments WHERE name = ?", [$name])->fetch();
+        return $res ? $res['id'] : null;
+    }
+
+    public function getCourseByCode($code)
+    {
+        $res = $this->db->query("SELECT id FROM courses WHERE code = ?", [$code])->fetch();
+        return $res ? $res['id'] : null;
     }
 
     public function getCoursesByDept($deptId)
