@@ -59,4 +59,9 @@ class Database
         $stmt->execute($params);
         return $stmt;
     }
+
+    public function lastInsertId()
+    {
+        return $this->connection->lastInsertId();
+    }
 }

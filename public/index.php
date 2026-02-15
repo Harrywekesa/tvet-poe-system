@@ -158,9 +158,18 @@ $router->get('/documents/certificate/{id}', 'ProfessionalDocController', 'viewCe
 
 // Audit
 $router->get('/audit', 'AuditController', 'index');
+// Audit
+$router->get('/audit', 'AuditController', 'index');
 $router->get('/audit/course', 'AuditController', 'selectCourse');
 $router->get('/audit/unit', 'AuditController', 'selectUnit');
 $router->get('/audit/workspace', 'AuditController', 'workspace');
+
+$router->get('/audit/setup', 'AuditController', 'setup');
+$router->post('/audit/start', 'AuditController', 'startAudit');
+$router->get('/audit/perform', 'AuditController', 'perform');
+$router->post('/audit/update_sample', 'AuditController', 'updateSample');
+$router->post('/audit/complete', 'AuditController', 'completeAudit');
+$router->get('/audit/report', 'AuditController', 'report');
 
 // Reviews
 $router->get('/review/unit/{unitId}/{classId}', 'ReviewController', 'reviewUnit');

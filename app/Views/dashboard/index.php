@@ -216,8 +216,8 @@
                                 <a href="<?= APP_URL ?>/marks/marksheet/<?= $a['id'] ?>/<?= $a['class_id'] ?>"
                                     class="btn btn-outline" style="flex: 1; text-align: center; font-size: 0.8rem;">Marksheet</a>
 
-                                <a href="<?= APP_URL ?>/audit/workspace?class_id=<?= $a['class_id'] ?>&unit_id=<?= $a['id'] ?>"
-                                    class="btn btn-outline" style="flex: 1; text-align: center; font-size: 0.8rem;">Audit</a>
+                                <a href="<?= APP_URL ?>/audit" class="btn btn-outline"
+                                    style="flex: 1; text-align: center; font-size: 0.8rem;">Audit Hub</a>
                             </div>
                         </div>
                     <?php endforeach; ?>

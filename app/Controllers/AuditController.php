@@ -20,151 +20,190 @@ class AuditController extends Controller
 
     public function index()
     {
-        // 1. Select Department
-        $instModel = new InstitutionModel();
-        $depts = $instModel->getAllDepartments();
+        // IV Dashboard: Show assigned audits
+        $verifierId = $_SESSION['user_id'];
+        $auditModel = new \App\Models\AuditModel();
+        $assigned = $auditModel->getAssignedAudits($verifierId);
 
-        $this->view('audit/select_dept', ['depts' => $depts, 'title' => 'Audit: Select Department']);
-    }
+        // Calculate Stats
+        $stats = [
+            'total' => count($assigned),
+            'completed' => 0,
+            'pending' => 0
+        ];
 
-    public function selectCourse()
-    {
-        $deptId = $_GET['dept_id'] ?? null;
-        if (!$deptId) {
-            $_SESSION['flash_error'] = 'Invalid department.';
-            $this->redirect('/audit');
-        }
-
-        $instModel = new InstitutionModel();
-        $courses = $instModel->getCoursesByDept($deptId);
-
-        $this->view('audit/select_course', [
-            'courses' => $courses,
-            'dept_id' => $deptId,
-            'title' => 'Audit: Select Course'
-        ]);
-    }
-
-    public function selectUnit()
-    {
-        $courseId = $_GET['course_id'] ?? null;
-        if (!$courseId) {
-            $_SESSION['flash_error'] = 'Invalid course.';
-            $this->redirect('/audit');
-        }
-
-        // "Units registered for the active cohort"
-        // 1. Find active cohorts
-        $acadModel = new AcademicModel();
-        $cohorts = $acadModel->getAllCohorts();
-        $activeCohortIds = [];
-        $today = date('Y-m-d');
-        foreach ($cohorts as $c) {
-            if (!$c['end_date'] || $c['end_date'] >= $today) {
-                $activeCohortIds[] = $c['id'];
+        foreach ($assigned as $a) {
+            if ($a['session_status'] === 'Completed') {
+                $stats['completed']++;
+            } else {
+                $stats['pending']++;
             }
         }
 
-        if (empty($activeCohortIds)) {
-            $_SESSION['flash_error'] = 'No active cohorts found.';
-            $this->redirect('/audit');
-        }
-
-        // 2. Find Classes for this Course in Active Cohorts
-        // Need a method in AcademicModel or custom query
-        $db = \App\Core\Database::getInstance();
-        $classes = $db->query("
-            SELECT c.*, co.name as cohort_name 
-            FROM classes c 
-            JOIN cohorts co ON c.cohort_id = co.id 
-            WHERE c.course_id = ? AND c.cohort_id IN (" . implode(',', $activeCohortIds) . ")
-        ", [$courseId])->fetchAll();
-
-        // Fetch Department ID for Back Button
-        $instModel = new InstitutionModel();
-        $course = $instModel->getCourseById($courseId);
-        $deptId = $course['department_id'];
-
-        // 3. For each class, list units allocated? Or just list units in course and ask to select class?
-        // Prompt says: "displayed with all the units registred for the active cohort ... sample and audit any unit"
-        // Units are attached to Courses. Students are attached to Classes (which are Course+Cohort instances).
-        // Best approach: Show Active Classes. User picks Class -> Shows Units in that class.
-
-        $this->view('audit/select_class_unit', [
-            'classes' => $classes,
-            'course_id' => $courseId,
-            'dept_id' => $deptId,
-            'title' => 'Audit: Select Active Class'
+        $this->view('audit/dashboard', [
+            'assigned' => $assigned,
+            'stats' => $stats,
+            'title' => 'IV Audit Dashboard'
         ]);
     }
 
-    public function workspace()
+    public function setup()
     {
+        $unitId = $_GET['unit_id'] ?? null;
         $classId = $_GET['class_id'] ?? null;
-        if (!$classId) {
-            $_SESSION['flash_error'] = 'Invalid class.';
+
+        if (!$unitId || !$classId) {
+            $_SESSION['flash_error'] = 'Invalid request.';
             $this->redirect('/audit');
         }
 
-        // Fetch Course ID for Back Button
-        $acadModel = new AcademicModel();
-        $class = $acadModel->getClassById($classId);
-        $courseId = $class['course_id'];
-
-        // Show Units for this Class to audit
-        // Can filter by specific unit if passed params, or show list
-        $unitId = $_GET['unit_id'] ?? null;
-
-        if (!$unitId) {
-            // Pick Unit
-            $instModel = new InstitutionModel();
-            // Get course ID from class
-            $units = $instModel->getUnitsByCourseSafe($class['course_id']);
-
-            $this->view('audit/select_unit_final', [
-                'class' => $class,
-                'units' => $units,
-                'course_id' => $courseId,
-                'title' => 'Select Unit to Audit'
-            ]);
-            return;
-        }
-
-        // --- ACTUAL WORKSPACE ---
-        $this->auditWorkspace($classId, $unitId);
-    }
-
-    private function auditWorkspace($classId, $unitId)
-    {
-        // 1. Fetch Professional Docs
-        $docModel = new ProfessionalDocModel();
-        $profDocs = $docModel->getDocsByUnitClass($unitId, $classId);
-
-        // 2. Fetch Students & Submissions (POE)
-        $subModel = new SubmissionModel();
-        $submissions = $subModel->getClassSubmissions($classId, $unitId);
-        // Organize by student
-        $studentPoe = [];
-        foreach ($submissions as $s) {
-            $studentPoe[$s['student_user_id']][] = $s;
-        }
-
-        // Get Student details
+        // 1. Get Population
         $acadModel = new AcademicModel();
         $students = $acadModel->getEnrolledStudents($classId);
+        $population = count($students);
 
-        // Get Unit/Class Info
+        // 2. Calculate Sample Size (Kenyan TVET standard or general rule? sqrt(N) or 10%?)
+        // Let's use SQRT(N) rounded up, min 2, or all if < 5.
+        if ($population < 5) {
+            $sampleSize = $population;
+        } else {
+            $sampleSize = ceil(sqrt($population));
+            if ($sampleSize < 2)
+                $sampleSize = 2; // Min 2 for comparison
+        }
+
         $instModel = new InstitutionModel();
         $unit = $instModel->getUnitById($unitId);
         $class = $acadModel->getClassById($classId);
 
-        $this->view('audit/workspace', [
-            'prof_docs' => $profDocs,
-            'students' => $students,
-            'poe_data' => $studentPoe,
+        $this->view('audit/setup', [
             'unit' => $unit,
             'class' => $class,
-            'title' => 'Audit Workspace'
+            'population' => $population,
+            'recommended_sample' => $sampleSize,
+            'students' => $students,
+            'title' => 'Audit Setup'
+        ]);
+    }
+
+    public function startAudit()
+    {
+        $unitId = $_POST['unit_id'];
+        $classId = $_POST['class_id'];
+        $sampleSize = $_POST['sample_size'];
+        $selectedStudents = $_POST['students'] ?? [];
+
+        if (empty($selectedStudents)) {
+            $_SESSION['flash_error'] = 'Please select students to audit.';
+            $this->redirect("/audit/setup?unit_id=$unitId&class_id=$classId");
+        }
+
+        // Create Session
+        $auditModel = new \App\Models\AuditModel();
+
+        // Ensure unique students
+        $selectedStudents = array_unique($selectedStudents);
+
+        $sessionId = $auditModel->createSession($unitId, $classId, $_SESSION['user_id'], $sampleSize);
+
+        // Create Samples
+        $auditModel->createSamples($sessionId, $selectedStudents);
+
+        $_SESSION['flash_success'] = 'Audit session started.';
+        $this->redirect("/audit/perform?id=$sessionId");
+    }
+
+    public function perform()
+    {
+        $sessionId = $_GET['id'] ?? null;
+        if (!$sessionId)
+            $this->redirect('/audit');
+
+        $auditModel = new \App\Models\AuditModel();
+        $session = $auditModel->getSession($sessionId);
+        $samples = $auditModel->getSamples($sessionId);
+
+        // Load Evidence for Samples
+        // We need: Student POE vs Trainer Prof Docs
+        // 1. Get Trainer Docs
+        $docModel = new ProfessionalDocModel();
+        $profDocs = $docModel->getDocsByUnitClass($session['unit_id'], $session['class_id']);
+
+        // 2. Get Student Submissions for each sample
+        $subModel = new SubmissionModel();
+        $sampleData = [];
+        foreach ($samples as $sample) {
+            // Get all submissions for this student in this unit
+            $subs = $subModel->getSubmissionsForUnit($sample['student_user_id'], $session['unit_id']);
+            $sampleData[$sample['id']] = [
+                'student' => $sample,
+                'submissions' => $subs
+            ];
+        }
+
+        $instModel = new InstitutionModel();
+        $unit = $instModel->getUnitById($session['unit_id']);
+
+        $this->view('audit/perform', [
+            'session' => $session,
+            'samples' => $sampleData,
+            'prof_docs' => $profDocs,
+            'unit' => $unit,
+            'title' => 'Perform Audit'
+        ]);
+    }
+
+    public function updateSample()
+    {
+        $sampleId = $_POST['sample_id'];
+        $status = $_POST['status'];
+        $comments = $_POST['comments'];
+
+        $auditModel = new \App\Models\AuditModel();
+        $auditModel->updateSampleStatus($sampleId, $status, $comments);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function completeAudit()
+    {
+        $sessionId = $_POST['session_id'];
+        $auditModel = new \App\Models\AuditModel();
+        $auditModel->completeSession($sessionId);
+
+        $_SESSION['flash_success'] = 'Audit completed.';
+        $this->redirect("/audit/report?id=$sessionId");
+    }
+
+    public function report()
+    {
+        $sessionId = $_GET['id'] ?? null;
+        $auditModel = new \App\Models\AuditModel();
+        $session = $auditModel->getSession($sessionId);
+        $samples = $auditModel->getSamples($sessionId);
+
+        $instModel = new InstitutionModel();
+        $unit = $instModel->getUnitById($session['unit_id']);
+        $acadModel = new AcademicModel();
+        $class = $acadModel->getClassById($session['class_id']);
+
+        // Stats
+        $total = count($samples);
+        $compliant = 0;
+        foreach ($samples as $s) {
+            if ($s['status'] === 'Compliant')
+                $compliant++;
+        }
+        $percentage = $total > 0 ? round(($compliant / $total) * 100) : 0;
+
+        $this->view('audit/report', [
+            'session' => $session,
+            'samples' => $samples,
+            'unit' => $unit,
+            'class' => $class,
+            'stats' => ['total' => $total, 'compliant' => $compliant, 'percentage' => $percentage],
+            'title' => 'Audit Report'
         ]);
     }
 }

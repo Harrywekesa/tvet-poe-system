@@ -59,7 +59,12 @@ class AcademicModel extends Model
 
     public function getClassById($id)
     {
-        return $this->db->query("SELECT * FROM classes WHERE id = ?", [$id])->fetch();
+        return $this->db->query("
+            SELECT c.*, co.title as course_title, co.code as course_code 
+            FROM classes c 
+            JOIN courses co ON c.course_id = co.id 
+            WHERE c.id = ?
+        ", [$id])->fetch();
     }
 
     // -- Enrollment Logic --
