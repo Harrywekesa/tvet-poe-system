@@ -68,46 +68,96 @@ class AcademicController extends Controller
         $this->redirect('/academic');
     }
 
-    public function importStudents($classId)
+    public function previewEnrollment()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
+        if (isset($_POST['class_id']) && isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
+            $classId = $_POST['class_id'];
             $file = $_FILES['csv_file']['tmp_name'];
-            if (($handle = fopen($file, "r")) !== FALSE) {
-                // Skip header row
-                fgetcsv($handle);
+            $handle = fopen($file, "r");
 
-                $studentRoleId = $this->model->getStudentRoleId();
+            // Skip header
+            fgetcsv($handle);
 
-                while (($data = fgetcsv($handle)) !== FALSE) {
-                    $name = $data[0] ?? '';
-                    $email = $data[1] ?? '';
-                    $ident = $data[2] ?? '';
+            $validRows = [];
 
-                    if ($email) {
-                        $userId = $this->model->getUserIdByEmail($email);
+            while (($data = fgetcsv($handle)) !== FALSE) {
+                // Name, Email, Identifier
+                $name = $data[0] ?? '';
+                $email = $data[1] ?? '';
+                $ident = $data[2] ?? '';
 
-                        if (!$userId && $name && $studentRoleId) {
-                            try {
-                                $userModel = new \App\Models\UserModel();
-                                $userModel->createUser($name, $email, $studentRoleId, 'student123', $ident);
-                                $userId = $this->model->getUserIdByEmail($email);
-                            } catch (\Exception $e) {
-                            }
-                        }
-
-                        if ($userId) {
-                            try {
-                                $this->model->enrollStudent($classId, $userId);
-                                \App\Core\Audit::log('Student Enrolled', "Enrolled User $userId into Class $classId");
-                            } catch (\Exception $e) {
-                            }
-                        }
-                    }
+                if ($name && $email) {
+                    $validRows[] = [
+                        'name' => $name,
+                        'email' => $email,
+                        'identifier' => $ident . (empty($ident) ? 'TBD' : '')
+                    ];
                 }
-                fclose($handle);
-                $_SESSION['flash_success'] = 'Students enrolled successfully.';
+            }
+            fclose($handle);
+
+            $_SESSION['enroll_import_data'] = $validRows;
+            $_SESSION['enroll_class_id'] = $classId;
+
+            $this->view('academic/enrollment_preview', [
+                'valid_rows' => $validRows,
+                'class_id' => $classId
+            ]);
+        } else {
+            $_SESSION['flash_error'] = 'File upload failed.';
+            $this->redirect('/academic');
+        }
+    }
+
+    public function commitEnrollment()
+    {
+        if (!isset($_SESSION['enroll_import_data']) || empty($_SESSION['enroll_import_data'])) {
+            $_SESSION['flash_error'] = "No data to import.";
+            $this->redirect('/academic');
+        }
+
+        $rows = $_SESSION['enroll_import_data'];
+        $classId = $_SESSION['enroll_class_id'];
+        $count = 0;
+        $studentRoleId = $this->model->getStudentRoleId();
+        $userModel = new \App\Models\UserModel();
+
+        foreach ($rows as $row) {
+            $name = $row['name'];
+            $email = $row['email'];
+            $ident = $row['identifier'];
+
+            $userId = $this->model->getUserIdByEmail($email);
+
+            // Create User if not exists
+            if (!$userId && $name && $studentRoleId) {
+                try {
+                    $userModel->createUser($name, $email, $studentRoleId, 'student123', $ident);
+                    $userId = $this->model->getUserIdByEmail($email);
+                } catch (\Exception $e) {
+                    // Ignore dup
+                }
+            }
+
+            // Enroll
+            if ($userId) {
+                try {
+                    $this->model->enrollStudent($classId, $userId);
+                    \App\Core\Audit::log('Student Enrolled', "Enrolled ($name - $email) into Class ID $classId");
+                } catch (\Exception $e) {
+                }
             }
         }
+
+        unset($_SESSION['enroll_import_data']);
+        unset($_SESSION['enroll_class_id']);
+
+        if ($count > 0) {
+            $_SESSION['flash_success'] = "Enrolled $count students successfully.";
+        } else {
+            $_SESSION['flash_warning'] = "No new students were enrolled (Check if they are already in the class).";
+        }
+
         $this->redirect('/academic/class/' . $classId);
     }
 
@@ -186,7 +236,16 @@ class AcademicController extends Controller
         $userId = $_POST['user_id'];
         if ($classId && $userId) {
             $this->model->enrollStudent($classId, $userId);
-            \App\Core\Audit::log('Enrollment', "Enrolled user $userId into class $classId");
+
+            // Fetch details for readable log
+            $user = (new \App\Models\UserModel())->getUserById($userId);
+            $userName = $user ? $user['full_name'] . ' (' . $user['email'] . ')' : "User $userId";
+
+            // Optional: Fetch Class Code
+            $class = $this->model->getClassById($classId);
+            $classCode = $class ? $class['class_code'] : "Class $classId";
+
+            \App\Core\Audit::log('Enrollment', "Enrolled $userName into $classCode");
             $_SESSION['flash_success'] = 'Student enrolled successfully.';
         }
         $this->redirect('/academic/class/' . $classId);

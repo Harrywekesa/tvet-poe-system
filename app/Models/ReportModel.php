@@ -17,7 +17,7 @@ class ReportModel extends Model
         ")->fetchAll();
     }
 
-    public function getLogsByFilter($userId = null, $action = null, $date = null)
+    public function getLogsByFilter($userId = null, $action = null, $date = null, $search = null)
     {
         $sql = "SELECT l.*, u.full_name, u.email 
                 FROM activity_logs l 
@@ -30,12 +30,19 @@ class ReportModel extends Model
             $params[] = $userId;
         }
         if ($action) {
-            $sql .= " AND l.action LIKE ?";
-            $params[] = "%$action%";
+            $sql .= " AND l.action = ?";
+            $params[] = $action;
         }
         if ($date) {
             $sql .= " AND DATE(l.created_at) = ?";
             $params[] = $date;
+        }
+        if ($search) {
+            $sql .= " AND (l.details LIKE ? OR l.action LIKE ? OR u.full_name LIKE ?)";
+            $term = "%$search%";
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
         }
 
         $sql .= " ORDER BY l.created_at DESC LIMIT 200";

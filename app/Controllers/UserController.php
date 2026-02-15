@@ -110,7 +110,7 @@ class UserController extends Controller
         exit;
     }
 
-    public function import()
+    public function previewImport()
     {
         if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
             $tmpName = $_FILES['csv_file']['tmp_name'];
@@ -119,27 +119,27 @@ class UserController extends Controller
             // Skip header
             fgetcsv($handle);
 
-            // Fetch Roles
+            // Fetch Reference Data
             $roles = $this->model->getAllRoles();
             $roleMap = [];
             foreach ($roles as $r) {
                 $roleMap[strtolower($r['name'])] = $r['id'];
             }
 
-            // Fetch Departments
             $departments = (new \App\Models\InstitutionModel())->getAllDepartments();
-            $deptMap = []; // Name -> ID
+            $deptMap = [];
             foreach ($departments as $d) {
                 $deptMap[strtolower($d['name'])] = $d['id'];
             }
 
-            // Fetch Classes
             $academicModel = new \App\Models\AcademicModel();
             $classes = $academicModel->getAllClasses();
-            $classMap = []; // Code -> ID
+            $classMap = [];
             foreach ($classes as $c) {
                 $classMap[strtoupper($c['class_code'])] = $c['id'];
             }
+
+            $validRows = [];
 
             while (($data = fgetcsv($handle)) !== FALSE) {
                 // Map: Name, Email, Role, Identifier, Phone, Department, Class Code
@@ -152,31 +152,75 @@ class UserController extends Controller
                 $classCode = strtoupper(trim($data[6] ?? ''));
 
                 if ($name && $email && isset($roleMap[$roleName])) {
-                    try {
-                        $roleId = $roleMap[$roleName];
-
-                        // Resolve Department ID
-                        $deptId = $deptMap[$deptName] ?? null;
-
-                        // Create User
-                        $this->model->createUser($name, $email, $roleId, 'cbet1234', $identifier, $deptId);
-
-                        // Resolve Class ID and Enroll (if Student or relevant)
-                        $classId = $classMap[$classCode] ?? null;
-                        if ($classId) {
-                            $userId = $academicModel->getUserIdByEmail($email);
-                            if ($userId) {
-                                $academicModel->enrollStudent($classId, $userId);
-                            }
-                        }
-
-                    } catch (\Exception $e) {
-                        // Log error or continue
-                    }
+                    $row = [
+                        'name' => $name,
+                        'email' => $email,
+                        'role_id' => $roleMap[$roleName],
+                        'role_name' => ucwords($roleName),
+                        'identifier' => $identifier,
+                        'phone' => $phone,
+                        'dept_id' => $deptMap[$deptName] ?? null,
+                        'dept_name' => $deptName ? ucwords($deptName) : '-',
+                        'class_id' => $classMap[$classCode] ?? null,
+                        'class_code' => $classCode ?: '-'
+                    ];
+                    $validRows[] = $row;
                 }
             }
             fclose($handle);
+
+            // Store in Session
+            $_SESSION['user_import_data'] = $validRows;
+
+            $this->view('users/import_preview', [
+                'valid_rows' => $validRows
+            ]);
+
+        } else {
+            $_SESSION['flash_error'] = "File upload failed.";
+            $this->redirect('/users');
         }
+    }
+
+    public function commitImport()
+    {
+        if (!isset($_SESSION['user_import_data']) || empty($_SESSION['user_import_data'])) {
+            $_SESSION['flash_error'] = "No data to import.";
+            $this->redirect('/users');
+        }
+
+        $rows = $_SESSION['user_import_data'];
+        $count = 0;
+        $errors = 0;
+        $academicModel = new \App\Models\AcademicModel();
+
+        foreach ($rows as $row) {
+            try {
+                // Create User
+                $this->model->createUser($row['name'], $row['email'], $row['role_id'], 'cbet1234', $row['identifier'], $row['dept_id']);
+                $count++;
+
+                // Enroll if Class ID exists
+                if ($row['class_id']) {
+                    $userId = $academicModel->getUserIdByEmail($row['email']);
+                    if ($userId) {
+                        $academicModel->enrollStudent($row['class_id'], $userId);
+                    }
+                }
+            } catch (\Exception $e) {
+                $errors++;
+            }
+        }
+
+        unset($_SESSION['user_import_data']);
+
+        if ($count > 0) {
+            \App\Core\Audit::log('Bulk User Import', "Imported $count users.");
+            $_SESSION['flash_success'] = "Imported $count users successfully." . ($errors > 0 ? " ($errors skipped)" : "");
+        } else {
+            $_SESSION['flash_error'] = "No users imported.";
+        }
+
         $this->redirect('/users');
     }
 

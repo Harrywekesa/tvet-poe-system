@@ -48,8 +48,9 @@ class ReportController extends Controller
         $userId = $_GET['user_id'] ?? null;
         $action = $_GET['action'] ?? null;
         $date = $_GET['date'] ?? null;
+        $search = $_GET['search'] ?? null;
 
-        $logs = $this->model->getLogsByFilter($userId, $action, $date);
+        $logs = $this->model->getLogsByFilter($userId, $action, $date, $search);
         $users = (new \App\Models\UserModel())->getAllUsers();
 
         // Fetch Cohorts for dropdown
@@ -59,7 +60,7 @@ class ReportController extends Controller
             'logs' => $logs,
             'users' => $users,
             'cohorts' => $cohorts,
-            'filters' => ['user_id' => $userId, 'action' => $action, 'date' => $date],
+            'filters' => ['user_id' => $userId, 'action' => $action, 'date' => $date, 'search' => $search],
             'title' => 'System Reports'
         ]);
     }

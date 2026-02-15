@@ -347,6 +347,7 @@
                         <a href="<?= APP_URL ?>/academic" title="Manage Cohorts">Academic</a>
                         <a href="<?= APP_URL ?>/marks/transcripts" title="Print Transcripts">Transcripts</a>
                         <a href="<?= APP_URL ?>/users" title="Manage Users">Users</a>
+                        <a href="<?= APP_URL ?>/bulk-imports" title="Bulk Data Import">Imports</a>
                         <a href="<?= APP_URL ?>/reports" style="color: #c2410c;" title="System Logs">Reports</a>
                     <?php elseif ($_SESSION['role'] === 'HOD'): ?>
                         <a href="<?= APP_URL ?>/documents/review" title="Review Docs">Review</a>

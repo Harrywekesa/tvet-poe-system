@@ -35,7 +35,16 @@
                 <input type="date" name="date" value="<?= $filters['date'] ?? '' ?>"
                     style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
             </div>
-            <button type="submit" class="btn btn-primary" style="height: fit-content;">Filter Logs</button>
+            <div style="flex: 1; min-width: 200px;">
+                <input type="text" name="search" placeholder="Search logs (Details, Action, User)..."
+                    value="<?= htmlspecialchars($filters['search'] ?? '') ?>"
+                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            </div>
+            <div style="flex: 0 0 auto;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Filter</button>
+                <a href="<?= APP_URL ?>/reports" class="btn btn-outline"
+                    style="padding: 10px 20px; margin-left: 5px;">Reset</a>
+            </div>
         </form>
     </div>
 

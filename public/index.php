@@ -64,8 +64,12 @@ $router->post('/academic/class', 'AcademicController', 'storeClass');
 $router->get('/academic/class/{id}', 'AcademicController', 'viewClass');
 $router->post('/academic/enroll', 'AcademicController', 'enrollStudent');
 $router->post('/academic/allocate', 'AcademicController', 'allocateUnit');
-$router->post('/academic/import_enrollment', 'AcademicController', 'importEnrollment');
+$router->post('/academic/import_enrollment', 'AcademicController', 'previewEnrollment');
+$router->post('/academic/enrollment/commit', 'AcademicController', 'commitEnrollment');
 $router->get('/academic/template/enrollment', 'AcademicController', 'downloadEnrollmentTemplate');
+
+// Bulk Imports Hub
+$router->get('/bulk-imports', 'BulkImportController', 'index');
 
 // Topic Management
 $router->get('/unit/topics/{id}', 'TopicController', 'manage');
@@ -127,7 +131,8 @@ $router->get('/users/import', 'UserController', 'importView');
 $router->get('/users/template', 'UserController', 'downloadTemplate');
 $router->get('/users/import', 'UserController', 'importView');
 $router->get('/users/template', 'UserController', 'downloadTemplate');
-$router->post('/users/import', 'UserController', 'import');
+$router->post('/users/import', 'UserController', 'previewImport');
+$router->post('/users/import/commit', 'UserController', 'commitImport');
 $router->post('/users/suspend', 'UserController', 'suspend');
 $router->get('/users/activate/{id}', 'UserController', 'activate');
 $router->get('/users/delete/{id}', 'UserController', 'delete');

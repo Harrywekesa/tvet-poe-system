@@ -189,8 +189,6 @@ class AcademicModel extends Model
 
     public function getUserIdByEmail($email)
     {
-        $stmt = $this->db->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        return $stmt->fetchColumn();
+        return $this->db->query("SELECT id FROM users WHERE email = ?", [$email])->fetchColumn();
     }
 }

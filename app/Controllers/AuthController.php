@@ -40,13 +40,15 @@ class AuthController extends Controller
             $_SESSION['role'] = $user['role_name'];
             $_SESSION['name'] = $user['full_name'];
 
+            // Ensure audit log runs before potential redirect return
+            \App\Core\Audit::log('Login', 'User ' . ($user['email'] ?? $user['identifier']) . ' logged in.');
+
+            // Force Change Password Check
             if ($user['must_change_password'] == 1) {
                 $_SESSION['force_change_password'] = true;
                 $this->redirect('/change-password');
                 return;
             }
-
-            \App\Core\Audit::log('Login', 'User ' . $user['email'] . ' logged in.');
 
             $this->redirect('/dashboard');
         } else {
@@ -83,6 +85,8 @@ class AuthController extends Controller
 
         $userModel = new \App\Models\UserModel();
         $hash = password_hash($newPass, PASSWORD_BCRYPT);
+
+        // Update password and clear the force flag
         $userModel->updatePassword($_SESSION['user_id'], $hash);
 
         unset($_SESSION['force_change_password']);

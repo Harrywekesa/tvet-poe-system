@@ -1,82 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php require_once __DIR__ . '/../partials/header.php'; ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Change Password</title>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-        }
+<div class="container" style="margin-top: 50px; max-width: 500px;">
+    <div
+        style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
 
-        .box {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            width: 100%;
-            max-width: 400px;
-        }
+        <h2 style="color: #1e293b; margin-bottom: 20px; text-align: center;">Change Password</h2>
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .error {
-            color: #dc2626;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="box">
-        <h2 style="text-align: center; margin-top: 0; color: #1e293b;">Change Password</h2>
-        <p style="text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">
-            You are required to change your password before proceeding.
-        </p>
+        <div class="alert"
+            style="background: #eff6ff; color: #1e40af; padding: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center;">
+            Please update your password to continue.
+        </div>
 
         <?php if (isset($error)): ?>
-            <div class="error">
-                <?= $error ?>
+            <div class="alert"
+                style="background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
 
         <form action="<?= APP_URL ?>/change-password" method="POST">
-            <label style="display: block; margin-bottom: 5px; font-size: 0.9rem;">New Password</label>
-            <input type="password" name="new_password" required minlength="6">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #475569;">New
+                    Password</label>
+                <input type="password" name="new_password" required minlength="6"
+                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            </div>
 
-            <label style="display: block; margin-bottom: 5px; font-size: 0.9rem;">Confirm Password</label>
-            <input type="password" name="confirm_password" required minlength="6">
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #475569;">Confirm
+                    Password</label>
+                <input type="password" name="confirm_password" required minlength="6"
+                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            </div>
 
-            <button type="submit">Update Password</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+                Update Password
+            </button>
         </form>
     </div>
-</body>
+</div>
 
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>
