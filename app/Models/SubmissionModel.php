@@ -184,7 +184,7 @@ class SubmissionModel extends Model
             FROM poe_reviews r
             LEFT JOIN users u ON r.reviewer_user_id = u.id
             WHERE r.submission_id = ?
-            ORDER BY r.created_at ASC
+            ORDER BY r.reviewed_at ASC
         ", [$submissionId])->fetchAll();
     }
 }

@@ -221,7 +221,7 @@
             foreach ($reviews as $r) {
                 if ($r['decision'] === 'Approved') {
                     $approver = $r['reviewer_name'];
-                    $approveDate = date('Y-m-d', strtotime($r['created_at']));
+                    $approveDate = isset($r['reviewed_at']) ? date('Y-m-d', strtotime($r['reviewed_at'])) : '-';
                 }
             }
             ?>
@@ -244,7 +244,7 @@
                 foreach ($reviews as $r) {
                     if ($r['decision'] === 'Verified') {
                         $verifier = $r['reviewer_name'];
-                        $verifyDate = date('Y-m-d', strtotime($r['created_at']));
+                        $verifyDate = isset($r['reviewed_at']) ? date('Y-m-d', strtotime($r['reviewed_at'])) : '-';
                     }
                 }
             }
