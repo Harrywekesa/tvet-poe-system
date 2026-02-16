@@ -60,11 +60,24 @@ class AcademicModel extends Model
     public function getClassById($id)
     {
         return $this->db->query("
-            SELECT c.*, co.title as course_title, co.code as course_code 
+            SELECT c.*, co.title as course_title, co.code as course_code,
+                   co.department_id, coh.name as cohort_name
             FROM classes c 
             JOIN courses co ON c.course_id = co.id 
+            JOIN cohorts coh ON c.cohort_id = coh.id
             WHERE c.id = ?
         ", [$id])->fetch();
+    }
+
+    public function getClassesByCourse($courseId)
+    {
+        return $this->db->query("
+            SELECT c.*, coh.name as cohort_name 
+            FROM classes c
+            JOIN cohorts coh ON c.cohort_id = coh.id
+            WHERE c.course_id = ? AND coh.is_active = 1
+            ORDER BY c.class_code ASC
+        ", [$courseId])->fetchAll();
     }
 
     // -- Enrollment Logic --

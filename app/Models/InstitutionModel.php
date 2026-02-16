@@ -62,6 +62,11 @@ class InstitutionModel extends Model
         return $res ? $res['id'] : null;
     }
 
+    public function getDepartmentById($id)
+    {
+        return $this->db->query("SELECT * FROM departments WHERE id = ?", [$id])->fetch();
+    }
+
     public function getCourseByCode($code)
     {
         $res = $this->db->query("SELECT id FROM courses WHERE code = ?", [$code])->fetch();

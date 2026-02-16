@@ -206,4 +206,106 @@ class AuditController extends Controller
             'title' => 'Audit Report'
         ]);
     }
+
+    public function selectCourse()
+    {
+        $deptId = $_GET['dept_id'] ?? null;
+        if (!$deptId) {
+            // If dept missing, maybe show dept selector or assume HOD's dept?
+            // For now, let's fetch all departments or redirect.
+            // If we really need department, we can't proceed.
+            // But let's check if we have a view for selecting department? `select_dept.php` exists.
+            // Maybe we should redirect to dashboard?
+        }
+
+        $instModel = new InstitutionModel();
+        if ($deptId) {
+            $courses = $instModel->getCoursesByDept($deptId);
+            $dept = $instModel->getDepartmentById($deptId); // Assumption
+            $this->view('audit/select_course', ['courses' => $courses, 'dept' => $dept]);
+        } else {
+            // Fallback: Select Dept
+            $depts = $instModel->getAllDepartments();
+            $this->view('audit/select_dept', ['departments' => $depts]);
+        }
+    }
+
+    public function selectUnit()
+    {
+        $courseId = $_GET['course_id'] ?? null;
+        if (!$courseId) {
+            $this->redirect('/audit/course');
+        }
+
+        $instModel = new InstitutionModel();
+        $units = $instModel->getUnitsByCourse($courseId);
+        $course = $instModel->getCourseById($courseId);
+
+        // However, we need to select CLASS first?
+        // `select_class_unit.php` exists.
+        // `select_unit_final.php` exists.
+
+        // The flow seems: Dept -> Course -> Class -> Unit -> Workspace
+        // OR: Dept -> Course -> Unit -> Class -> Workspace
+
+        // Let's assume standard flow: Select Course -> Select Active Class -> Select Unit in that class.
+        // `select_class_unit.php` lists classes.
+
+        $acadModel = new AcademicModel();
+        $classes = $acadModel->getClassesByCourse($courseId);
+
+        // If we want to support "Select Unit" view name:
+        // `select_class_unit` view uses `$classes`.
+
+        $this->view('audit/select_class_unit', ['classes' => $classes, 'course' => $course, 'dept_id' => $course['department_id']]);
+    }
+
+    // Alternative path if needed?
+    public function selectUnitFinal()
+    {
+        $classId = $_GET['class_id'] ?? null;
+        if (!$classId)
+            $this->redirect('/audit');
+
+        $acadModel = new AcademicModel();
+        $class = $acadModel->getClassById($classId);
+        $instModel = new InstitutionModel();
+        // Get units for this course
+        $units = $instModel->getUnitsByCourse($class['course_id']);
+
+        $this->view('audit/select_unit_final', ['units' => $units, 'class' => $class, 'course_id' => $class['course_id']]);
+    }
+
+    public function workspace()
+    {
+        $unitId = $_GET['unit_id'] ?? null;
+        $classId = $_GET['class_id'] ?? null;
+
+        if ($classId && !$unitId) {
+            // Redirect to unit selection for this class
+            // We'll use logic from `selectUnitFinal` here directly
+            $acadModel = new AcademicModel();
+            $class = $acadModel->getClassById($classId);
+            $instModel = new InstitutionModel();
+            $units = $instModel->getUnitsByCourse($class['course_id']);
+
+            $this->view('audit/select_unit_final', ['units' => $units, 'class' => $class, 'course_id' => $class['course_id']]);
+            return;
+        }
+
+        if (!$unitId || !$classId) {
+            $this->redirect('/audit');
+        }
+
+        // Check if session exists
+        $auditModel = new \App\Models\AuditModel();
+        $session = $auditModel->getSessionByUnitClass($unitId, $classId);
+
+        if ($session) {
+            $this->redirect('/audit/perform?id=' . $session['id']);
+        } else {
+            // If no session, go to SETUP
+            $this->redirect("/audit/setup?unit_id=$unitId&class_id=$classId");
+        }
+    }
 }
