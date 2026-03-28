@@ -8,7 +8,7 @@
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
-    <link rel="stylesheet" href="<?= APP_URL ?>/css/style.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>/css/style.css?v=<?= time() ?>">
 </head>
 
 <body>
@@ -42,7 +42,7 @@
 
     <?php if (!isset($_SESSION['user_id'])): ?>
         <!-- GUEST LAYOUT (Top Nav) -->
-        <nav>
+        <nav class="guest-nav">
             <div class="container nav-wrapper">
                 <a href="<?= APP_URL ?>" class="logo">
                     <?php if ($logoPath): ?>
@@ -60,7 +60,7 @@
 
         <?php else: ?>
             <!-- LOGGED IN SIDEBAR LAYOUT -->
-            <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+            <div class="sidebar-overlay" onclick="toggleSidebar()" id="sidebarOverlay"></div>
             <div class="app-layout">
                 <aside class="sidebar" id="sidebar">
                     <div class="sidebar-header">
@@ -68,8 +68,7 @@
                             <img src="<?= APP_URL . $logoPath ?>" alt="Logo"
                                 style="height: 28px; width: auto; object-fit: contain;">
                         <?php endif; ?>
-                        <span
-                            style="font-weight: 700; font-size: 1.1rem; color: #f1f5f9;"><?= htmlspecialchars($systemName) ?></span>
+                        <span><?= htmlspecialchars($systemName) ?></span>
                     </div>
 
                     <div class="sidebar-nav">
@@ -128,24 +127,22 @@
                 <div class="main-content">
                     <!-- Top Bar for Logged In User -->
                     <header class="top-bar">
-                        <button class="btn btn-outline nav-toggle" onclick="toggleSidebar()"
-                            style="display: none; padding: 5px 10px; font-size: 1.2rem;">
-                            ☰
+                        <button class="nav-toggle" onclick="toggleSidebar()">
+                            <i data-feather="menu"></i>
                         </button>
-                        <div style="font-weight: 600; color: #475569;">
+                        <div class="hidden-xs" style="font-weight: 600; font-size: 1.1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px;">
                             <?= $title ?? 'Dashboard' ?>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <span style="font-size: 0.9rem; color: #64748b;">
-                                <?= htmlspecialchars($_SESSION['name'] ?? 'User') ?>
-                                <span
-                                    style="font-size: 0.8rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-left: auto;">
+                            <span style="font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                                <span style="display: inline-block; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></span>
+                                <span class="badge badge-secondary hidden-mobile">
                                     <?= $_SESSION['role'] ?? 'Guest' ?>
                                 </span>
                             </span>
                         </div>
                     </header>
-                    <main style="flex: 1; padding-bottom: 40px;">
+                    <main style="flex: 1; padding-bottom: 40px;" class="container">
 
                         <script src="<?= APP_URL ?>/js/sidebar.js"></script>
                     <?php endif; ?>

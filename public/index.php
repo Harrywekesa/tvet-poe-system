@@ -10,6 +10,16 @@ function csrf_field() {
     return '<input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">';
 }
 
+/**
+ * Renders a UI component from app/Views/components
+ */
+function component($_component_name, $_component_props = []) {
+    extract($_component_props);
+    ob_start();
+    require __DIR__ . "/../app/Views/components/{$_component_name}.php";
+    return ob_get_clean();
+}
+
 require_once __DIR__ . '/../config/config.php';
 
 // Simple Autoloader

@@ -17,7 +17,7 @@ class ReportModel extends Model
         ")->fetchAll();
     }
 
-    public function getLogsByFilter($userId = null, $action = null, $date = null, $search = null)
+    public function getLogsByFilter($userId = null, $action = null, $date = null, $search = null, $hideAuth = false)
     {
         $sql = "SELECT l.*, u.full_name, u.email 
                 FROM activity_logs l 
@@ -44,8 +44,11 @@ class ReportModel extends Model
             $params[] = $term;
             $params[] = $term;
         }
+        if ($hideAuth) {
+            $sql .= " AND l.action NOT IN ('Login', 'Logout')";
+        }
 
-        $sql .= " ORDER BY l.created_at DESC LIMIT 200";
+        $sql .= " ORDER BY l.created_at DESC LIMIT 300";
 
         return $this->db->query($sql, $params)->fetchAll();
     }

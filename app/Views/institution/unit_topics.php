@@ -1,127 +1,162 @@
 <?php require_once __DIR__ . '/../partials/header.php'; ?>
 
-<div class="container" style="margin-top: 40px; max-width: 900px;">
+<div class="container mt-4" style="max-width: 1200px;">
+    
+    <!-- Breadcrumb / Back Navigation -->
     <div style="margin-bottom: 20px;">
         <?php if (($_SESSION['role'] ?? '') === 'Trainer'): ?>
-            <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline">&larr; Back to Dashboard</a>
+            <a href="<?= APP_URL ?>/dashboard" style="display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">
+                <i data-feather="arrow-left" style="width: 16px;"></i> Back to Dashboard
+            </a>
         <?php else: ?>
-            <a href="<?= APP_URL ?>/institution/unit/<?= $unit['id'] ?>" class="btn btn-outline">&larr; Back to Unit</a>
+            <a href="<?= APP_URL ?>/institution/unit/<?= $unit['id'] ?>" style="display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">
+                <i data-feather="arrow-left" style="width: 16px;"></i> Back to Unit Overview
+            </a>
         <?php endif; ?>
     </div>
 
-    <h1>Manage Topics for:
-        <?= htmlspecialchars($unit['unit_title']) ?> (
-        <?= htmlspecialchars($unit['unit_code']) ?>)
-    </h1>
-
-    <!-- Level Configuration -->
-    <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
-        <h3>Assessment Level</h3>
-        <p class="text-muted">This setting determines the Written/Practical ratio for grading.</p>
-        <form action="<?= APP_URL ?>/unit/update_level" method="POST"
-            style="display: flex; gap: 10px; align-items: center;">
-    <?= csrf_field() ?>
-            <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
-            <select name="assessment_level" class="form-control" style="max-width: 200px;">
-                <option value="Level 6" <?= $unit['assessment_level'] == 'Level 6' ? 'selected' : '' ?>>Level 6 (40/60)
-                </option>
-                <option value="Level 5" <?= $unit['assessment_level'] == 'Level 5' ? 'selected' : '' ?>>Level 5 (30/70)
-                </option>
-                <option value="Level 4" <?= $unit['assessment_level'] == 'Level 4' ? 'selected' : '' ?>>Level 4 (10/90)
-                </option>
-            </select>
-            <button type="submit" class="btn btn-primary">Update Level</button>
-        </form>
+    <!-- Layout Header -->
+    <div style="margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span class="badge badge-primary">Topic Matrix</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">&bull;</span>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; font-family: monospace;"><?= htmlspecialchars($unit['unit_code']) ?></span>
+        </div>
+        <h1 class="page-title" style="margin-bottom: 5px;"><?= htmlspecialchars($unit['unit_title']) ?></h1>
+        <p class="text-muted" style="margin: 0; font-size: 1.05rem;">Manage curricular elements and structural weighting.</p>
     </div>
 
-    <!-- Stats -->
-    <div style="margin: 20px 0; display: flex; gap: 20px;">
-        <div class="card" style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0;">
-            <h4 style="margin:0;">Total Weight</h4>
-            <div style="font-size: 24px; font-weight: bold; color: <?= $totalWeight == 100 ? 'green' : 'red' ?>;">
-                <?= number_format($totalWeight, 0) ?>%
-            </div>
+    <div class="grid-main-side" style="align-items: start; gap: 30px;">
+        
+        <!-- Left Pane: Topics List & Level Config -->
+        <div>
+            <!-- Warning Alert for Weighting -->
             <?php if ($totalWeight != 100): ?>
-                <small style="color: red;">Must equal 100%</small>
+                <div class="alert alert-warning" style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px; border-left: 4px solid var(--warning);">
+                    <i data-feather="alert-triangle" style="color: var(--warning);"></i>
+                    <div>
+                        <strong>Curriculum Warning:</strong> Total topic weighting is currently <strong><?= number_format($totalWeight, 0) ?>%</strong>. It must equal exactly 100% for the grading engine to compute final marks accurately.
+                    </div>
+                </div>
             <?php endif; ?>
-        </div>
-        <div class="card" style="flex: 1; text-align: center; padding: 15px; border: 1px solid #e2e8f0;">
-            <h4 style="margin:0;">Topics</h4>
-            <div style="font-size: 24px; font-weight: bold;">
-                <?= count($topics) ?>
-            </div>
-        </div>
-    </div>
 
-    <!-- Topics List -->
-    <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
-        <h3 style="margin-top: 0;">Existing Topics (Elements)</h3>
+            <!-- Topics List Card -->
+            <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 20px;">
+                <div style="padding: 20px; background: #f8fafc; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i data-feather="layers" style="color: var(--secondary);"></i>
+                        <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-primary);">Configured Elements</h3>
+                    </div>
+                    <span class="badge badge-secondary"><?= count($topics) ?> Topics</span>
+                </div>
 
-        <?php if (empty($topics)): ?>
-            <p>No topics defined yet.</p>
-        <?php else: ?>
-            <table class="table" style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="text-align: left; border-bottom: 2px solid #e2e8f0;">
-                        <th style="padding: 10px;">Order</th>
-                        <th style="padding: 10px;">Topic/Element Title</th>
-                        <th style="padding: 10px;">Weight (%)</th>
-                        <th style="padding: 10px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($topics as $t): ?>
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 10px;">
-                                <?= $t['sequence_order'] ?>
-                            </td>
-                            <td style="padding: 10px;">
-                                <?= htmlspecialchars($t['title']) ?>
-                            </td>
-                            <td style="padding: 10px;">
-                                <?= number_format($t['weight_percentage'], 0) ?>%
-                            </td>
-                            <td style="padding: 10px;">
-                                <form action="<?= APP_URL ?>/topic/delete/<?= $t['id'] ?>" method="POST"
-                                    onsubmit="return confirm('Are you sure?');" style="display:inline;">
-    <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                <?php if (empty($topics)): ?>
+                    <div class="text-center" style="padding: 40px 20px;">
+                        <i data-feather="check-square" style="width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 15px;"></i>
+                        <p style="color: var(--text-muted); margin: 0;">No topics defined yet.<br>Use the configurator to map the curriculum.</p>
+                    </div>
+                <?php else: ?>
+                    <div style="display: flex; flex-direction: column;">
+                        <?php foreach ($topics as $i => $t): ?>
+                            <div style="padding: 15px 20px; border-bottom: <?= $i === count($topics) - 1 ? 'none' : '1px solid var(--border-color)' ?>; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;" onmouseover="this.style.background='#fbfcfd'" onmouseout="this.style.background='white'">
+                                
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--bg-app); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">
+                                        #<?= htmlspecialchars($t['sequence_order']) ?>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 1rem; color: var(--text-primary); margin-bottom: 4px;"><?= htmlspecialchars($t['title']) ?></h4>
+                                        <div style="display: flex; gap: 10px; align-items: center;">
+                                            <span style="font-size: 0.8rem; font-weight: 600; color: <?= $t['weight_percentage'] > 0 ? 'var(--primary)' : 'var(--text-muted)' ?>; background: rgba(37,99,235,0.08); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(37,99,235,0.1);">Weight: <?= number_format($t['weight_percentage'], 0) ?>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form action="<?= APP_URL ?>/topic/delete/<?= htmlspecialchars($t['id']) ?>" method="POST" onsubmit="return confirm('WARNING: Are you sure you want to delete this topic? This may impact tied assessments.');" style="margin: 0;">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-outline" style="color: var(--danger); border-color: #fca5a5; padding: 6px 10px; font-size: 0.85rem;" title="Delete Topic">
+                                        <i data-feather="trash-2" style="width: 16px;"></i>
+                                    </button>
                                 </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
-
-    <!-- Add Topic Form -->
-    <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
-        <h3>Add New Topic</h3>
-        <form action="<?= APP_URL ?>/topic/add" method="POST">
-    <?= csrf_field() ?>
-            <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
-
-            <div class="row" style="display: flex; gap: 15px;">
-                <div style="flex: 3;">
-                    <label>Title</label>
-                    <input type="text" name="title" class="form-control" required
-                        placeholder="e.g. Identify Hardware Components">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Assessment Strategy Control (Moving to bottom left instead of taking up top space) -->
+            <div class="card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <h3 style="margin: 0 0 4px 0; font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                        <i data-feather="settings" style="width: 18px; color: var(--primary);"></i> Grading Strategy Engine
+                    </h3>
+                    <p style="color: var(--text-muted); margin: 0; font-size: 0.9rem;">Sets the exact Written vs. Practical weight ratio for the entire unit's final calculated grade.</p>
                 </div>
-                <div style="flex: 1;">
-                    <label>Weight (%)</label>
-                    <input type="number" name="weight" class="form-control" required min="1" max="100" placeholder="20">
+                
+                <form action="<?= APP_URL ?>/unit/update_level" method="POST" style="margin: 0; display: flex; gap: 10px; flex-wrap: nowrap; align-items: stretch;">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="unit_id" value="<?= htmlspecialchars($unit['id']) ?>">
+                    <select name="assessment_level" class="form-control" style="width: auto; height: auto;">
+                        <option value="Level 6" <?= $unit['assessment_level'] == 'Level 6' ? 'selected' : '' ?>>Level 6 (40% W / 60% P)</option>
+                        <option value="Level 5" <?= $unit['assessment_level'] == 'Level 5' ? 'selected' : '' ?>>Level 5 (30% W / 70% P)</option>
+                        <option value="Level 4" <?= $unit['assessment_level'] == 'Level 4' ? 'selected' : '' ?>>Level 4 (10% W / 90% P)</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary" style="padding: 8px 16px; font-weight: 600; white-space: nowrap;">Apply Level</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Pane: Add Form -->
+        <div>
+            <!-- Stats -->
+            <div class="grid-2" style="gap: 15px; margin-bottom: 20px;">
+                <div class="card text-center" style="display: flex; flex-direction: column; justify-content: center; padding: 15px;">
+                    <h4 style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Curriculum Weight</h4>
+                    <div style="font-size: 2rem; font-weight: 800; color: <?= $totalWeight == 100 ? 'var(--success)' : ($totalWeight > 100 ? 'var(--danger)' : 'var(--warning)') ?>; line-height: 1;">
+                        <?= number_format($totalWeight, 0) ?>%
+                    </div>
                 </div>
-                <div style="flex: 1;">
-                    <label>Order</label>
-                    <input type="number" name="sequence_order" class="form-control" value="<?= count($topics) + 1 ?>">
+                <div class="card text-center" style="display: flex; flex-direction: column; justify-content: center; padding: 15px;">
+                    <h4 style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Total Topics</h4>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--text-primary); line-height: 1;">
+                        <?= count($topics) ?>
+                    </div>
                 </div>
             </div>
 
-            <div style="margin-top: 15px;">
-                <button type="submit" class="btn btn-primary">Add Topic</button>
+            <!-- Add Form -->
+            <div class="card" style="border-top: 4px solid var(--primary); padding: 24px;">
+                <h3 style="margin-bottom: 20px; font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="plus-circle" style="color: var(--primary);"></i> Add Topic
+                </h3>
+
+                <form action="<?= APP_URL ?>/topic/add" method="POST">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="unit_id" value="<?= htmlspecialchars($unit['id']) ?>">
+
+                    <div class="form-group">
+                        <label class="form-label">Topic / Element Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. Identify Hardware Components" required>
+                    </div>
+
+                    <div class="grid-2" style="gap: 15px;">
+                        <div class="form-group m-0">
+                            <label class="form-label">Weight (%)</label>
+                            <input type="number" name="weight" class="form-control" placeholder="20" min="1" max="100" required>
+                        </div>
+                        <div class="form-group m-0">
+                            <label class="form-label">Sequence #</label>
+                            <input type="number" name="sequence_order" class="form-control" value="<?= count($topics) + 1 ?>">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" style="padding: 12px; font-weight: 600; margin-top: 20px; font-size: 1rem;">
+                        <i data-feather="save" style="width: 18px;"></i> Save Topic
+                    </button>
+                </form>
             </div>
-        </form>
+        </div>
+
     </div>
 </div>
 

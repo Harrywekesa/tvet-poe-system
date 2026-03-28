@@ -1,193 +1,183 @@
 <?php require_once __DIR__ . '/../partials/header.php'; ?>
 
-<div class="container" style="margin-top: 40px;">
-    <div style="margin-bottom: 20px;">
-        <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline">&larr; Back to Dashboard</a>
+<div class="mb-4">
+    <div class="mb-3">
+        <?= component('button', ['href' => APP_URL . '/dashboard', 'label' => '&larr; Back to Dashboard', 'variant' => 'outline']) ?>
     </div>
+    <h1 style="margin-bottom: 8px;">Institution Setup</h1>
+    <p class="text-muted">Manage core institutional settings, branding, and departments.</p>
+</div>
 
-    <h1>Institution Setup</h1>
+<!-- Bulk Actions -->
+<div class="card mb-4" style="background: var(--bg-card);">
+    <details>
+        <summary style="cursor: pointer; font-weight: 600; color: var(--primary); outline: none;">📂 Bulk Import Data (CSV)</summary>
+        <div class="grid-3 mt-3">
 
-    <!-- Tabs for Bulk Actions -->
-    <div style="margin-top:20px; margin-bottom: 20px;">
-        <details style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
-            <summary style="cursor: pointer; font-weight: 600; color: #2563eb;">📂 Bulk Import Data (CSV)</summary>
-            <div class="grid-3" style="margin-top: 15px;">
-
-                <!-- Dept Import -->
-                <div style="padding: 15px; background: #f8fafc; border-radius: 6px;">
-                    <strong>Departments</strong>
-                    <p style="font-size: 0.8rem; margin-bottom: 10px;"><a
-                            href="<?= APP_URL ?>/institution/template/department" download>Download Template</a></p>
-                    <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
-    <?= csrf_field() ?>
-                        <input type="hidden" name="type" value="department">
-                        <input type="file" name="csv_file" required style="font-size: 0.8rem; margin-bottom: 5px;">
-                        <button type="submit" class="btn btn-primary"
-                            style="font-size: 0.8rem; padding: 4px 8px;">Upload</button>
-                    </form>
-                </div>
-
-                <!-- Course Import -->
-                <div style="padding: 15px; background: #f8fafc; border-radius: 6px;">
-                    <strong>Courses</strong>
-                    <p style="font-size: 0.8rem; margin-bottom: 10px;"><a
-                            href="<?= APP_URL ?>/institution/template/course" download>Download Template</a></p>
-                    <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
-    <?= csrf_field() ?>
-                        <input type="hidden" name="type" value="course">
-                        <input type="file" name="csv_file" required style="font-size: 0.8rem; margin-bottom: 5px;">
-                        <button type="submit" class="btn btn-primary"
-                            style="font-size: 0.8rem; padding: 4px 8px;">Upload</button>
-                    </form>
-                </div>
-
-                <!-- Unit Import -->
-                <div style="padding: 15px; background: #f8fafc; border-radius: 6px;">
-                    <strong>Units</strong>
-                    <p style="font-size: 0.8rem; margin-bottom: 10px;"><a
-                            href="<?= APP_URL ?>/institution/template/unit" download>Download Template</a></p>
-                    <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
-    <?= csrf_field() ?>
-                        <input type="hidden" name="type" value="unit">
-                        <input type="file" name="csv_file" required style="font-size: 0.8rem; margin-bottom: 5px;">
-                        <button type="submit" class="btn btn-primary"
-                            style="font-size: 0.8rem; padding: 4px 8px;">Upload</button>
-                    </form>
-                </div>
-
+            <!-- Dept Import -->
+            <div style="padding: 16px; background: #F8FAFC; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <strong style="display: block; margin-bottom: 4px;">Departments</strong>
+                <a href="<?= APP_URL ?>/institution/template/department" download class="text-muted" style="font-size: 0.8rem; display: block; margin-bottom: 12px; text-decoration: underline;">Download Template</a>
+                <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="type" value="department">
+                    <input type="file" name="csv_file" required style="font-size: 0.85rem; width: 100%; margin-bottom: 8px;">
+                    <?= component('button', ['type' => 'submit', 'label' => 'Upload', 'variant' => 'primary', 'class' => 'w-100']) ?>
+                </form>
             </div>
-        </details>
+
+            <!-- Course Import -->
+            <div style="padding: 16px; background: #F8FAFC; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <strong style="display: block; margin-bottom: 4px;">Courses</strong>
+                <a href="<?= APP_URL ?>/institution/template/course" download class="text-muted" style="font-size: 0.8rem; display: block; margin-bottom: 12px; text-decoration: underline;">Download Template</a>
+                <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="type" value="course">
+                    <input type="file" name="csv_file" required style="font-size: 0.85rem; width: 100%; margin-bottom: 8px;">
+                    <?= component('button', ['type' => 'submit', 'label' => 'Upload', 'variant' => 'primary', 'class' => 'w-100']) ?>
+                </form>
+            </div>
+
+            <!-- Unit Import -->
+            <div style="padding: 16px; background: #F8FAFC; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <strong style="display: block; margin-bottom: 4px;">Units</strong>
+                <a href="<?= APP_URL ?>/institution/template/unit" download class="text-muted" style="font-size: 0.8rem; display: block; margin-bottom: 12px; text-decoration: underline;">Download Template</a>
+                <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="type" value="unit">
+                    <input type="file" name="csv_file" required style="font-size: 0.85rem; width: 100%; margin-bottom: 8px;">
+                    <?= component('button', ['type' => 'submit', 'label' => 'Upload', 'variant' => 'primary', 'class' => 'w-100']) ?>
+                </form>
+            </div>
+
+        </div>
+    </details>
+</div>
+
+<div class="grid-main-side mt-4">
+
+    <!-- Details Form -->
+    <div class="card">
+        <h3 class="mb-4">Institution Details</h3>
+        <form action="<?= APP_URL ?>/institution/update" method="POST" enctype="multipart/form-data">
+            <?= csrf_field() ?>
+            
+            <?= component('input', [
+                'type' => 'text',
+                'name' => 'name',
+                'label' => 'Institution Name',
+                'value' => $institution['name'] ?? '',
+                'required' => true
+            ]) ?>
+            
+            <?= component('input', [
+                'type' => 'text',
+                'name' => 'tvet_code',
+                'label' => 'TVET / CBET Code',
+                'value' => $institution['tvet_code'] ?? ''
+            ]) ?>
+
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <textarea name="address" class="form-control" rows="3"><?= htmlspecialchars($institution['address'] ?? '') ?></textarea>
+            </div>
+
+            <hr style="margin: 32px 0; border: 0; border-top: 1px solid var(--border-color);">
+
+            <?= component('input', [
+                'type' => 'text',
+                'name' => 'system_name',
+                'label' => 'System Name',
+                'value' => $institution['system_name'] ?? 'CBET POE System'
+            ]) ?>
+
+            <div class="form-group">
+                <label class="form-label">System Logo</label>
+                <?php if (!empty($institution['logo_path'])): ?>
+                    <div style="margin-bottom: 8px; padding: 12px; background: #F8FAFC; border-radius: var(--radius-sm); display: inline-block; border: 1px solid var(--border-color);">
+                        <img src="<?= APP_URL . $institution['logo_path'] ?>" alt="Logo" style="height: 40px; object-fit: contain;">
+                    </div>
+                <?php endif; ?>
+                <input type="file" name="logo" accept="image/*" class="form-control">
+                <small class="text-muted mt-2" style="display: block;">Upload a PNG or JPG (approx 40px height recommended)</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Hero Image (Landing Page)</label>
+                <?php if (!empty($institution['hero_image_path'])): ?>
+                    <div style="margin-bottom: 8px; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: inline-block;">
+                        <img src="<?= APP_URL . $institution['hero_image_path'] ?>" alt="Hero" style="height: 80px; width: auto; object-fit: cover; border-radius: 4px;">
+                    </div>
+                <?php endif; ?>
+                <input type="file" name="hero_image" accept="image/*" class="form-control">
+                <small class="text-muted mt-2" style="display: block;">Upload a banner for the home page (approx 600x400px)</small>
+            </div>
+
+            <div class="grid-2">
+                <?= component('input', [
+                    'type' => 'email',
+                    'name' => 'contact_email',
+                    'label' => 'Contact Email',
+                    'value' => $institution['contact_email'] ?? ''
+                ]) ?>
+                <?= component('input', [
+                    'type' => 'text',
+                    'name' => 'contact_phone',
+                    'label' => 'Contact Phone',
+                    'value' => $institution['contact_phone'] ?? ''
+                ]) ?>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">About / Footer Text</label>
+                <textarea name="about_text" rows="3" class="form-control"><?= htmlspecialchars($institution['about_text'] ?? '') ?></textarea>
+            </div>
+
+            <div class="mt-4">
+                <?= component('button', ['type' => 'submit', 'label' => 'Save Details', 'variant' => 'primary']) ?>
+            </div>
+        </form>
     </div>
 
-    <div class="grid-2" style="margin-top: 20px;">
+    <!-- Department List -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div class="card">
+            <h3 class="mb-2">Departments</h3>
+            <p class="text-muted mb-4">Add and manage institutional departments.</p>
 
-        <!-- Details Form -->
-        <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <h3>Institution Details</h3>
-            <form action="<?= APP_URL ?>/institution/update" method="POST" enctype="multipart/form-data"
-                style="margin-top: 20px;">
-    <?= csrf_field() ?>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">Institution Name</label>
-                    <input type="text" name="name" value="<?= htmlspecialchars($institution['name'] ?? '') ?>" required
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">TVET / CBET Code</label>
-                    <input type="text" name="tvet_code" value="<?= htmlspecialchars($institution['tvet_code'] ?? '') ?>"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">Address</label>
-                    <textarea name="address"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"><?= htmlspecialchars($institution['address'] ?? '') ?></textarea>
-                </div>
-
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
-
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">System Name</label>
-                    <input type="text" name="system_name"
-                        value="<?= htmlspecialchars($institution['system_name'] ?? 'CBET POE System') ?>"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">System Logo</label>
-                    <?php if (!empty($institution['logo_path'])): ?>
-                        <div style="margin-bottom: 5px;">
-                            <img src="<?= APP_URL . $institution['logo_path'] ?>" alt="Logo" style="height: 40px;">
-                        </div>
-                    <?php endif; ?>
-                    <input type="file" name="logo" accept="image/*"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    <small style="color: #64748b;">Upload a PNG or JPG (approx 40px height recommended)</small>
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">Hero Image (Landing Page)</label>
-                    <?php if (!empty($institution['hero_image_path'])): ?>
-                        <div style="margin-bottom: 5px;">
-                            <img src="<?= APP_URL . $institution['hero_image_path'] ?>" alt="Hero"
-                                style="height: 80px; width: auto; border-radius: 4px;">
-                        </div>
-                    <?php endif; ?>
-                    <input type="file" name="hero_image" accept="image/*"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    <small style="color: #64748b;">Upload a screenshot or banner for the home page (approx
-                        600x400px)</small>
-                </div>
-
-                <div class="grid-2">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Contact Email</label>
-                        <input type="email" name="contact_email"
-                            value="<?= htmlspecialchars($institution['contact_email'] ?? '') ?>"
-                            style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Contact Phone</label>
-                        <input type="text" name="contact_phone"
-                            value="<?= htmlspecialchars($institution['contact_phone'] ?? '') ?>"
-                            style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">About / Footer Text</label>
-                    <textarea name="about_text" rows="3"
-                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"><?= htmlspecialchars($institution['about_text'] ?? '') ?></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Save Details</button>
-            </form>
-        </div>
-
-        <!-- Department List -->
-        <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <h3>Departments</h3>
-
-            <form action="<?= APP_URL ?>/institution/department" method="POST"
-                style="margin-top: 20px; display: flex; gap: 10px;">
-    <?= csrf_field() ?>
-                <input type="text" name="name" placeholder="New Department Name" required
-                    style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                <button type="submit" class="btn btn-primary">Add</button>
+            <form action="<?= APP_URL ?>/institution/department" method="POST" style="display: flex; gap: 10px; margin-bottom: 24px;">
+                <?= csrf_field() ?>
+                <input type="text" name="name" placeholder="New Department Name" required class="form-control" style="flex: 1;">
+                <?= component('button', ['type' => 'submit', 'label' => 'Add', 'variant' => 'primary']) ?>
             </form>
 
-            <div
-                style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
                 <?php foreach ($departments as $dept): ?>
-                    <div
-                        style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-                        <div style="margin-bottom: 15px;">
-                            <h4 style="margin: 0; color: #1e293b; font-size: 1.1rem;"><?= htmlspecialchars($dept['name']) ?>
-                            </h4>
+                    <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: #F8FAFC;">
+                        <div class="flex-between mb-3">
+                            <h4 style="margin: 0; color: var(--text-primary);"><?= htmlspecialchars($dept['name']) ?></h4>
                         </div>
 
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f1f5f9;">
-                            <a href="<?= APP_URL ?>/institution/department/<?= $dept['id'] ?>" class="btn btn-primary"
-                                style="font-size: 0.85rem; padding: 6px 12px; background: #0f172a;">Manage Courses</a>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #E2E8F0;">
+                            <?= component('button', [
+                                'href' => APP_URL . '/institution/department/' . $dept['id'], 
+                                'label' => 'Manage Courses', 
+                                'variant' => 'outline',
+                                'class' => 'btn-sm'
+                            ]) ?>
 
-                            <!-- Delete Button -->
-                            <form action="<?= APP_URL ?>/institution/department/delete" method="POST"
-                                style="display: inline-block;"
-                                onsubmit="return confirm('Are you sure? This will delete the department.');">
-    <?= csrf_field() ?>
+                            <form action="<?= APP_URL ?>/institution/department/delete" method="POST" onsubmit="return confirm('Are you sure? This will delete the department and cascade if empty.');" style="margin: 0;">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= $dept['id'] ?>">
-                                <button type="submit" class="btn btn-outline"
-                                    style="padding: 6px 10px; font-size: 0.85rem; border-color: #ef4444; color: #ef4444;"
-                                    title="Delete Department">
-                                    <i class="fas fa-trash"></i> Delete
+                                <button type="submit" class="btn btn-outline" style="border: none; color: var(--danger); padding: 5px; font-size: 0.85rem; font-weight: 500;" title="Delete Department">
+                                    <i data-feather="trash-2" style="width: 14px; height: 14px;"></i> Delete
                                 </button>
                             </form>
                         </div>
                     </div>
                 <?php endforeach; ?>
                 <?php if (empty($departments)): ?>
-                    <div style="grid-column: 1 / -1; color: #64748b; padding: 10px; text-align: center;">No departments
-                        found.</div>
+                    <div class="text-center text-muted p-4">No departments found.</div>
                 <?php endif; ?>
             </div>
         </div>

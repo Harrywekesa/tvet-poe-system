@@ -1,35 +1,46 @@
 <?php require_once __DIR__ . '/../partials/header.php'; ?>
 
-<div class="container" style="max-width: 400px; margin-top: 60px;">
-    <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <h2 style="text-align: center; margin-bottom: 30px; color: var(--text-dark);">Login</h2>
+<div class="container" style="max-width: 450px; margin-top: 8vh;">
+    <div class="card" style="padding: 40px;">
+        <div style="text-align: center; margin-bottom: 32px;">
+            <h2 style="color: var(--accent); margin-bottom: 8px;">Welcome Back</h2>
+            <p class="text-muted">Sign in to your account</p>
+        </div>
 
         <?php if (isset($error)): ?>
-            <div
-                style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem;">
-                <?= htmlspecialchars($error) ?>
-            </div>
+            <?= component('alert', ['message' => htmlspecialchars($error), 'variant' => 'danger']) ?>
         <?php endif; ?>
 
         <form action="<?= APP_URL ?>/login" method="POST">
-    <?= csrf_field() ?>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Registration Number / Email</label>
-                <input type="text" name="identifier" required placeholder="e.g. S1234 or admin@local"
-                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
-            </div>
+            <?= csrf_field() ?>
+            
+            <?= component('input', [
+                'type' => 'text',
+                'name' => 'identifier',
+                'label' => 'Registration Number / Email',
+                'required' => true,
+                'placeholder' => 'e.g. S1234 or admin@local'
+            ]) ?>
 
-            <div style="margin-bottom: 30px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Password</label>
-                <input type="password" name="password" required
-                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
-            </div>
+            <?= component('input', [
+                'type' => 'password',
+                'name' => 'password',
+                'label' => 'Password',
+                'required' => true,
+                'placeholder' => '••••••••'
+            ]) ?>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+            <div class="mt-4">
+                <?= component('button', [
+                    'type' => 'submit',
+                    'label' => 'Sign In',
+                    'class' => 'w-100'
+                ]) ?>
+            </div>
         </form>
     </div>
 
-    <div style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--secondary);">
+    <div class="text-center mt-4 text-muted" style="font-size: 0.9rem;">
         <p>Default Admin: admin@cbet.local / admin123</p>
     </div>
 </div>

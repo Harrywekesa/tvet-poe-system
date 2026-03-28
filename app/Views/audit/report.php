@@ -1,431 +1,193 @@
-<?php
-$title = 'Audit Report';
-ob_start();
-?>
-
-<div class="card p-4 mb-4 no-print border-0 shadow-sm">
-    <div class="flex-between align-center">
-        <div>
-            <h2 class="m-0 text-base">Audit Report Preview</h2>
-            <p class="text-sm text-gray m-0">Finalized internal verification report.</p>
-        </div>
-        <div class="flex gap-2">
-            <button onclick="window.print()" class="btn btn-primary d-flex align-center gap-2">
-                <span>🖨️</span> Print Report
-            </button>
-            <a href="<?= APP_URL ?>/audit" class="btn btn-outline">Dashboard</a>
-        </div>
-    </div>
-</div>
-
-<div class="report-container shadow-lg">
-    <!-- Header -->
-    <div class="report-header text-center mb-5 pb-4 border-bottom-thick">
-        <h1 class="uppercase text-xl font-bold tracking-wide m-0 text-dark">Internal Verification Audit Report</h1>
-        <p class="text-gray m-0 mt-1 uppercase text-sm">Competence Based Education & Training (CBET)</p>
-    </div>
-
-    <!-- Meta Grid -->
-    <div class="report-meta mb-5 border rounded p-4 bg-light">
-        <div class="grid-2 gap-5">
-            <div>
-                <div class="meta-item mb-3">
-                    <span class="meta-label">Unit of Competency</span>
-                    <strong class="meta-value d-block text-lg"><?= htmlspecialchars($unit['unit_code']) ?></strong>
-                    <span class="text-gray text-sm"><?= htmlspecialchars($unit['unit_title']) ?></span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Class / Cohort</span>
-                    <strong class="meta-value d-block"><?= htmlspecialchars($class['class_code']) ?></strong>
-                    <span class="text-gray text-sm"><?= htmlspecialchars($class['course_title']) ?></span>
-                </div>
-            </div>
-            <div class="text-right-md">
-                <div class="meta-item mb-3">
-                    <span class="meta-label">Audit Date</span>
-                    <strong class="meta-value d-block"><?= date('d F Y', strtotime($session['created_at'])) ?></strong>
-                </div>
-                <div class="meta-item mb-3">
-                    <span class="meta-label">Internal Verifier</span>
-                    <strong class="meta-value d-block"><?= $_SESSION['name'] ?></strong>
-                    <span class="text-xs text-gray">ID: <?= $_SESSION['user_id'] ?></span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Status</span>
-                    <span class="badge bg-success text-white px-3 py-1 rounded-pill">COMPLETED</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary Stats -->
-    <h3 class="section-title">1. Audit Summary</h3>
-    <div class="grid-3 gap-4 mb-5 text-center">
-        <div class="stat-card">
-            <div class="stat-value"><?= $stats['total'] ?></div>
-            <div class="stat-label">Samples Audited</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value text-success"><?= $stats['compliant'] ?></div>
-            <div class="stat-label">Compliant Samples</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= $stats['percentage'] ?>%</div>
-            <div class="stat-label">Compliance Rate</div>
-        </div>
-    </div>
-
-    <!-- Findings Table -->
-    <h3 class="section-title">2. Detailed Findings</h3>
-    <table class="table w-100 mb-5 report-table">
-        <thead>
-            <tr class="bg-gray-100">
-                <th width="35%">Student Sample</th>
-                <th width="15%">Status</th>
-                <th>Remarks / Observations</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($samples as $s): ?>
-                <tr>
-                    <td class="align-top">
-                        <strong class="d-block text-dark"><?= htmlspecialchars($s['full_name']) ?></strong>
-                        <span class="text-sm text-gray"><?= htmlspecialchars($s['identifier']) ?></span>
-                    </td>
-                    <td class="align-top">
-                        <span
-                            class="status-indicator <?= $s['status'] === 'Compliant' ? 'status-success' : ($s['status'] === 'Non-Compliant' ? 'status-danger' : 'status-gray') ?>">
-                            <?= $s['status'] ?>
-                        </span>
-                    </td>
-                    <td class="align-top text-sm">
-                        <?= nl2br(htmlspecialchars($s['comments'] ?? '-')) ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <!-- General Observations -->
-    <h3 class="section-title">3. General Observations</h3>
-    <div class="mb-5 p-4 border rounded bg-light">
-        <ul class="checklist text-sm">
-            <li class="checked">Trainer Professional Documents are available and approved.</li>
-            <li class="checked">Assessment Tools align with the Unit of Competency.</li>
-            <li class="<?= $stats['percentage'] >= 80 ? 'checked' : 'unchecked' ?>">
-                Student Evidence meets the required standard (Sample Compliance > 80%).
-            </li>
-        </ul>
-    </div>
-
-    <!-- Footer / Signatures -->
-    <div class="report-footer mt-5 pt-5">
-        <div class="grid-2 gap-5">
-            <div class="signature-box">
-                <div class="signature-line"></div>
-                <strong class="d-block mb-1">Internal Verifier Signature</strong>
-                <span class="text-xs text-gray">Digitally Verified</span>
-            </div>
-            <div class="signature-box">
-                <div class="signature-line"></div>
-                <strong class="d-block mb-1">Date</strong>
-                <span class="text-xs text-gray"><?= date('d/m/Y') ?></span>
-            </div>
-        </div>
-        <div class="text-center mt-5 text-xs text-gray-light uppercase">
-            System Generated Report &bull; CBET POE System &bull; <?= date('Y-m-d H:i:s') ?>
-        </div>
-    </div>
-</div>
-
+<?php require_once __DIR__ . '/../partials/header.php'; ?>
 <style>
-    /* Report Container */
-    .report-container {
-        max-width: 850px;
-        margin: 0 auto;
-        padding: 40px;
-        background: #fff;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .shadow-lg {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .border-bottom-thick {
-        border-bottom: 3px solid #008975;
-    }
-
-    /* Typography */
-    .text-xl {
-        font-size: 1.5rem;
-    }
-
-    .text-lg {
-        font-size: 1.125rem;
-    }
-
-    .text-sm {
-        font-size: 0.875rem;
-    }
-
-    .text-xs {
-        font-size: 0.75rem;
-    }
-
-    .uppercase {
-        text-transform: uppercase;
-    }
-
-    .tracking-wide {
-        letter-spacing: 0.05em;
-    }
-
-    .text-gray {
-        color: #64748b;
-    }
-
-    .text-gray-light {
-        color: #94a3b8;
-    }
-
-    .text-dark {
-        color: #0f172a;
-    }
-
-    /* Meta Box */
-    .meta-label {
-        display: block;
-        font-size: 0.75rem;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 2px;
-    }
-
-    .meta-value {
-        color: #0f172a;
-    }
-
-    /* Stats */
-    .stat-card {
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 15px;
-        background: #f8fafc;
-    }
-
-    .stat-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #0f172a;
-        line-height: 1;
-        margin-bottom: 5px;
-    }
-
-    .stat-label {
-        font-size: 0.75rem;
-        color: #64748b;
-        text-transform: uppercase;
-    }
-
-    .text-success {
-        color: #16a34a;
-    }
-
-    /* Section Headers */
-    .section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #008975;
-        text-transform: uppercase;
-        border-bottom: 1px solid #e2e8f0;
-        padding-bottom: 8px;
-        margin-bottom: 20px;
-    }
-
-    /* Tables */
-    .report-table th {
-        background: #f1f5f9;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        color: #475569;
-        padding: 12px;
-    }
-
-    .report-table td {
-        padding: 12px;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .report-table tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* Status Indicators */
-    .status-indicator {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.75rem;
-    }
-
-    .status-success {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-danger {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .status-gray {
-        background: #f1f5f9;
-        color: #475569;
-    }
-
-    /* Checklist */
-    .checklist {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .checklist li {
-        padding-left: 25px;
-        position: relative;
-        margin-bottom: 8px;
-        color: #334155;
-    }
-
-    .checklist li::before {
-        content: '◻';
-        position: absolute;
-        left: 0;
-        color: #cbd5e1;
-        font-weight: bold;
-    }
-
-    .checklist li.checked::before {
-        content: '✔';
-        color: #008975;
-    }
-
-    .checklist li.unchecked::before {
-        content: '✖';
-        color: #ef4444;
-    }
-
-    /* Signature */
-    .signature-box {
-        text-align: center;
-    }
-
-    .signature-line {
-        border-bottom: 1px solid #94a3b8;
-        width: 80%;
-        margin: 0 auto 10px;
-    }
-
-    /* Utilities */
-    .text-right-md {
-        text-align: right;
-    }
-
-    .bg-light {
-        background-color: #f8fafc;
-    }
-
-    .d-block {
-        display: block;
-    }
-
-    .gap-5 {
-        gap: 2rem;
-    }
-
     @media print {
-        @page {
-            size: A4;
-            margin: 1.5cm;
-        }
-
-        .no-print,
-        .sidebar,
-        .top-bar,
-        .sidebar-overlay,
-        .nav-toggle,
-        .btn {
-            display: none !important;
-        }
-
-        /* Layout & Container Reset */
-        body, html, .main-content, .container, .report-container {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #fff !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: visible !important;
-        }
-
-        .main-content {
-            display: block !important;
-        }
-
-        /* Typography Scaling */
-        body {
-            font-size: 11px; /* Slightly smaller for print */
-            color: #000;
-        }
-
-        h1 { font-size: 18px !important; }
-        h2 { font-size: 16px !important; }
-        h3 { font-size: 14px !important; margin-top: 15px !important; margin-bottom: 10px !important; }
-
-        /* Grid System Adaptation */
-        .grid-2, .grid-3 {
-            display: grid !important;
-            gap: 15px !important;
-        }
-        
-        /* 2 Columns usually fit A4, 3 might be tight */
-        .grid-3 {
-            grid-template-columns: 1fr 1fr 1fr !important;
-        }
-
-        /* Table Constraints */
-        table {
-            width: 100% !important;
-            table-layout: fixed; /* Prevents overflow */
-            border-collapse: collapse;
-        }
-
-        th, td {
-            word-wrap: break-word; /* Force wrap */
-            padding: 6px !important;
-            font-size: 10px !important;
-        }
-
-        /* Specific Overrides */
-        .badge {
-            border: 1px solid #000;
-            color: #000 !important;
-        }
-        
-        .bg-light {
-            background-color: transparent !important;
-            border: 1px solid #ddd;
-        }
+        header, nav, .btn, .no-print, .sidebar-brand, .sidebar { display: none !important; }
+        body { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
+        .container { max-width: 100% !important; border: none !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
+        .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+        .page-title { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        /* Force CSS Background rendering for printed charts/badges */
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
 </style>
 
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../partials/layout.php';
-?>
+<div class="container" style="max-width: 1200px; margin-top: 40px;">
+    
+    <!-- Action Bar -->
+    <div class="no-print flex-between align-center mb-4">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(37,99,235,0.05); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                <i data-feather="file-text" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+                <h1 class="page-title" style="margin-bottom: 2px; font-size: 1.5rem;">Audit Report Verification</h1>
+                <p class="text-muted" style="margin: 0; font-size: 0.9rem;">
+                    Finalized internal verification compliance record.
+                </p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <?= component('button', ['href' => APP_URL . '/audit', 'label' => 'Back to Workspace', 'variant' => 'outline']) ?>
+            <button onclick="window.print()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+                <i data-feather="printer" style="width: 16px;"></i> Print Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Official Report Document Container -->
+    <div class="card p-0" style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md);">
+        
+        <!-- Document Header (Print Specific) -->
+        <div style="padding: 40px 40px 30px; border-bottom: 4px solid var(--primary); text-align: center; background: #f8fafc;">
+            <h1 style="text-transform: uppercase; font-size: 1.8rem; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; margin-bottom: 8px;">Internal Verification Audit Report</h1>
+            <p style="color: var(--text-secondary); margin: 0; text-transform: uppercase; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px;">Competence Based Education & Training (CBET)</p>
+        </div>
+
+        <div style="padding: 40px;">
+            
+            <!-- Target Meta Data Grid -->
+            <div class="card" style="background: rgba(248, 250, 252, 1); border: 1px solid var(--border-color); padding: 24px; margin-bottom: 40px;">
+                <div class="grid-2" style="gap: 30px;">
+                    <div>
+                        <div style="margin-bottom: 20px;">
+                            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Unit of Competency</span>
+                            <strong style="display: block; font-size: 1.25rem; color: var(--text-primary); line-height: 1.2;"><?= htmlspecialchars($unit['unit_code']) ?></strong>
+                            <span style="color: var(--text-secondary); font-size: 0.95rem;"><?= htmlspecialchars($unit['unit_title']) ?></span>
+                        </div>
+                        <div>
+                            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Class / Cohort</span>
+                            <strong style="display: block; font-size: 1.15rem; color: var(--text-primary); line-height: 1.2;"><?= htmlspecialchars($class['class_code']) ?></strong>
+                            <span style="color: var(--text-secondary); font-size: 0.9rem;"><?= htmlspecialchars($class['course_title']) ?></span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; border-left: 1px solid #e2e8f0; padding-left: 30px;">
+                        <div style="margin-bottom: 15px;">
+                            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Audit Execution Date</span>
+                            <strong style="display: block; font-size: 1.1rem; color: var(--text-primary);"><?= date('d F Y', strtotime($session['created_at'])) ?></strong>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Internal Quality Assurer</span>
+                            <strong style="display: block; font-size: 1.1rem; color: var(--primary);"><?= htmlspecialchars($_SESSION['name']) ?></strong>
+                        </div>
+                        <div>
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 6px 14px; font-size: 0.85rem; border: 1px solid rgba(16, 185, 129, 0.2);">
+                                <i data-feather="check-circle" style="width: 14px; margin-right: 4px; display: inline-block; vertical-align: middle;"></i> COMPLETED
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistical Overview -->
+            <h3 style="font-size: 1.15rem; color: var(--text-secondary); text-transform: uppercase; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                <i data-feather="bar-chart-2" style="color: var(--primary); width: 20px;"></i> 1. Audit Summary Matrix
+            </h3>
+            
+            <div class="grid-3" style="gap: 20px; margin-bottom: 40px; text-align: center;">
+                <div class="card" style="padding: 24px;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; line-height: 1;"><?= $stats['total'] ?></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Samples Audited</div>
+                </div>
+                <div class="card" style="padding: 24px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2);">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--success); margin-bottom: 8px; line-height: 1;"><?= $stats['compliant'] ?></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; color: var(--success);">Compliant Samples found</div>
+                </div>
+                <div class="card" style="padding: 24px; background: <?= $stats['percentage'] >= 80 ? 'rgba(16, 185, 129, 0.05)' : 'rgba(245, 158, 11, 0.05)' ?>;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: <?= $stats['percentage'] >= 80 ? 'var(--success)' : 'var(--warning)' ?>; margin-bottom: 8px; line-height: 1;"><?= $stats['percentage'] ?>%</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Compliance Integrity Rate</div>
+                </div>
+            </div>
+
+            <!-- Specific Findings Table -->
+            <h3 style="font-size: 1.15rem; color: var(--text-secondary); text-transform: uppercase; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                <i data-feather="list" style="color: var(--primary); width: 20px;"></i> 2. Detailed Findings
+            </h3>
+            
+            <div class="table-responsive" style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 40px; overflow-x: auto;">
+                <table class="table" style="margin: 0; border: none; min-width: 600px;">
+                    <thead style="background: rgba(248, 250, 252, 1); border-bottom: 2px solid var(--border-color);">
+                        <tr>
+                            <th style="padding: 16px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; width: 35%;">Student Sample</th>
+                            <th style="padding: 16px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; width: 20%;">Compliance Status</th>
+                            <th style="padding: 16px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Remarks / Observations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($samples as $s): 
+                            $isCompliant = ($s['status'] === 'Compliant');
+                        ?>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 16px; vertical-align: top;">
+                                    <strong style="display: block; color: var(--text-primary); font-size: 0.95rem; margin-bottom: 4px;"><?= htmlspecialchars($s['full_name']) ?></strong>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; display: block; border: 1px solid #e2e8f0; background: #f8fafc; padding: 2px 6px; border-radius: 4px; width: fit-content;"><?= htmlspecialchars($s['identifier']) ?></span>
+                                </td>
+                                <td style="padding: 16px; vertical-align: top;">
+                                    <span class="badge" style="background: <?= $isCompliant ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)' ?>; color: <?= $isCompliant ? 'var(--success)' : 'var(--danger)' ?>; border: 1px solid <?= $isCompliant ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)' ?>;">
+                                        <?= htmlspecialchars($s['status']) ?>
+                                    </span>
+                                </td>
+                                <td style="padding: 16px; vertical-align: top; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+                                    <?= nl2br(htmlspecialchars($s['comments'] ?? '-')) ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        
+                        <?php if(empty($samples)): ?>
+                            <tr>
+                                <td colspan="3" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                                    <i data-feather="slash" style="width: 32px; height: 32px; color: #cbd5e1; margin-bottom: 15px;"></i>
+                                    <div>No specific samples recorded in this audit session.</div>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Global Validation Rules -->
+            <h3 style="font-size: 1.15rem; color: var(--text-secondary); text-transform: uppercase; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                <i data-feather="check-square" style="color: var(--primary); width: 20px;"></i> 3. Macro Observations
+            </h3>
+            
+            <div class="card" style="padding: 24px; background: rgba(248, 250, 252, 0.5); border: 1px solid var(--border-color); margin-bottom: 50px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+                    <i data-feather="check-circle" style="color: var(--success); width: 18px; flex-shrink: 0; margin-top: 2px;"></i>
+                    <span style="font-size: 0.95rem; color: var(--text-primary);">Trainer Professional Documents are active, versioned, and approved.</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+                    <i data-feather="check-circle" style="color: var(--success); width: 18px; flex-shrink: 0; margin-top: 2px;"></i>
+                    <span style="font-size: 0.95rem; color: var(--text-primary);">Assessment Tools align flawlessly with the registered Unit Curriculum.</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <i data-feather="<?= $stats['percentage'] >= 80 ? 'check-circle' : 'x-circle' ?>" style="color: <?= $stats['percentage'] >= 80 ? 'var(--success)' : 'var(--danger)' ?>; width: 18px; flex-shrink: 0; margin-top: 2px;"></i>
+                    <span style="font-size: 0.95rem; color: var(--text-primary);">Student Evidence meets the required institutional threshold (Compliance &ge; 80%).</span>
+                </div>
+            </div>
+
+            <!-- Final Documentation Block -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px dashed var(--border-color); padding-top: 40px; margin-top: auto; max-width: 800px; padding-right: 40px;" class="print-signature">
+                <div style="flex: 1; text-align: center; max-width: 250px;">
+                    <div style="height: 60px; border-bottom: 1px solid #94a3b8; margin-bottom: 10px;"></div>
+                    <strong style="display: block; font-size: 0.95rem; color: var(--text-primary); text-transform: uppercase;">Internal Quality Assurer</strong>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Official Signature</span>
+                </div>
+                <div style="flex: 1; text-align: center; max-width: 150px;">
+                    <div style="height: 80px; width: 80px; margin: 0 auto 10px auto; border: 2px dashed #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; text-align: center; line-height: 1.2;">Official<br>Stamp</span>
+                    </div>
+                </div>
+                <div style="flex: 1; text-align: center; max-width: 200px;">
+                    <div style="height: 60px; border-bottom: 1px solid #94a3b8; margin-bottom: 10px;"></div>
+                    <strong style="display: block; font-size: 0.95rem; color: var(--text-primary); text-transform: uppercase;">Date Signed</strong>
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-family: monospace;"><?= date('d M Y') ?></span>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px; font-size: 0.75rem; color: #cbd5e1; text-transform: uppercase; font-family: monospace; letter-spacing: 1px;">
+                System Generated Report &bull; CBET POE System &bull; <?= date('Y-m-d H:i:s') ?>
+            </div>
+
+        </div>
+    </div>
+</div>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

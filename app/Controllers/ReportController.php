@@ -49,8 +49,9 @@ class ReportController extends Controller
         $action = $_GET['action'] ?? null;
         $date = $_GET['date'] ?? null;
         $search = $_GET['search'] ?? null;
+        $hideAuth = isset($_GET['hide_auth']) && $_GET['hide_auth'] == '1';
 
-        $logs = $this->model->getLogsByFilter($userId, $action, $date, $search);
+        $logs = $this->model->getLogsByFilter($userId, $action, $date, $search, $hideAuth);
         $users = (new \App\Models\UserModel())->getAllUsers();
 
         // Fetch Cohorts for dropdown
@@ -60,7 +61,7 @@ class ReportController extends Controller
             'logs' => $logs,
             'users' => $users,
             'cohorts' => $cohorts,
-            'filters' => ['user_id' => $userId, 'action' => $action, 'date' => $date, 'search' => $search],
+            'filters' => ['user_id' => $userId, 'action' => $action, 'date' => $date, 'search' => $search, 'hide_auth' => $hideAuth],
             'title' => 'System Reports'
         ]);
     }
