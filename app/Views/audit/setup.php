@@ -23,6 +23,7 @@ ob_start();
 </div>
 
 <form action="<?= APP_URL ?>/audit/start" method="POST" id="auditForm">
+    <?= csrf_field() ?>
     <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
     <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
 

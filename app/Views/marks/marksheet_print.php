@@ -242,6 +242,7 @@
             ?>
             <?php if ($canSubmit): ?>
                 <form action="<?= APP_URL ?>/marks/submit" method="POST" style="display:inline; margin-left: 10px;">
+    <?= csrf_field() ?>
                     <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
                     <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
                     <button type="submit" class="btn" style="color: #c2410c;"
@@ -268,6 +269,7 @@
                 <strong>HOD Action:</strong>
                 <?php if (($_SESSION['role'] ?? '') === 'HOD' || ($_SESSION['role'] ?? '') === 'Admin'): ?>
                     <form action="<?= APP_URL ?>/marks/status" method="POST" style="display:inline; margin-left: 10px;">
+    <?= csrf_field() ?>
                         <input type="hidden" name="id" value="<?= $statusRecord['id'] ?>">
                         <input type="hidden" name="role" value="HOD">
                         <input type="text" name="comments" placeholder="Comments..." required
@@ -285,6 +287,7 @@
                 <strong>IQS Action:</strong>
                 <?php if (($_SESSION['role'] ?? '') === 'InternalVerifier' || ($_SESSION['role'] ?? '') === 'Admin'): ?>
                     <form action="<?= APP_URL ?>/marks/status" method="POST" style="display:inline; margin-left: 10px;">
+    <?= csrf_field() ?>
                         <input type="hidden" name="id" value="<?= $statusRecord['id'] ?>">
                         <input type="hidden" name="role" value="IQS">
                         <input type="text" name="comments" placeholder="Comments (Optional)..."

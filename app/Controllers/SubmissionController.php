@@ -86,52 +86,31 @@ class SubmissionController extends Controller
         $unitId = $_POST['unit_id']; // For redirect
 
         if (isset($_FILES['evidence_file']) && $_FILES['evidence_file']['error'] === UPLOAD_ERR_OK) {
-            $fileTmpPath = $_FILES['evidence_file']['tmp_name'];
-            $fileName = $_FILES['evidence_file']['name'];
-            $fileSize = $_FILES['evidence_file']['size'];
-            $fileType = $_FILES['evidence_file']['type'];
+            $result = \App\Services\UploadService::handleUpload('evidence_file', '', ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png']);
 
-            // Limit Types (PDF, DOCX, Images)
-            $allowed = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
-            $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            if ($result['success']) {
+                $this->model->submitEvidence($studentId, $slotId, $result['filename'], $result['extension']);
 
-            if (in_array($ext, $allowed)) {
-                // Generate Safe Name: user_slot_timestamp.ext
-                $newFileName = $studentId . '_' . $slotId . '_' . time() . '.' . $ext;
-                $uploadDir = UPLOAD_DIR; // Defined in config
+                // Fetch Details for Log
+                $userModel = new \App\Models\UserModel();
+                $student = $userModel->getUserById($studentId);
 
-                if (!file_exists($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
-                }
+                $assModel = new \App\Models\AssessmentModel();
+                $slot = $assModel->getSlotById($slotId);
 
-                $destPath = $uploadDir . $newFileName;
-                if (move_uploaded_file($fileTmpPath, $destPath)) {
-                    $this->model->submitEvidence($studentId, $slotId, $newFileName, $ext);
+                $instModel = new \App\Models\InstitutionModel();
+                $unit = $instModel->getUnitById($unitId);
 
-                    // Fetch Details for Log
-                    $userModel = new \App\Models\UserModel();
-                    $student = $userModel->getUserById($studentId);
+                $stName = $student['full_name'] ?? "Student $studentId";
+                $uTitle = $unit['unit_title'] ?? "Unit $unitId";
+                $sTitle = $slot['title'] ?? "Assessment $slotId";
+                $ext = $result['extension'];
 
-                    $assModel = new \App\Models\AssessmentModel();
-                    $slot = $assModel->getSlotById($slotId); // Assuming this returns slot details + unit info or we fetch unit
-                    // If getSlotById doesn't exist or return unit title, we might need a join or separate fetch.
-                    // Let's assume we can get it or fetch it. 
-                    // Actually, let's look at AssessmentModel to be sure, or just fetch Unit.
-                    $instModel = new \App\Models\InstitutionModel();
-                    $unit = $instModel->getUnitById($unitId);
+                \App\Core\Audit::log('Evidence Upload', "$stName uploaded a $ext for $sTitle of $uTitle");
 
-                    $stName = $student['full_name'] ?? "Student $studentId";
-                    $uTitle = $unit['unit_title'] ?? "Unit $unitId";
-                    $sTitle = $slot['title'] ?? "Assessment $slotId";
-
-                    \App\Core\Audit::log('Evidence Upload', "$stName uploaded a $ext for $sTitle of $uTitle");
-
-                    $_SESSION['flash_success'] = 'Evidence uploaded successfully.';
-                } else {
-                    $_SESSION['flash_error'] = 'Failed to move uploaded file.';
-                }
+                $_SESSION['flash_success'] = 'Evidence uploaded successfully.';
             } else {
-                $_SESSION['flash_error'] = 'Invalid file type. Allowed: PDF, DOC, Images.';
+                $_SESSION['flash_error'] = $result['error'];
             }
         } else {
             $_SESSION['flash_error'] = 'Error uploading file.';

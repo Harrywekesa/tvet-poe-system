@@ -55,6 +55,7 @@
 
             <div style="margin-top: 30px; display: flex; gap: 15px;">
                 <form action="<?= APP_URL ?>/users/import/commit" method="POST">
+    <?= csrf_field() ?>
                     <button type="submit" class="btn btn-primary">✅ Confirm & Import Users</button>
                 </form>
                 <a href="<?= APP_URL ?>/users" class="btn btn-outline"

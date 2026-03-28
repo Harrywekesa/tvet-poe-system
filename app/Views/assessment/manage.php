@@ -47,6 +47,11 @@
                                             Topic: <?= htmlspecialchars($s['topic_title']) ?>
                                         </span>
                                     <?php endif; ?>
+                                    <?php if (isset($s['allow_student_uploads']) && $s['allow_student_uploads'] == 0): ?>
+                                        <span style="font-size: 0.8rem; background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; border: 1px solid #fca5a5; margin-left: 8px;">
+                                            Trainer Uploads Only
+                                        </span>
+                                    <?php endif; ?>
                                 </div>
                                 <div style="color: #64748b; font-size: 0.9rem; margin-top: 4px;">
                                     <?= htmlspecialchars($s['instructions']) ?>
@@ -75,6 +80,7 @@
 
             <form action="<?= APP_URL ?>/assessment/store" method="POST" enctype="multipart/form-data"
                 style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+    <?= csrf_field() ?>
                 <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
 
                 <div>
@@ -110,6 +116,16 @@
                         (PDF/Image)</label>
                     <input type="file" name="assessment_file" accept=".pdf,.png,.jpg,.jpeg"
                         style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                </div>
+
+                <div>
+                    <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer;">
+                        <input type="checkbox" name="allow_student_uploads" value="1" checked>
+                        Allow Students to Upload Evidence
+                    </label>
+                    <p style="font-size: 0.8rem; color: #64748b; margin-top: 5px; margin-left: 23px;">
+                        If unchecked, only the Trainer can upload evidence for this assessment slot on behalf of the student.
+                    </p>
                 </div>
 
                 <div>

@@ -198,6 +198,7 @@
         <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
             <h3>Create New User</h3>
             <form action="<?= APP_URL ?>/users/store" method="POST" style="margin-top: 20px;">
+    <?= csrf_field() ?>
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px;">Full Name</label>
                     <input type="text" name="full_name" required
@@ -421,6 +422,7 @@
         <h3>Suspend User</h3>
         <p>Please provide a reason for suspending this user.</p>
         <form action="<?= APP_URL ?>/users/suspend" method="POST">
+    <?= csrf_field() ?>
             <input type="hidden" name="user_id" id="suspendUserId">
             <textarea name="reason" rows="3" required placeholder="Reason for suspension..."
                 style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; margin-bottom: 20px;"></textarea>

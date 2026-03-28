@@ -6,6 +6,14 @@ use App\Core\Model;
 
 class MarksModel extends Model
 {
+    public function submitEvidenceTrainer($studentId, $slotId, $fileName, $fileType, $trainerId)
+    {
+        return $this->db->query("
+            INSERT INTO poe_submissions (student_user_id, assessment_slot_id, file_path, file_type, status, uploaded_by) 
+            VALUES (?, ?, ?, ?, 'Submitted', ?)
+            ON DUPLICATE KEY UPDATE file_path = ?, file_type = ?, status = 'Submitted', uploaded_by = ?
+        ", [$studentId, $slotId, $fileName, $fileType, $trainerId, $fileName, $fileType, $trainerId]);
+    }
     // -- Student Marks --
 
     public function getMarksForStudent($studentId, $unitId)
@@ -58,6 +66,11 @@ class MarksModel extends Model
         ", [$classId, $unitId])->fetch();
     }
 
+    public function getMarksheetById($id)
+    {
+        return $this->db->query("SELECT * FROM marksheet_status WHERE id = ?", [$id])->fetch();
+    }
+
     public function initMarksheet($classId, $unitId, $trainerId)
     {
         // Check if exists
@@ -94,7 +107,7 @@ class MarksModel extends Model
         }
     }
 
-    public function getAllApprovals($role)
+    public function getAllApprovals($role, $deptId = null)
     {
         $sql = "
             SELECT ms.id, ms.unit_id, ms.class_id, ms.status, ms.submitted_at, 
@@ -104,6 +117,7 @@ class MarksModel extends Model
             FROM marksheet_status ms
             JOIN units u ON ms.unit_id = u.id
             JOIN classes c ON ms.class_id = c.id
+            JOIN courses crs ON c.course_id = crs.id
             LEFT JOIN users tr ON ms.submitted_by = tr.id
             LEFT JOIN users hod ON ms.hod_user_id = hod.id
             WHERE 1=1 
@@ -112,9 +126,15 @@ class MarksModel extends Model
         if ($role === 'HOD') {
             // HOD sees what Trainer submitted (Pending) AND what they already acted on
             $sql .= " AND (ms.status = 'Submitted_to_HOD' OR ms.status IN ('HOD_Approved', 'HOD_Rejected', 'IQS_Approved', 'IQS_Rejected'))";
+            if ($deptId) {
+                $sql .= " AND crs.department_id = " . intval($deptId);
+            }
         } elseif ($role === 'InternalVerifier') {
             // IV sees what HOD approved (Pending) AND what they already acted on
             $sql .= " AND (ms.status = 'HOD_Approved' OR ms.status IN ('IQS_Approved', 'IQS_Rejected'))";
+            if ($deptId) {
+                $sql .= " AND crs.department_id = " . intval($deptId);
+            }
         }
 
         $sql .= " ORDER BY ms.submitted_at DESC";

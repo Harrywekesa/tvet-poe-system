@@ -256,15 +256,33 @@ class MarksController extends Controller
         $changes = [];
 
         foreach ($marks as $slotId => $val) {
+            // 1. Process Trainer Uploads
+            if (isset($_FILES['evidence']['name'][$slotId]) && $_FILES['evidence']['error'][$slotId] === UPLOAD_ERR_OK) {
+                // Spoof $_FILES array format for UploadService
+                $_FILES['tmp_trainer_upload'] = [
+                    'name' => $_FILES['evidence']['name'][$slotId],
+                    'type' => $_FILES['evidence']['type'][$slotId],
+                    'tmp_name' => $_FILES['evidence']['tmp_name'][$slotId],
+                    'error' => $_FILES['evidence']['error'][$slotId],
+                    'size' => $_FILES['evidence']['size'][$slotId]
+                ];
+                
+                $result = \App\Services\UploadService::handleUpload('tmp_trainer_upload', '', ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png']);
+                
+                if ($result['success']) {
+                    $this->marksModel->submitEvidenceTrainer($studentId, $slotId, $result['filename'], $result['extension'], $_SESSION['user_id']);
+                    $changes[] = "Slot #$slotId Evidence Uploaded";
+                } else {
+                    $_SESSION['flash_error'] = "File upload failed for Slot #$slotId: " . $result['error'];
+                }
+            }
+
+            // 2. Process Marks
             if ($val !== '') {
                 $oldVal = $oldMarks[$slotId] ?? 'Not Graded';
                 // Only log if changed
                 if ((string) $oldVal !== (string) $val) {
                     $this->marksModel->saveMark($studentId, $slotId, $val, $_SESSION['user_id']);
-
-                    // Get slot title for better log
-                    // Ideally we'd map this earlier but for now let's just log Slot ID
-                    // Actually, let's fetch slots map or just use Slot ID
                     $changes[] = "Slot #$slotId: $oldVal -> $val";
                 }
             }
@@ -274,6 +292,17 @@ class MarksController extends Controller
             $changeLog = implode(", ", $changes);
             \App\Core\Audit::log('Marks Updated', "Student $studentId, Unit $unitId (Class $classId). Changes: $changeLog");
             $_SESSION['flash_success'] = 'Marks saved successfully.';
+
+            // Email Notification
+            $userModel = new \App\Models\UserModel();
+            $studentInfo = $userModel->getUserById($studentId);
+            if ($studentInfo && !empty($studentInfo['email'])) {
+                $subject = "CBET POE: Your Marks have been updated";
+                $message = "<p>Hello " . htmlspecialchars($studentInfo['name']) . ",</p>";
+                $message .= "<p>Your trainer has updated your marks or uploaded evidence on your behalf for Unit ID: $unitId.</p>";
+                $message .= "<p>Log in to your dashboard to view your progress.</p>";
+                \App\Services\EmailService::send($studentInfo['email'], $subject, $message);
+            }
         } else {
             $_SESSION['flash_success'] = 'No changes made.';
         }
@@ -471,6 +500,26 @@ class MarksController extends Controller
         $inst = $this->institutionModel->getInstitutionDetails();
         $allClasses = $this->academicModel->getAllClasses();
 
+        if ($_SESSION['role'] === 'HOD') {
+            $userModel = new \App\Models\UserModel();
+            $deptId = $userModel->getUserDepartment($_SESSION['user_id']);
+            $courses = $this->institutionModel->getCoursesByDept($deptId);
+            
+            $courseIds = array_column($courses, 'id');
+            $filteredClasses = [];
+            foreach ($allClasses as $c) {
+                if (in_array($c['course_id'], $courseIds)) {
+                    $filteredClasses[] = $c;
+                }
+            }
+            $allClasses = $filteredClasses;
+
+            // Enforce access control
+            if (!in_array($class['course_id'], $courseIds)) {
+                die("Unauthorized: Class does not belong to your department.");
+            }
+        }
+
         $this->view('marks/class_transcripts', [
             'class' => $class,
             'students' => $students,
@@ -490,6 +539,21 @@ class MarksController extends Controller
         // Get all classes grouped by cohort or just list them
         // For simplicity, let's just get all classes and we can filter in view or controller
         $classes = $this->academicModel->getAllClasses();
+
+        if ($_SESSION['role'] === 'HOD') {
+            $userModel = new \App\Models\UserModel();
+            $deptId = $userModel->getUserDepartment($_SESSION['user_id']);
+            $courses = $this->institutionModel->getCoursesByDept($deptId);
+            
+            $courseIds = array_column($courses, 'id');
+            $filteredClasses = [];
+            foreach ($classes as $c) {
+                if (in_array($c['course_id'], $courseIds)) {
+                    $filteredClasses[] = $c;
+                }
+            }
+            $classes = $filteredClasses;
+        }
 
         $this->view('marks/transcripts_hub', [
             'classes' => $classes,
@@ -539,6 +603,22 @@ class MarksController extends Controller
 
         $this->marksModel->updateMarksheetStatus($id, $newStatus, $comments, $_SESSION['user_id'], $role);
 
+        // Fetch Marksheet details to notify Trainer
+        $marksheet = $this->marksModel->getMarksheetById($id);
+        if ($marksheet && $marksheet['submitted_by']) {
+            $userModel = new \App\Models\UserModel();
+            $trainer = $userModel->getUserById($marksheet['submitted_by']);
+            if ($trainer && !empty($trainer['email'])) {
+                $subject = "CBET POE: Marksheet Status Updated";
+                $message = "<p>Hello " . htmlspecialchars($trainer['name']) . ",</p>";
+                $message .= "<p>The status of your submitted marksheet has been updated to <strong>$newStatus</strong> by the $role.</p>";
+                if (!empty($comments)) {
+                    $message .= "<p><strong>Comments:</strong> " . htmlspecialchars($comments) . "</p>";
+                }
+                \App\Services\EmailService::send($trainer['email'], $subject, $message);
+            }
+        }
+
         // Redirect back (using referer is easiest)
         header("Location: " . $_SERVER['HTTP_REFERER']);
     }
@@ -546,7 +626,12 @@ class MarksController extends Controller
     public function approvals()
     {
         $role = $_SESSION['role'];
-        $all = $this->marksModel->getAllApprovals($role);
+        $deptId = null;
+        if ($role === 'HOD') {
+            $userModel = new \App\Models\UserModel();
+            $deptId = $userModel->getUserDepartment($_SESSION['user_id']);
+        }
+        $all = $this->marksModel->getAllApprovals($role, $deptId);
 
         $pending = [];
         $history = [];

@@ -31,6 +31,15 @@ class Router
 
         $method = $_SERVER['REQUEST_METHOD'];
 
+        if ($method === 'POST') {
+            $token = $_POST['csrf_token'] ?? '';
+            if (!$token || $token !== ($_SESSION['csrf_token'] ?? '')) {
+                // Return 403 or specific message
+                http_response_code(403);
+                die("CSRF Token Verification Failed.");
+            }
+        }
+
         if (strpos($uri, '?') !== false) {
             $uri = substr($uri, 0, strpos($uri, '?'));
         }

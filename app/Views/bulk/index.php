@@ -22,6 +22,7 @@
                             style="font-size: 0.85rem; color: #64748b;">Download Template</a>
                         <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data"
                             style="display: flex; gap: 5px;">
+    <?= csrf_field() ?>
                             <input type="hidden" name="type" value="department">
                             <input type="file" name="csv_file" required style="font-size: 0.8rem; width: 180px;">
                             <button type="submit" class="btn btn-primary"
@@ -37,6 +38,7 @@
                             style="font-size: 0.85rem; color: #64748b;">Download Template</a>
                         <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data"
                             style="display: flex; gap: 5px;">
+    <?= csrf_field() ?>
                             <input type="hidden" name="type" value="course">
                             <input type="file" name="csv_file" required style="font-size: 0.8rem; width: 180px;">
                             <button type="submit" class="btn btn-primary"
@@ -52,6 +54,7 @@
                             style="font-size: 0.85rem; color: #64748b;">Download Template</a>
                         <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data"
                             style="display: flex; gap: 5px;">
+    <?= csrf_field() ?>
                             <input type="hidden" name="type" value="unit">
                             <input type="file" name="csv_file" required style="font-size: 0.8rem; width: 180px;">
                             <button type="submit" class="btn btn-primary"
@@ -78,6 +81,7 @@
                             Template</a>
                         <form action="<?= APP_URL ?>/users/import" method="POST" enctype="multipart/form-data"
                             style="display: flex; gap: 5px;">
+    <?= csrf_field() ?>
                             <input type="file" name="csv_file" required style="font-size: 0.8rem; width: 180px;">
                             <button type="submit" class="btn btn-primary"
                                 style="padding: 4px 10px; font-size: 0.8rem;">Upload</button>

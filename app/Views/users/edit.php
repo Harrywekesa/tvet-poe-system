@@ -9,6 +9,7 @@
 
     <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e2e8f0; max-width: 600px;">
         <form action="<?= APP_URL ?>/users/update" method="POST">
+    <?= csrf_field() ?>
             <input type="hidden" name="id" value="<?= $user['id'] ?>">
 
             <div style="margin-bottom: 15px;">

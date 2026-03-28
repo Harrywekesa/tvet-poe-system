@@ -15,6 +15,7 @@
         <h3>Courses (Qualifications)</h3>
 
         <form action="<?= APP_URL ?>/institution/course" method="POST" class="form-grid-4" style="margin-top: 20px;">
+    <?= csrf_field() ?>
             <input type="hidden" name="department_id" value="<?= $dept_id ?>">
 
             <div>

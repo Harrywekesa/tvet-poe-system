@@ -12,6 +12,7 @@
         <h3>Classes</h3>
         
         <form action="<?= APP_URL ?>/academic/class" method="POST" class="form-grid-3" style="margin-top: 20px;">
+    <?= csrf_field() ?>
             <input type="hidden" name="cohort_id" value="<?= $cohort['id'] ?>">
             
             <div>

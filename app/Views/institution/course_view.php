@@ -13,6 +13,7 @@
         <h3>Units Library</h3>
 
         <form action="<?= APP_URL ?>/institution/unit" method="POST" class="form-grid-5" style="margin-top: 20px;">
+    <?= csrf_field() ?>
             <input type="hidden" name="course_id" value="<?= $course['id'] ?>">
 
             <div>

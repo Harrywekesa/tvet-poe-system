@@ -24,7 +24,8 @@
             ($unit['assessment_level'] == 'Level 5' ? '30% Written / 70% Practical' : '10% Written / 90% Practical') ?>)
     </div>
 
-    <form action="<?= APP_URL ?>/marks/save" method="POST">
+    <form action="<?= APP_URL ?>/marks/save" method="POST" enctype="multipart/form-data">
+        <?= csrf_field() ?>
         <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
         <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
         <input type="hidden" name="student_id" value="<?= $studentId ?>">
@@ -90,7 +91,9 @@
                                 </td>
                                 <td>
                                     <input type="number" name="marks[<?= $slot['id'] ?>]" value="<?= $slot['mark'] ?>"
-                                        class="form-control" min="0" max="100" step="0.01" placeholder="Enter mark">
+                                        class="form-control" style="width: 100px; display:inline-block;" min="0" max="100" step="0.01" placeholder="Mark">
+                                    <br>
+                                    <input type="file" name="evidence[<?= $slot['id'] ?>]" accept=".pdf,.png,.jpg,.jpeg" style="margin-top: 5px; font-size: 0.8rem; width: 100%;">
                                 </td>
                             </tr>
                         <?php endforeach; ?>

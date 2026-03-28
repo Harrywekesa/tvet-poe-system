@@ -21,6 +21,7 @@
             <h3 style="margin-top: 30px;">Step 2: Upload CSV</h3>
             <form action="<?= APP_URL ?>/users/import" method="POST" enctype="multipart/form-data"
                 style="margin-top: 15px;">
+    <?= csrf_field() ?>
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px;">Select File</label>
                     <input type="file" name="csv_file" accept=".csv" required

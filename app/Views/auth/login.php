@@ -12,6 +12,7 @@
         <?php endif; ?>
 
         <form action="<?= APP_URL ?>/login" method="POST">
+    <?= csrf_field() ?>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 500;">Registration Number / Email</label>
                 <input type="text" name="identifier" required placeholder="e.g. S1234 or admin@local"

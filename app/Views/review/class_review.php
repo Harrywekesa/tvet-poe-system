@@ -94,6 +94,7 @@
                                         <?php if ($status === 'Submitted' && $_SESSION['role'] === 'Trainer'): ?>
                                             <div style="display: flex; gap: 5px; margin-top: 5px;">
                                                 <form action="<?= APP_URL ?>/review/status" method="POST" style="display: inline;">
+    <?= csrf_field() ?>
                                                     <input type="hidden" name="submission_id" value="<?= $sub['id'] ?>">
                                                     <input type="hidden" name="status" value="Approved">
                                                     <input type="hidden" name="comments" value="Quick Approval">
@@ -103,6 +104,7 @@
                                                         title="Approve">✓</button>
                                                 </form>
                                                 <form action="<?= APP_URL ?>/review/status" method="POST" style="display: inline;">
+    <?= csrf_field() ?>
                                                     <input type="hidden" name="submission_id" value="<?= $sub['id'] ?>">
                                                     <input type="hidden" name="status" value="Rejected">
                                                     <input type="hidden" name="comments" value="Quick Rejection">
@@ -122,6 +124,7 @@
 
                                                 <?php if (($sub['verification_status'] ?? 'None') === 'None'): ?>
                                                     <form action="<?= APP_URL ?>/review/verify" method="POST" style="display: inline;">
+    <?= csrf_field() ?>
                                                         <input type="hidden" name="submission_id" value="<?= $sub['id'] ?>">
                                                         <input type="hidden" name="status" value="Sampled">
                                                         <input type="hidden" name="redirect_url" value="<?= $_SERVER['REQUEST_URI'] ?>">
@@ -131,6 +134,7 @@
                                                 <?php elseif (($sub['verification_status'] ?? '') === 'Sampled'): ?>
                                                     <div style="display: flex; gap: 5px; margin-top: 2px;">
                                                         <form action="<?= APP_URL ?>/review/verify" method="POST" style="display: inline;">
+    <?= csrf_field() ?>
                                                             <input type="hidden" name="submission_id" value="<?= $sub['id'] ?>">
                                                             <input type="hidden" name="status" value="Verified">
                                                             <input type="hidden" name="redirect_url" value="<?= $_SERVER['REQUEST_URI'] ?>">
@@ -139,6 +143,7 @@
                                                                 title="Verify">✓</button>
                                                         </form>
                                                         <form action="<?= APP_URL ?>/review/verify" method="POST" style="display: inline;">
+    <?= csrf_field() ?>
                                                             <input type="hidden" name="submission_id" value="<?= $sub['id'] ?>">
                                                             <input type="hidden" name="status" value="IV_Rejected">
                                                             <input type="hidden" name="redirect_url" value="<?= $_SERVER['REQUEST_URI'] ?>">

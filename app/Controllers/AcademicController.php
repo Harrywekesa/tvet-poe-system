@@ -171,6 +171,15 @@ class AcademicController extends Controller
             $userModel = new \App\Models\UserModel();
             $deptId = $userModel->getUserDepartment($_SESSION['user_id']);
             $courses = $this->model->getCoursesByDept($deptId);
+            
+            $courseIds = array_column($courses, 'id');
+            $filteredClasses = [];
+            foreach ($classes as $c) {
+                if (in_array($c['course_id'], $courseIds)) {
+                    $filteredClasses[] = $c;
+                }
+            }
+            $classes = $filteredClasses;
         } else {
             $courses = $this->model->getAllCourses();
         }
@@ -208,6 +217,14 @@ class AcademicController extends Controller
 
         $instModel = new \App\Models\InstitutionModel(); // Reuse or inject
         $course = $instModel->getCourseById($class['course_id']);
+
+        if ($_SESSION['role'] === 'HOD') {
+            $userModel = new \App\Models\UserModel();
+            $deptId = $userModel->getUserDepartment($_SESSION['user_id']);
+            if ($course['department_id'] != $deptId) {
+                die("Unauthorized: You do not have permission to view classes outside your department.");
+            }
+        }
 
         $enrolled = $this->model->getEnrolledStudents($id);
         $available = $this->model->getAvailableStudents($id);

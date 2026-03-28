@@ -35,13 +35,13 @@ class AssessmentModel extends Model
         return $this->db->query("SELECT * FROM assessment_slots WHERE id = ?", [$id])->fetch();
     }
 
-    public function addAssessmentSlot($unitId, $topicId, $title, $type, $instructions, $filePath = null)
+    public function addAssessmentSlot($unitId, $topicId, $title, $type, $instructions, $filePath = null, $allowStudentUploads = 1)
     {
         // topicId can be null if not using new system, but we encourage it
         return $this->db->query("
-            INSERT INTO assessment_slots (unit_id, topic_id, title, type, instructions, file_path) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        ", [$unitId, $topicId, $title, $type, $instructions, $filePath]);
+            INSERT INTO assessment_slots (unit_id, topic_id, title, type, instructions, file_path, allow_student_uploads) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ", [$unitId, $topicId, $title, $type, $instructions, $filePath, $allowStudentUploads]);
     }
 
     public function deleteAssessmentSlot($id)

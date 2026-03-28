@@ -30,6 +30,7 @@
                     </td>
                     <td style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
                         <form action="<?= APP_URL ?>/verification/submit" method="POST" style="display: flex; gap: 5px; align-items: center;">
+                            <?= csrf_field() ?>
                             <input type="hidden" name="submission_id" value="<?= $s['id'] ?>">
                             <input type="hidden" name="redirect_url" value="<?= $_SERVER['REQUEST_URI'] ?>">
                             

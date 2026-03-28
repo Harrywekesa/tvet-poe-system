@@ -19,6 +19,7 @@
                     <p style="font-size: 0.8rem; margin-bottom: 10px;"><a
                             href="<?= APP_URL ?>/institution/template/department" download>Download Template</a></p>
                     <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
+    <?= csrf_field() ?>
                         <input type="hidden" name="type" value="department">
                         <input type="file" name="csv_file" required style="font-size: 0.8rem; margin-bottom: 5px;">
                         <button type="submit" class="btn btn-primary"
@@ -32,6 +33,7 @@
                     <p style="font-size: 0.8rem; margin-bottom: 10px;"><a
                             href="<?= APP_URL ?>/institution/template/course" download>Download Template</a></p>
                     <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
+    <?= csrf_field() ?>
                         <input type="hidden" name="type" value="course">
                         <input type="file" name="csv_file" required style="font-size: 0.8rem; margin-bottom: 5px;">
                         <button type="submit" class="btn btn-primary"
@@ -45,6 +47,7 @@
                     <p style="font-size: 0.8rem; margin-bottom: 10px;"><a
                             href="<?= APP_URL ?>/institution/template/unit" download>Download Template</a></p>
                     <form action="<?= APP_URL ?>/institution/import" method="POST" enctype="multipart/form-data">
+    <?= csrf_field() ?>
                         <input type="hidden" name="type" value="unit">
                         <input type="file" name="csv_file" required style="font-size: 0.8rem; margin-bottom: 5px;">
                         <button type="submit" class="btn btn-primary"
@@ -63,6 +66,7 @@
             <h3>Institution Details</h3>
             <form action="<?= APP_URL ?>/institution/update" method="POST" enctype="multipart/form-data"
                 style="margin-top: 20px;">
+    <?= csrf_field() ?>
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px;">Institution Name</label>
                     <input type="text" name="name" value="<?= htmlspecialchars($institution['name'] ?? '') ?>" required
@@ -145,6 +149,7 @@
 
             <form action="<?= APP_URL ?>/institution/department" method="POST"
                 style="margin-top: 20px; display: flex; gap: 10px;">
+    <?= csrf_field() ?>
                 <input type="text" name="name" placeholder="New Department Name" required
                     style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
                 <button type="submit" class="btn btn-primary">Add</button>
@@ -169,6 +174,7 @@
                             <form action="<?= APP_URL ?>/institution/department/delete" method="POST"
                                 style="display: inline-block;"
                                 onsubmit="return confirm('Are you sure? This will delete the department.');">
+    <?= csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= $dept['id'] ?>">
                                 <button type="submit" class="btn btn-outline"
                                     style="padding: 6px 10px; font-size: 0.85rem; border-color: #ef4444; color: #ef4444;"

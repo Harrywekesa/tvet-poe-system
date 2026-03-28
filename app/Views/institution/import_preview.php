@@ -42,6 +42,7 @@
 
             <div style="margin-top: 30px; display: flex; gap: 15px;">
                 <form action="<?= APP_URL ?>/institution/import/commit" method="POST">
+    <?= csrf_field() ?>
                     <button type="submit" class="btn btn-primary">✅ Confirm & Import</button>
                 </form>
                 <a href="<?= APP_URL ?>/institution" class="btn btn-outline"

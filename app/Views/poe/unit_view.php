@@ -76,18 +76,26 @@
                             <?php endif; ?>
                         </div>
 
-                        <!-- Upload Form -->
-                        <form action="<?= APP_URL ?>/poe/upload" method="POST" enctype="multipart/form-data"
-                            class="form-grid-3">
-                            <input type="hidden" name="slot_id" value="<?= $s['id'] ?>">
-                            <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
+                        <?php if (isset($s['allow_student_uploads']) && $s['allow_student_uploads'] == 0): ?>
+                            <div style="padding: 15px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; text-align: center; color: #64748b;">
+                                <i data-feather="lock" style="width: 20px; height: 20px; margin-bottom: 5px;"></i><br>
+                                Evidence managed by Trainer
+                            </div>
+                        <?php else: ?>
+                            <!-- Upload Form -->
+                            <form action="<?= APP_URL ?>/poe/upload" method="POST" enctype="multipart/form-data"
+                                class="form-grid-3">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="slot_id" value="<?= $s['id'] ?>">
+                                <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
 
-                            <input type="file" name="evidence_file" required style="width: 100%;">
+                                <input type="file" name="evidence_file" required style="width: 100%;">
 
-                            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-                                <?= $isSubmitted ? 'Re-Upload' : 'Upload Evidence' ?>
-                            </button>
-                        </form>
+                                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                                    <?= $isSubmitted ? 'Re-Upload' : 'Upload Evidence' ?>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>

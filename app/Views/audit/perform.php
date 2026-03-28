@@ -21,6 +21,7 @@ ob_start();
         </div>
         <form action="<?= APP_URL ?>/audit/complete" method="POST"
             onsubmit="return confirm('Are you sure you want to finalize this audit? This cannot be undone.');">
+            <?= csrf_field() ?>
             <input type="hidden" name="session_id" value="<?= $session['id'] ?>">
             <button type="submit" class="btn btn-success shadow-green-glow font-bold px-4 py-2">
                 ✅ Complete Audit
@@ -219,7 +220,7 @@ ob_start();
         fetch('<?= APP_URL ?>/audit/update_sample', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `sample_id=${id}&status=${status}&comments=${encodeURIComponent(comments)}`
+            body: `csrf_token=<?= $_SESSION['csrf_token'] ?>&sample_id=${id}&status=${status}&comments=${encodeURIComponent(comments)}`
         })
         .then(res => res.json())
         .then(data => {

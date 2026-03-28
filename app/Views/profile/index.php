@@ -8,6 +8,7 @@
     <h1>My Profile</h1>
     <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
         <form action="<?= APP_URL ?>/profile/update" method="POST" enctype="multipart/form-data">
+    <?= csrf_field() ?>
 
             <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
                 <div

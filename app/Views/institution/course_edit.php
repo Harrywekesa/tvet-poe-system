@@ -10,6 +10,7 @@
 
     <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
         <form action="<?= APP_URL ?>/institution/course/update" method="POST">
+    <?= csrf_field() ?>
             <input type="hidden" name="id" value="<?= $course['id'] ?>">
 
             <div style="margin-bottom: 15px;">

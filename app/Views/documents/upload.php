@@ -15,6 +15,7 @@
     <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
         <h3>Upload New Document</h3>
         <form action="<?= APP_URL ?>/documents/store" method="POST" enctype="multipart/form-data" class="form-grid-3" style="margin-top: 15px;">
+    <?= csrf_field() ?>
             <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
             <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
             

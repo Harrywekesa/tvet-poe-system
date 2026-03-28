@@ -41,31 +41,21 @@ class InstitutionController extends Controller
 
         $logoPath = null;
         if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = UPLOAD_DIR . 'settings/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
-            $filename = 'logo_' . time() . '.' . $ext;
-
-            if (move_uploaded_file($_FILES['logo']['tmp_name'], $uploadDir . $filename)) {
-                $logoPath = '/uploads/settings/' . $filename;
+            $result = \App\Services\UploadService::handleUpload('logo', 'settings', ['jpg', 'jpeg', 'png']);
+            if ($result['success']) {
+                $logoPath = $result['path'];
+            } else {
+                $_SESSION['flash_error'] = 'Logo Upload Failed: ' . $result['error'];
             }
         }
 
         $heroPath = null;
         if (isset($_FILES['hero_image']) && $_FILES['hero_image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = UPLOAD_DIR . 'settings/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $ext = pathinfo($_FILES['hero_image']['name'], PATHINFO_EXTENSION);
-            $filename = 'hero_' . time() . '.' . $ext;
-
-            if (move_uploaded_file($_FILES['hero_image']['tmp_name'], $uploadDir . $filename)) {
-                $heroPath = '/uploads/settings/' . $filename;
+            $result = \App\Services\UploadService::handleUpload('hero_image', 'settings', ['jpg', 'jpeg', 'png']);
+            if ($result['success']) {
+                $heroPath = $result['path'];
+            } else {
+                $_SESSION['flash_error'] = 'Hero Upload Failed: ' . $result['error'];
             }
         }
 

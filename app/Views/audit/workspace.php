@@ -127,6 +127,7 @@
                                                 <td style="padding: 10px;">
                                                     <form action="<?= APP_URL ?>/review/verification_update" method="POST"
                                                         style="display: flex; flex-direction: column; gap: 5px;">
+    <?= csrf_field() ?>
                                                         <input type="hidden" name="submission_id" value="<?= $subId ?>">
                                                         <input type="hidden" name="redirect_url"
                                                             value="<?= $_SERVER['REQUEST_URI'] ?>">

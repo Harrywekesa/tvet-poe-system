@@ -40,6 +40,7 @@
 
                         <form action="<?= APP_URL ?>/documents/status" method="POST"
                             style="background: #f8fafc; padding: 10px; border-radius: 6px;">
+    <?= csrf_field() ?>
                             <input type="hidden" name="doc_id" value="<?= $d['id'] ?>">
                             <textarea name="comments" placeholder="Add comments (required for rejection)..."
                                 style="width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; margin-bottom: 10px; font-family: inherit;"></textarea>

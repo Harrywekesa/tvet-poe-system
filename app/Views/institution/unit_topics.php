@@ -20,6 +20,7 @@
         <p class="text-muted">This setting determines the Written/Practical ratio for grading.</p>
         <form action="<?= APP_URL ?>/unit/update_level" method="POST"
             style="display: flex; gap: 10px; align-items: center;">
+    <?= csrf_field() ?>
             <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
             <select name="assessment_level" class="form-control" style="max-width: 200px;">
                 <option value="Level 6" <?= $unit['assessment_level'] == 'Level 6' ? 'selected' : '' ?>>Level 6 (40/60)
@@ -83,6 +84,7 @@
                             <td style="padding: 10px;">
                                 <form action="<?= APP_URL ?>/topic/delete/<?= $t['id'] ?>" method="POST"
                                     onsubmit="return confirm('Are you sure?');" style="display:inline;">
+    <?= csrf_field() ?>
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                             </td>
@@ -97,6 +99,7 @@
     <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
         <h3>Add New Topic</h3>
         <form action="<?= APP_URL ?>/topic/add" method="POST">
+    <?= csrf_field() ?>
             <input type="hidden" name="unit_id" value="<?= $unit['id'] ?>">
 
             <div class="row" style="display: flex; gap: 15px;">

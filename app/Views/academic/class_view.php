@@ -37,6 +37,7 @@
                     <div id="quick-add-unit" class="hidden" style="margin-top: 15px;">
                         <form action="<?= APP_URL ?>/institution/unit" method="POST"
                             style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; box-sizing: border-box;">
+    <?= csrf_field() ?>
                             <input type="hidden" name="course_id" value="<?= $class['course_id'] ?>">
                             <input type="hidden" name="context_class_id" value="<?= $class['id'] ?>">
 
@@ -159,6 +160,7 @@
                     <?php foreach ($units as $u): ?>
                         <tr>
                             <form action="<?= APP_URL ?>/academic/allocate" method="POST">
+    <?= csrf_field() ?>
                                 <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
                                 <input type="hidden" name="unit_id" value="<?= $u['id'] ?>">
 
@@ -238,6 +240,7 @@
 
                 <form action="<?= APP_URL ?>/academic/enroll" method="POST"
                     style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+    <?= csrf_field() ?>
                     <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
                     <select name="user_id" required
                         style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
@@ -256,6 +259,7 @@
                     <p style="font-size: 0.85rem; font-weight: 500; margin-bottom: 5px;">Bulk Enrollment (CSV)</p>
                     <form action="<?= APP_URL ?>/academic/import_enrollment" method="POST"
                         enctype="multipart/form-data">
+    <?= csrf_field() ?>
                         <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
                         <input type="file" name="csv_file" required
                             style="font-size: 0.8rem; width: 100%; margin-bottom: 5px;">

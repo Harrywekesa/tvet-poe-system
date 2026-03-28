@@ -47,6 +47,7 @@ class AssessmentController extends Controller
         $title = $_POST['title'];
         $type = $_POST['type'];
         $inst = $_POST['instructions'];
+        $allowUploads = isset($_POST['allow_student_uploads']) ? 1 : 0;
         $filePath = null;
 
         if (isset($_FILES['assessment_file']) && $_FILES['assessment_file']['error'] === UPLOAD_ERR_OK) {
@@ -70,7 +71,7 @@ class AssessmentController extends Controller
         }
 
         if ($unitId && $title) {
-            $this->model->addAssessmentSlot($unitId, $topicId, $title, $type, $inst, $filePath);
+            $this->model->addAssessmentSlot($unitId, $topicId, $title, $type, $inst, $filePath, $allowUploads);
         }
         $this->redirect('/assessment/manage/' . $unitId);
     }

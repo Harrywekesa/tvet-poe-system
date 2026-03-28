@@ -47,6 +47,7 @@
 
             <div style="margin-top: 30px; display: flex; gap: 15px;">
                 <form action="<?= APP_URL ?>/academic/enrollment/commit" method="POST">
+    <?= csrf_field() ?>
                     <button type="submit" class="btn btn-primary">✅ Confirm Enrollment</button>
                 </form>
                 <a href="<?= APP_URL ?>/academic/class/<?= $class_id ?>" class="btn btn-outline"

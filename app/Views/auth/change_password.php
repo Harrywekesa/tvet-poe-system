@@ -19,6 +19,7 @@
         <?php endif; ?>
 
         <form action="<?= APP_URL ?>/change-password" method="POST">
+    <?= csrf_field() ?>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #475569;">New
                     Password</label>
